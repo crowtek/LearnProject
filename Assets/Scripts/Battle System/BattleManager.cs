@@ -6,12 +6,10 @@ public class BattleManager : MonoBehaviour
     public static BattleManager Instance;
 
     [SerializeField] private UIDocument battleHUD;
-    [SerializeField] private BattleEntityData playerTemplate; // Max HP etc.
+    [SerializeField] private BattleEntityData playerTemplate; 
     [SerializeField] private PlayerRuntimeState playerRuntime;
-    [SerializeField] private PlayerInputHandler playerInputHandler;
+    [SerializeField] private BoolEventChannelSO battleStateEventChannel;
 
-    // --- RUNTIME DATA ---
-    // Diese Werte nutzen wir für die Logik im Kampf
     private int currentPlayerHP;
     private int currentEnemyHP;
     private string currentEnemyName;
@@ -29,7 +27,6 @@ public class BattleManager : MonoBehaviour
     {
         Instance = this;
         battleHUD.gameObject.SetActive(false);
-        if (playerInputHandler == null) playerInputHandler = FindAnyObjectByType<PlayerInputHandler>();
     }
 
     public void StartBattle(BattleEntityData enemyData)
@@ -57,7 +54,7 @@ public class BattleManager : MonoBehaviour
         closeBtn = root.Q<Button>("CloseButton");
         closeBtn.clicked += EndBattle;
 
-        playerInputHandler.SetInputActive(false);
+        battleStateEventChannel.RaiseEvent(false);
         Debug.Log($"Kampf gegen {currentEnemyName} beginnt!");
     }
 
@@ -94,7 +91,7 @@ public class BattleManager : MonoBehaviour
         playerRuntime.currentHP = currentPlayerHP;
 
         battleHUD.gameObject.SetActive(false);
-        playerInputHandler.SetInputActive(true);
+        battleStateEventChannel.RaiseEvent(true);
 
         closeBtn.clicked -= EndBattle;
         attackBtn.clicked -= PlayerAttack;

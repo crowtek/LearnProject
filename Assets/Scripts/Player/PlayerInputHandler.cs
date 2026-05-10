@@ -3,6 +3,8 @@ using UnityEngine;
 public class PlayerInputHandler : MonoBehaviour
 {
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private BoolEventChannelSO toggleInputChannel;
+
     private InputSystem_Actions inputs;
 
     void Awake()
@@ -16,8 +18,19 @@ public class PlayerInputHandler : MonoBehaviour
         }
     }
 
-    private void OnEnable() => inputs.Enable();
-    private void OnDisable() => inputs.Disable();
+    private void OnEnable()
+    {
+        inputs.Enable();
+        if (toggleInputChannel != null)
+            toggleInputChannel.OnEventRaised += SetInputActive;
+    }
+
+    private void OnDisable()
+    {
+        inputs.Disable();
+        if (toggleInputChannel != null)
+            toggleInputChannel.OnEventRaised -= SetInputActive;
+    }
 
     void Update()
     {
@@ -27,7 +40,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void SetInputActive(bool active)
     {
-        if(active)
+        if (active)
             inputs.Enable();
         else
             inputs.Disable();

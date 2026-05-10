@@ -2,4 +2,5 @@
   <Project Path="Project.BattleSystem.csproj" />
   <Project Path="Project.Player.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Project.Events.csproj" />
 </Solution>
