@@ -26,7 +26,6 @@ public class EncounterManager : MonoBehaviour
 
         if (distanceWalked > stepDistanceThreshold)
         {
-            Debug.Log("Distance walked: " + distanceThisFrame);
             distanceWalked = 0;
             CheckForEncounter();
         }
