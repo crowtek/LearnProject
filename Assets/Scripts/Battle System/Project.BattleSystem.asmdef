@@ -1,0 +1,16 @@
+{
+    "name": "Project.BattleSystem",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b412291f29bbe0245acb448fbe8f25b3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

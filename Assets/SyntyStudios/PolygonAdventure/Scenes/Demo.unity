@@ -30671,6 +30671,7 @@ Transform:
   - {fileID: 1202609416}
   - {fileID: 1041880372}
   - {fileID: 419767962}
+  - {fileID: 1828621996}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &783301413
@@ -43347,7 +43348,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   battleHUD: {fileID: 2016080679}
-  playerData: {fileID: 11400000, guid: 8ee8eb4aa198dc841b073aa6c74e7ac7, type: 2}
+  playerTemplate: {fileID: 11400000, guid: 8ee8eb4aa198dc841b073aa6c74e7ac7, type: 2}
+  playerRuntime: {fileID: 11400000, guid: 111447a9599e90c46bd065eede477cb7, type: 2}
+  playerInputHandler: {fileID: 1200985129}
 --- !u!4 &1073451715
 Transform:
   m_ObjectHideFlags: 0
@@ -75890,12 +75893,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1828621994}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.00656, y: 0.67236, z: 14.41442}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.000002324581}
+  m_LocalPosition: {x: 5.356426, y: 0.67236, z: 3.0856047}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 782997814}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1829104267
 PrefabInstance:
@@ -88854,4 +88857,3 @@ SceneRoots:
   - {fileID: 664867112}
   - {fileID: 1073451715}
   - {fileID: 2016080680}
-  - {fileID: 1828621996}

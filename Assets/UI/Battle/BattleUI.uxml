@@ -4,6 +4,7 @@
         <ui:Label text="Label" name="PlayerHP"/>
         <ui:Label text="Label" name="EnemyName"/>
         <ui:Label text="Label" name="EnemyHP"/>
+        <ui:Button text="Button" name="AttackButton"/>
         <ui:Button text="Button" name="CloseButton"/>
     </ui:VisualElement>
 </ui:UXML>
