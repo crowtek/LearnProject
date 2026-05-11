@@ -9,8 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb45f2894da29bf43aea597b21d34279, type: 3}
-  m_Name: GlobalStoryStateSO
-  m_EditorClassIdentifier: Project.Story::GlobalStoryStateSO
-  completedFlags:
-  - test
+  m_Script: {fileID: 11500000, guid: 28b55f618aa925b48bc16da5537974ae, type: 3}
+  m_Name: Quest 2
+  m_EditorClassIdentifier: Project.Quest::QuestDataSO
+  questName: Quest 2
+  description: Test 2
+  startFlag: test2
+  completionFlag: test_Done2

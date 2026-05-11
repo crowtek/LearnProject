@@ -6,12 +6,15 @@ public class QuestManager : MonoBehaviour
     [SerializeField] private GlobalStoryStateSO storyState;
     [SerializeField] private StoryEventChannelSO storyEventChannel;
 
-    [Header("Datenbank aller Quests")]
+    [Header("DB for Quests")]
     [SerializeField] private List<QuestDataSO> allAvailableQuests;
 
-    [Header("Aktueller Status (nur zur Info)")]
+    [Header("Current Status ")]
     [SerializeField] private List<QuestDataSO> activeQuests = new List<QuestDataSO>();
     [SerializeField] private List<QuestDataSO> completedQuests = new List<QuestDataSO>();
+
+    public System.Action OnQuestListChanged;
+    public List<QuestDataSO> GetActiveQuest => activeQuests;
 
     private void OnEnable()
     {
@@ -50,7 +53,7 @@ public class QuestManager : MonoBehaviour
     {
         activeQuests.Add(quest);
         Debug.Log($"Quest gestartet: {quest.questName}");
-        // Hier Event für UI
+        OnQuestListChanged?.Invoke();
     }
 
     private void CompleteQuest(QuestDataSO quest)
@@ -58,6 +61,7 @@ public class QuestManager : MonoBehaviour
         activeQuests.Remove(quest);
         completedQuests.Add(quest);
         Debug.Log($"Quest abgeschlossen: {quest.questName}");
+        OnQuestListChanged?.Invoke();
     }
 
     private void EvaluateAllQuestsOnStart()
@@ -69,5 +73,7 @@ public class QuestManager : MonoBehaviour
             else if (storyState.IsFlagCompleted(quest.startFlag))
                 activeQuests.Add(quest);
         }
+
+        OnQuestListChanged?.Invoke();
     }
 }

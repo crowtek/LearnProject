@@ -5,4 +5,5 @@
   <Project Path="Project.Events.csproj" />
   <Project Path="Project.Player.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

@@ -9,7 +9,7 @@ public class StoryTrigger : MonoBehaviour
     [SerializeField] private BoolEventChannelSO toggleInputChannel;
 
     [Header("Flag to Set")]
-    [SerializeField] private string flagToSet;
+    [StoryFlag] [SerializeField] private string flagToSet;
     [SerializeField] private bool triggerOnlyOnce = true;
 
     private bool hasTriggered = false;

@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb45f2894da29bf43aea597b21d34279, type: 3}
-  m_Name: GlobalStoryStateSO
-  m_EditorClassIdentifier: Project.Story::GlobalStoryStateSO
-  completedFlags:
+  m_Script: {fileID: 11500000, guid: 1933b3aa2b873314f8f73fa809c5f951, type: 3}
+  m_Name: StoryFlagDatabaseSO
+  m_EditorClassIdentifier: Project.Events::StoryFlagDatabaseSO
+  allFlags:
   - test
+  - test2

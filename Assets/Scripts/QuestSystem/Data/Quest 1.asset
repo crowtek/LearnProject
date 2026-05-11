@@ -9,6 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 601f3aac736419e499e3af661a7632ea, type: 3}
-  m_Name: InputStop
-  m_EditorClassIdentifier: Project.Events::BoolEventChannelSO
+  m_Script: {fileID: 11500000, guid: 28b55f618aa925b48bc16da5537974ae, type: 3}
+  m_Name: Quest 1
+  m_EditorClassIdentifier: Project.Quest::QuestDataSO
+  questName: Quest 1
+  description: test
+  startFlag: test
+  completionFlag: test_Done

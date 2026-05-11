@@ -5,7 +5,7 @@ public class ConditionCheckedObject : MonoBehaviour
 {
     [SerializeField] private GlobalStoryStateSO storyState;
     [SerializeField] private StoryEventChannelSO storyEventChannel;
-    [SerializeField] private string requiredFlag;
+    [StoryFlag] [SerializeField] private string requiredFlag;
     [SerializeField] private bool hideIfFlagCompleted = false;
 
     void OnEnable()
