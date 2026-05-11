@@ -1,6 +1,9 @@
 ﻿<Solution>
+  <Project Path="Project.Quest.csproj" />
   <Project Path="Project.BattleSystem.csproj" />
+  <Project Path="Project.Story.csproj" />
+  <Project Path="Project.Events.csproj" />
   <Project Path="Project.Player.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Project.Events.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>
