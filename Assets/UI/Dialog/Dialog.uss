@@ -1,0 +1,10 @@
+:root {
+}
+
+.DialogueBox {
+    background-color: rgb(219, 219, 219);
+    position: absolute;
+    bottom: 68px;
+    width: 100%;
+    display: flex;
+}
