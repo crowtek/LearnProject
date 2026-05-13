@@ -19,10 +19,15 @@ public class BattleManager : MonoBehaviour
     private string currentEnemyName;
 
     private VisualElement root;
+    private VisualElement playerPortre;
+    private VisualElement playerSprite;
+    private VisualElement enemySprite;
     private Button closeBtn;
     private Button attackBtn;
+    private Button defButton;
     private Label playerHPLabel;
-    private Label enemyHPLabel;
+    private VisualElement HpBarFill;
+    private Label level;
 
     public enum BattleState { Idle, Start, PlayerTurn, EnemyTurn, Busy, Won, Lost, End }
     private BattleState currentState = BattleState.Idle;
@@ -45,18 +50,27 @@ public class BattleManager : MonoBehaviour
         currentState = BattleState.Start;
         root = battleHUD.rootVisualElement;
 
+        playerPortre = root.Q<VisualElement>("PlayerImage");
+        playerSprite = root.Q<VisualElement>("PlayerSprite");
+        enemySprite = root.Q<VisualElement>("EnemySprite");
         playerHPLabel = root.Q<Label>("PlayerHP");
-        enemyHPLabel = root.Q<Label>("EnemyHP");
+        HpBarFill = root.Q<VisualElement>("HPBarFill");
+        level = root.Q<Label>("level");
 
         root.Q<Label>("PlayerName").text = playerTemplate.entityName;
-        root.Q<Label>("EnemyName").text = currentEnemyName;
+
+        playerPortre.style.backgroundImage = new StyleBackground(playerTemplate.portrait);
+        playerSprite.style.backgroundImage = new StyleBackground(playerTemplate.battleImage);
+        enemySprite.style.backgroundImage = new StyleBackground(enemyData.battleImage);
 
         UpdateUI();
 
-        attackBtn = root.Q<Button>("AttackButton");
+        attackBtn = root.Q<Button>("AttackButton"); 
         attackBtn.clicked += PlayerAttack;
         closeBtn = root.Q<Button>("CloseButton");
         closeBtn.clicked += EndBattle;
+        defButton = root.Q<Button>("DefButton");
+        defButton.clicked += () => EnemyAttacks(enemyData.attack);
 
         battleStateEventChannel.RaiseEvent(false);
         accumulatedEXP = enemyData.expReward;
@@ -67,7 +81,12 @@ public class BattleManager : MonoBehaviour
     private void UpdateUI()
     {
         playerHPLabel.text = $"HP: {currentPlayerHP} / {playerRuntime.maxHP}";
-        enemyHPLabel.text = $"HP: {currentEnemyHP}";
+        level.text = $"Lv. {playerRuntime.currentLevel}";
+
+        float hpRatio = (float)currentPlayerHP / playerRuntime.maxHP;
+        float hpPercent = Mathf.Clamp(hpRatio * 100f, 0, 100f);
+
+        HpBarFill.style.width = new Length(hpPercent, LengthUnit.Percent);
     }
 
     public void PlayerAttack()

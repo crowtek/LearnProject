@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu(fileName = "NewEntity", menuName = "Scriptable Objects/Battle/Entity Data")]
 public class BattleEntityData : ScriptableObject
@@ -8,5 +9,5 @@ public class BattleEntityData : ScriptableObject
     public int attack;
     public int expReward;
     public Sprite portrait;
-    public GameObject modelPrefab;
+    public Sprite battleImage;
 }

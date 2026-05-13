@@ -15,5 +15,6 @@ MonoBehaviour:
   entityName: Player
   maxHP: 20
   attack: 5
-  portrait: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  modelPrefab: {fileID: 0}
+  expReward: 0
+  portrait: {fileID: 21300000, guid: 4dd5d94492b4dd645ab08657f4f9c6d3, type: 3}
+  battleImage: {fileID: 21300000, guid: f4441afb3206916489e31b9219a17e55, type: 3}

@@ -2,7 +2,8 @@
     "name": "Project.BattleSystem",
     "rootNamespace": "",
     "references": [
-        "GUID:7c411bf6061caf4448275f056023aa84"
+        "GUID:7c411bf6061caf4448275f056023aa84",
+        "GUID:9e24947de15b9834991c9d8411ea37cf"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

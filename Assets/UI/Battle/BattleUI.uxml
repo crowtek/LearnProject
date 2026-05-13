@@ -1,10 +1,27 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="container" style="flex-grow: 1;">
-        <ui:Label text="Label" name="PlayerName"/>
-        <ui:Label text="Label" name="PlayerHP"/>
-        <ui:Label text="Label" name="EnemyName"/>
-        <ui:Label text="Label" name="EnemyHP"/>
-        <ui:Button text="Button" name="AttackButton"/>
-        <ui:Button text="Button" name="CloseButton"/>
+    <Style src="project://database/Assets/UI/Battle/Battle.uss?fileID=7433441132597879392&amp;guid=da00258b319d54c438bb033ea50dc12d&amp;type=3#Battle"/>
+    <ui:VisualElement name="container" class="container" style="flex-grow: 1;">
+        <ui:VisualElement name="menu" class="menu" style="flex-grow: 1;">
+            <ui:Button text="Attack" name="AttackButton" class="button"/>
+            <ui:Button text="Run" name="CloseButton" class="button"/>
+            <ui:Button text="Get Attacked" name="DefButton" class="button"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="stats" class="stats">
+            <ui:VisualElement name="ImageContainer">
+                <ui:Image name="PlayerImage" class="playerImage"/>
+                <ui:Label text="Lv. 5" name="level" class="level"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="PlayerValues" class="valueContainer" style="flex-grow: 1;">
+                <ui:Label text="Name" name="PlayerName" class="title"/>
+                <ui:VisualElement name="PlayerHPContainer" style="flex-grow: 1; flex-direction: row;">
+                    <ui:VisualElement name="HPBar" class="HpBar" style="flex-grow: 1; position: absolute; background-color: rgb(255, 255, 255);">
+                        <ui:VisualElement name="HPBarFill" style="background-color: rgb(44, 84, 39); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; width: 100%; height: 100%;"/>
+                        <ui:Label text="50" name="PlayerHP" class="text" style="position: absolute; right: 14px;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="PlayerSprite" style="background-image: url(&quot;project://database/Assets/Images/BattlePosition.png?fileID=2800000&amp;guid=f4441afb3206916489e31b9219a17e55&amp;type=3#BattlePosition&quot;); width: 389px; height: 455px; position: absolute; bottom: 0%; left: 40%;"/>
+        <ui:VisualElement name="EnemySprite" style="width: 100px; height: 100px; background-image: url(&quot;project://database/Assets/Images/Monster1.png?fileID=2800000&amp;guid=d58f30fc044aa1346800ae0303803bb4&amp;type=3#Monster1&quot;); position: absolute; top: 45%; left: 22%;"/>
     </ui:VisualElement>
 </ui:UXML>

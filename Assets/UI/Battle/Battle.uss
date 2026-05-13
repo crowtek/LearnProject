@@ -1,0 +1,85 @@
+:root {
+}
+
+.container {
+    background-image: url("project://database/Assets/Images/background1.png?fileID=2800000&guid=e4abe850e03d91a43ba84fe2bfed8573&type=3#background1");
+}
+
+.menu {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 25%;
+    height: auto;
+    background-color: rgb(255, 255, 255);
+    background-image: none;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.button {
+    flex-grow: 1;
+    flex-basis: auto;
+}
+
+.stats {
+    position: absolute;
+    bottom: 100px;
+    background-color: rgba(34, 34, 34, 0.44);
+    width: 20%;
+    flex-direction: row;
+    border-top-right-radius: 35px;
+    border-bottom-right-radius: 35px;
+    min-width: 300px;
+}
+
+.playerImage {
+    background-image: url("project://database/Assets/Images/BattleImage.png?fileID=2800000&guid=4dd5d94492b4dd645ab08657f4f9c6d3&type=3#BattleImage");
+    width: 100px;
+    height: 100px;
+}
+
+.level {
+    position: absolute;
+    bottom: -4px;
+    left: 7%;
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    -unity-font-style: bold;
+}
+
+.valueContainer {
+    top: -23px;
+}
+
+.title {
+    color: rgb(255, 255, 255);
+    font-size: 22px;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    -unity-font-style: bold;
+}
+
+.HpBar {
+    position: absolute;
+    width: 80%;
+    height: 30px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.text {
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 1px;
+    -unity-font-style: bold;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    font-size: 20px;
+}
