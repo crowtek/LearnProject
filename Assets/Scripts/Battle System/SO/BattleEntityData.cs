@@ -6,6 +6,7 @@ public class BattleEntityData : ScriptableObject
     public string entityName;
     public int maxHP;
     public int attack;
+    public int expReward;
     public Sprite portrait;
     public GameObject modelPrefab;
 }

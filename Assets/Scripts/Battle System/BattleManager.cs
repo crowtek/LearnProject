@@ -10,6 +10,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private PlayerRuntimeState playerRuntime;
     [SerializeField] private BoolEventChannelSO battleStateEventChannel;
 
+    [Header("Results")]
+    [SerializeField] private BattleResultEventChannelSO battleResultEventChannel;
+    private int accumulatedEXP;
+
     private int currentPlayerHP;
     private int currentEnemyHP;
     private string currentEnemyName;
@@ -55,18 +59,20 @@ public class BattleManager : MonoBehaviour
         closeBtn.clicked += EndBattle;
 
         battleStateEventChannel.RaiseEvent(false);
+        accumulatedEXP = enemyData.expReward;
         Debug.Log($"Kampf gegen {currentEnemyName} beginnt!");
+        Debug.Log($"Erfahrungspunkte zu gewinnen: {accumulatedEXP}");
     }
 
     private void UpdateUI()
     {
-        playerHPLabel.text = $"HP: {currentPlayerHP} / {playerTemplate.maxHP}";
+        playerHPLabel.text = $"HP: {currentPlayerHP} / {playerRuntime.maxHP}";
         enemyHPLabel.text = $"HP: {currentEnemyHP}";
     }
 
     public void PlayerAttack()
     {
-        currentEnemyHP -= playerTemplate.attack;
+        currentEnemyHP -= playerRuntime.attack;
         UpdateUI();
 
         if (currentEnemyHP <= 0) EndBattle();
@@ -95,5 +101,13 @@ public class BattleManager : MonoBehaviour
 
         closeBtn.clicked -= EndBattle;
         attackBtn.clicked -= PlayerAttack;
+
+        BattleResult result = new BattleResult
+        {
+            earnedEXP = (currentEnemyHP <= 0) ? accumulatedEXP : 0,
+            isVictory = currentEnemyHP <= 0
+        };
+
+        battleResultEventChannel.RaiseEvent(result);
     }
 }
