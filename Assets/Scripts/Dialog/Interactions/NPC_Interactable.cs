@@ -6,8 +6,8 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [System.Serializable]
     public struct DialogueCondition
     {
-        [StoryFlag] public string requiredFlag; 
-        public string dialogueKey;
+        [StoryFlag] public string requiredFlag;
+        [DialogueKey] public string dialogueKey;
     }
 
     [Header("Identity")]
@@ -15,8 +15,8 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [SerializeField] private Sprite npcImage;
 
     [Header("Dialogue Logic")]
-    [SerializeField] private GlobalStoryStateSO storyState; 
-    [SerializeField] private string fallbackDialogueKey; 
+    [SerializeField] private GlobalStoryStateSO storyState;
+    [DialogueKey] [SerializeField] private string fallbackDialogueKey; 
     [SerializeField] private List<DialogueCondition> prioritizedDialogues; 
 
     [Header("Channels")]

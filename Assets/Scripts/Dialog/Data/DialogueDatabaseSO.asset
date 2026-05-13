@@ -18,3 +18,9 @@ MonoBehaviour:
     conversationLines:
     - Hello
     - How are ya?
+    resultFlag: 
+  - key: test
+    conversationLines:
+    - Hello
+    - How are ya?
+    resultFlag: 
