@@ -14,7 +14,7 @@ public class ConditionCheckedObject : MonoBehaviour
 
         if(storyEventChannel != null)
         {
-            storyEventChannel.OnStoryFlagChange += HandleStoryFlagChanged;
+            storyEventChannel.OnEventRaised += HandleStoryFlagChanged;
         }
     }
 
@@ -22,7 +22,7 @@ public class ConditionCheckedObject : MonoBehaviour
     {
         if (storyEventChannel != null)
         {
-            storyEventChannel.OnStoryFlagChange -= HandleStoryFlagChanged;
+            storyEventChannel.OnEventRaised -= HandleStoryFlagChanged;
         }
     }
 

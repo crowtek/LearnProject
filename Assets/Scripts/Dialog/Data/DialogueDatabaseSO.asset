@@ -15,4 +15,6 @@ MonoBehaviour:
   languageName: English
   dialogueEntries:
   - key: test
-    text: hello
+    conversationLines:
+    - Hello
+    - How are ya?

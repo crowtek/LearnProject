@@ -1,14 +1,13 @@
-using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
 public struct DialogueEntry
 {
     public string key;
-    [TextArea(3, 10)] public string text;
+    [TextArea(3, 10)] public string[] conversationLines;
 }
-
 
 [CreateAssetMenu(fileName = "DialogueDatabaseSO", menuName = "Scriptable Objects/Dialogue/DialogueDatabaseSO")]
 public class DialogueDatabaseSO : ScriptableObject
@@ -16,10 +15,19 @@ public class DialogueDatabaseSO : ScriptableObject
     public string languageName = "English";
     public List<DialogueEntry> dialogueEntries = new List<DialogueEntry>();
 
-    public string GetText(string key)
+    private Dictionary<string, string[]> _cache;
+
+    private void OnEnable()
     {
-        var entry = dialogueEntries.Find(e => e.key == key);
-        return entry.text ?? $"[Missing text for key: {key}]";
+        _cache = dialogueEntries.ToDictionary(e => e.key, e => e.conversationLines);
     }
 
+    public string[] GetText(string key)
+    {
+        if (_cache.TryGetValue(key, out string[] lines))
+            return lines;
+
+        Debug.LogWarning($"[DialogueDB] Missing key: {key}");
+        return new string[] { $"[Missing: {key}]" };
+    }
 }

@@ -21,6 +21,9 @@ public class DialogueUIController : MonoBehaviour
     private bool isTyping = false;
     private bool isDialogueActive = false;
 
+    private string[] currentLines; 
+    private int currentLineIndex = 0;
+
     private CancellationTokenSource cts;
 
     private void OnEnable()
@@ -29,10 +32,6 @@ public class DialogueUIController : MonoBehaviour
         dialogueBox = root.Q<VisualElement>("DialogueBox");
         nameLabel = root.Q<Label>("NPCNameLabel");
         textLabel = root.Q<Label>("DialogueText");
-
-        // DEBUG: Prüfen ob alles gefunden wurde
-        if (nameLabel == null) Debug.LogError("UI Error: NPCNameLabel nicht im UXML gefunden!");
-        if (textLabel == null) Debug.LogError("UI Error: DialogueText nicht im UXML gefunden!");
 
         dialogueBox.RegisterCallback<PointerDownEvent>(OnBoxClicked);
 
@@ -47,10 +46,26 @@ public class DialogueUIController : MonoBehaviour
     {
         isDialogueActive = true;
         dialogueBox.style.display = DisplayStyle.Flex;
-        nameLabel.text = data.SpeakerName; // Korrigiert
-        fullText = data.Text;              // Korrigiert
+        nameLabel.text = data.SpeakerName;
 
-        RunTypewriter(fullText).Forget();
+        currentLines = data.Lines; 
+        currentLineIndex = 0;
+
+        DisplayNextLine();
+    }
+
+    private void DisplayNextLine()
+    {
+        if (currentLineIndex < currentLines.Length)
+        {
+            fullText = currentLines[currentLineIndex];
+            RunTypewriter(fullText).Forget();
+            currentLineIndex++;
+        }
+        else
+        {
+            CloseDialogue();
+        }
     }
 
     private async UniTaskVoid RunTypewriter(string text)
@@ -88,7 +103,7 @@ public class DialogueUIController : MonoBehaviour
         }
         else
         {
-            CloseDialogue();
+            DisplayNextLine();
         }
     }
 

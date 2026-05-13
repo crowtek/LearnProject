@@ -19,13 +19,13 @@ public class QuestManager : MonoBehaviour
     private void OnEnable()
     {
         if (storyEventChannel != null)
-            storyEventChannel.OnStoryFlagChange += EvaluateQuests; 
+            storyEventChannel.OnEventRaised += EvaluateQuests; 
     }
 
     private void OnDisable()
     {
         if (storyEventChannel != null)
-            storyEventChannel.OnStoryFlagChange -= EvaluateQuests;
+            storyEventChannel.OnEventRaised -= EvaluateQuests;
     }
 
     private void Start()

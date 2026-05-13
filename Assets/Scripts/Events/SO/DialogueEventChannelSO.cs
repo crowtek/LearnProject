@@ -2,7 +2,7 @@ using UnityEngine;
 
 public struct DialogueData
 {
-    public string Text;
+    public string[] Lines;
     public string SpeakerName;
     public Sprite SpeakerPortrait;
 }

@@ -9548,7 +9548,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
   npcName: Cube
   dialogueKey: test
-  dialogueManager: {fileID: 1242532212}
+  dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
+  dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!1001 &215479070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18861,7 +18862,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
   npcName: Ragnar
   dialogueKey: test
-  dialogueManager: {fileID: 1242532212}
+  dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
+  dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!65 &418582339
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52878,7 +52880,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bbbffcb29a795d408f142e6612f0649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Dialogue::DialogueManager
-  currentDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
   dialogueEventChannel: {fileID: 11400000, guid: 0c9d44bd83f8b984d8a5aacb94ae8656, type: 2}
   dialogueEventChannelString: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}

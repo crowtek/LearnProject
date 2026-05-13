@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class DialogueManager : MonoBehaviour
 {
-    [SerializeField] private DialogueDatabaseSO currentDatabase;
     [SerializeField] private BoolEventChannelSO toggleInputChannel;
     [SerializeField] private BoolEventChannelSO dialogueEventChannel;
     [SerializeField] private DialogueEventChannelSO dialogueEventChannelString;
@@ -12,27 +11,20 @@ public class DialogueManager : MonoBehaviour
     public System.Action<string, string> OnDialogueStarted;
     private void OnEnable()
     {
+        dialogueEventChannelString.OnEventRaised += StartDialogue;
         dialogueEndedChannel.OnEventRaised += EndDialogue;
     }
 
     private void OnDisable()
     {
+        dialogueEventChannelString.OnEventRaised -= StartDialogue;
         dialogueEndedChannel.OnEventRaised -= EndDialogue;
     }
 
-    public void StartDialogue(string dialogueKey, string npcName = "???")
+    public void StartDialogue(DialogueData data)
     {
-        string localizedText = currentDatabase.GetText(dialogueKey);
-
-        DialogueData data = new DialogueData();
-        data.Text = localizedText;
-        data.SpeakerName = npcName;
-
         toggleInputChannel.RaiseEvent(false);
         dialogueEventChannel.RaiseEvent(true);
-
-        dialogueEventChannelString.RaiseEvent(data);
-        Debug.Log($"Dialog gestartet: {npcName} sagt {dialogueKey}");
     }
 
     public void EndDialogue()
