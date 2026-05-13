@@ -2,9 +2,38 @@
 }
 
 .DialogueBox {
-    background-color: rgb(219, 219, 219);
+    background-color: rgba(219, 219, 219, 0);
     position: absolute;
-    bottom: 68px;
+    bottom: 43px;
     width: 100%;
     display: flex;
+    flex-direction: row;
+}
+
+.image {
+    width: 300px;
+    height: 300px;
+    background-image: url("project://database/Assets/Images/Viking_white.png?fileID=2800000&guid=67b2828c3400f5541acc93b1303afe76&type=3#Viking_white");
+}
+
+.textContainer {
+    background-color: rgba(253, 253, 253, 0.76);
+    width: 54%;
+    margin-bottom: 48px;
+    padding-top: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+}
+
+.title {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(96, 67, 24);
+}
+
+.text {
+    font-size: 18px;
+    color: rgb(87, 63, 33);
+    white-space: pre-wrap;
 }

@@ -16,6 +16,7 @@ public class DialogueUIController : MonoBehaviour
     private VisualElement dialogueBox;
     private Label nameLabel;
     private Label textLabel;
+    private Image npcImage;
 
     private string fullText;
     private bool isTyping = false;
@@ -32,6 +33,7 @@ public class DialogueUIController : MonoBehaviour
         dialogueBox = root.Q<VisualElement>("DialogueBox");
         nameLabel = root.Q<Label>("NPCNameLabel");
         textLabel = root.Q<Label>("DialogueText");
+        npcImage = root.Q<Image>("NPCImage");
 
         dialogueBox.RegisterCallback<PointerDownEvent>(OnBoxClicked);
 

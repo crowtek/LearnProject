@@ -1,9 +1,12 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Dialog/Dialog.uss?fileID=7433441132597879392&amp;guid=fe1c7d572ed4fe7458168a48761c8c80&amp;type=3#Dialog"/>
     <ui:VisualElement name="DialogueOverlay" style="flex-grow: 1;">
-        <ui:VisualElement name="DialogueBox" class="DialogueBox" style="display: none;">
-            <ui:Label text="Label" name="DialogueText"/>
-            <ui:Label text="Label" name="NPCNameLabel"/>
+        <ui:VisualElement name="DialogueBox" class="DialogueBox" style="display: none; align-items: flex-end; justify-content: center;">
+            <ui:Image name="NPCImage" class="image"/>
+            <ui:VisualElement name="TextContainer" class="textContainer" style="flex-grow: 0; height: 61%;">
+                <ui:Label text="Label" name="NPCNameLabel" class="title"/>
+                <ui:Label text="Label" name="DialogueText" class="text"/>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

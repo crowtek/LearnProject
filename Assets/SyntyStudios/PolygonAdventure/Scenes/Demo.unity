@@ -9547,7 +9547,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
   npcName: Cube
-  dialogueKey: test
+  npcImage: {fileID: 0}
+  storyState: {fileID: 0}
+  fallbackDialogueKey: 
+  prioritizedDialogues: []
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!1001 &215479070
@@ -18861,7 +18864,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
   npcName: Ragnar
-  dialogueKey: test
+  npcImage: {fileID: 21300000, guid: 67b2828c3400f5541acc93b1303afe76, type: 3}
+  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
+  fallbackDialogueKey: test
+  prioritizedDialogues:
+  - requiredFlag: test
+    dialogueKey: test
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!65 &418582339
