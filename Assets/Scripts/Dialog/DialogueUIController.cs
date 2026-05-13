@@ -49,6 +49,7 @@ public class DialogueUIController : MonoBehaviour
         isDialogueActive = true;
         dialogueBox.style.display = DisplayStyle.Flex;
         nameLabel.text = data.SpeakerName;
+        npcImage.sprite = data.SpeakerPortrait;
 
         currentLines = data.Lines; 
         currentLineIndex = 0;

@@ -7,6 +7,7 @@ public struct DialogueEntry
 {
     public string key;
     [TextArea(3, 10)] public string[] conversationLines;
+    [StoryFlag] public string resultFlag;
 }
 
 [CreateAssetMenu(fileName = "DialogueDatabaseSO", menuName = "Scriptable Objects/Dialogue/DialogueDatabaseSO")]

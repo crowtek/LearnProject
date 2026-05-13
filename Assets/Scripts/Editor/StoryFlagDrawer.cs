@@ -1,3 +1,5 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,18 +19,25 @@ public class StoryFlagDrawer : PropertyDrawer
         string path = AssetDatabase.GUIDToAssetPath(guids[0]);
         var database = AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(path);
 
-        if (database == null || database.allFlags == null || database.allFlags.Count == 0)
+        if (database == null || database.allFlags == null)
         {
             EditorGUI.PropertyField(position, property, label);
             return;
         }
 
-        string[] flags = database.allFlags.ToArray();
+        List<string> flagsOptions = new List<string> { "No value" };
+        flagsOptions.AddRange(database.allFlags);
 
-        int currentIndex = System.Array.IndexOf(flags, property.stringValue);
-        if (currentIndex == -1) currentIndex = 0;
+        string[] flags = flagsOptions.ToArray();
 
-        currentIndex = EditorGUI.Popup(position, label.text, currentIndex, flags); // Dropdown zeichnen
-        property.stringValue = flags[currentIndex];
+        int currentIndex = 0;
+        if (!string.IsNullOrEmpty(property.stringValue))
+        {
+            currentIndex = System.Array.IndexOf(flags, property.stringValue);
+            if (currentIndex == -1) currentIndex = 0; 
+        }
+
+        currentIndex = EditorGUI.Popup(position, label.text, currentIndex, flags);
+        property.stringValue = (currentIndex == 0) ? string.Empty : flags[currentIndex];
     }
 }
