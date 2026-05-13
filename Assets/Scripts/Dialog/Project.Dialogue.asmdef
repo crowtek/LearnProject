@@ -5,7 +5,8 @@
         "UniTask",
         "Project.Events",
         "UniTask.Addressables",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

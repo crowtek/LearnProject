@@ -3,13 +3,6 @@ using UnityEngine;
 
 public class NPC_Interactable : MonoBehaviour, IInteractable
 {
-    [System.Serializable]
-    public struct DialogueCondition
-    {
-        [StoryFlag] public string requiredFlag;
-        [DialogueKey] public string dialogueKey;
-    }
-
     [Header("Identity")]
     [SerializeField] private string npcName;
     [SerializeField] private Sprite npcImage;
@@ -22,6 +15,9 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [Header("Channels")]
     [SerializeField] private DialogueEventChannelSO dialogueChannel;
     [SerializeField] private DialogueDatabaseSO dialogueDatabase;
+
+    [Header("UI Placement")]
+    [SerializeField] private Transform interactionPoint;
 
     public void Interact()
     {
@@ -50,4 +46,9 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     }
 
     public string GetInteractPrompt() => $"Mit {npcName} sprechen";
+
+    public Transform GetInteractionPoint()
+    {
+        return interactionPoint != null ? interactionPoint : transform;
+    }
 }

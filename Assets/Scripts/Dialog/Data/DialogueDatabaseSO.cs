@@ -10,6 +10,14 @@ public struct DialogueEntry
     [StoryFlag] public string resultFlag;
 }
 
+[System.Serializable]
+public struct DialogueCondition
+{
+    [StoryFlag] public string requiredFlag;
+    [DialogueKey] public string dialogueKey;
+}
+
+
 [CreateAssetMenu(fileName = "DialogueDatabaseSO", menuName = "Scriptable Objects/Dialogue/DialogueDatabaseSO")]
 public class DialogueDatabaseSO : ScriptableObject
 {

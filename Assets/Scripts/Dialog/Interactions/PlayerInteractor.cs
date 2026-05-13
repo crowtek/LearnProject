@@ -1,26 +1,32 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Linq;
 
 public class PlayerInteractor : MonoBehaviour
 {
     [Header("Input Settings")]
     [SerializeField] private InputActionReference interactAction;
+    [SerializeField] private InteractionUIController interactionUI;
 
     [Header("Detection Settings")]
     [SerializeField] private float interactRadius = 2f;
     [SerializeField] private LayerMask interactLayer;
+    [SerializeField] private int maxInteractions = 5; // Limit detection for performance
 
     [Header("Events")]
     [SerializeField] private BoolEventChannelSO dialogueEventChannel;
 
     private bool _isDialogueActive = false;
+    private Collider[] _overlapResults; // Pre-allocated array to avoid GC
+
+    private void Awake()
+    {
+        _overlapResults = new Collider[maxInteractions];
+    }
 
     private void OnEnable()
     {
-        if (interactAction != null && interactAction.action != null)
+        if (interactAction?.action != null)
         {
-            interactAction.action.actionMap.Enable();
             interactAction.action.Enable();
             interactAction.action.performed += OnInteractPerformed;
         }
@@ -31,50 +37,74 @@ public class PlayerInteractor : MonoBehaviour
 
     private void OnDisable()
     {
-        if (interactAction != null && interactAction.action != null)
+        if (interactAction?.action != null)
         {
             interactAction.action.performed -= OnInteractPerformed;
-            interactAction.action.Disable();
         }
 
         if (dialogueEventChannel != null)
             dialogueEventChannel.OnEventRaised -= HandleDialogueStateChanged;
     }
 
-    private void HandleDialogueStateChanged(bool isActive)
+    private void Update()
     {
-        _isDialogueActive = isActive;
+        if (_isDialogueActive)
+        {
+            interactionUI.Hide();
+            return;
+        }
+
+        IInteractable closest = GetClosestInteractable();
+
+        if (closest != null)
+        {
+            interactionUI.Show(closest.GetInteractionPoint());
+        }
+        else
+        {
+            interactionUI.Hide();
+        }
     }
+
+    private void HandleDialogueStateChanged(bool isActive) => _isDialogueActive = isActive;
 
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
-        // Wenn bereits ein Dialog läuft, ignorieren wir den Tastendruck
         if (_isDialogueActive) return;
 
-        PerformOverlapCheck();
+        IInteractable interactable = GetClosestInteractable();
+        interactable?.Interact();
     }
 
-    public void PerformOverlapCheck()
+    private IInteractable GetClosestInteractable()
     {
-        Collider[] colliders = Physics.OverlapSphere(
+        int numFound = Physics.OverlapSphereNonAlloc(
             transform.position,
             interactRadius,
+            _overlapResults,
             interactLayer,
             QueryTriggerInteraction.Collide
         );
 
-        if (colliders.Length == 0) return;
+        if (numFound == 0) return null;
 
-        // Den nächsten Interaktionspartner finden
-        var closest = colliders
-            .OrderBy(c => Vector3.Distance(transform.position, c.transform.position))
-            .FirstOrDefault();
+        IInteractable closestInteractable = null;
+        float minDistance = float.MaxValue;
 
-        if (closest != null && closest.TryGetComponent(out IInteractable interactable))
+        for (int i = 0; i < numFound; i++)
         {
-            Debug.Log($"Interagiere mit: {closest.name}");
-            interactable.Interact();
+            if (_overlapResults[i].TryGetComponent(out IInteractable interactable))
+            {
+                float dist = Vector3.SqrMagnitude(transform.position - _overlapResults[i].transform.position);
+                if (dist < minDistance)
+                {
+                    minDistance = dist;
+                    closestInteractable = interactable;
+                }
+            }
         }
+
+        return closestInteractable;
     }
 
     private void OnDrawGizmosSelected()
