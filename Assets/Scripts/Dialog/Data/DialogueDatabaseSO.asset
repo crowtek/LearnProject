@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueDatabaseSO
   languageName: English
   dialogueEntries:
-  - key: test
+  - key: Dia1
     conversationLines:
     - Hello
     - How are ya?
-    resultFlag: 
-  - key: test
+    resultFlag: Story2
+  - key: Dia2
+    conversationLines:
+    - tz
+    - no
+    resultFlag: Story3
+  - key: Dia3
     conversationLines:
     - Hello
     - How are ya?

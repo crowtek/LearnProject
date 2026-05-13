@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: StoryFlagDatabaseSO
   m_EditorClassIdentifier: Project.Events::StoryFlagDatabaseSO
   allFlags:
-  - test
-  - test2
+  - Story1
+  - Story2
+  - Story3

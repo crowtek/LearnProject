@@ -16,19 +16,19 @@ public class DialogueDatabaseSO : ScriptableObject
     public string languageName = "English";
     public List<DialogueEntry> dialogueEntries = new List<DialogueEntry>();
 
-    private Dictionary<string, string[]> _cache;
+    private Dictionary<string, DialogueEntry> _cache;
 
     private void OnEnable()
     {
-        _cache = dialogueEntries.ToDictionary(e => e.key, e => e.conversationLines);
+        _cache = dialogueEntries.ToDictionary(e => e.key, e => e);
     }
 
-    public string[] GetText(string key)
+    public DialogueEntry GetEntry(string key)
     {
-        if (_cache.TryGetValue(key, out string[] lines))
-            return lines;
+        if (_cache != null && _cache.TryGetValue(key, out DialogueEntry entry))
+            return entry;
 
         Debug.LogWarning($"[DialogueDB] Missing key: {key}");
-        return new string[] { $"[Missing: {key}]" };
+        return default;
     }
 }

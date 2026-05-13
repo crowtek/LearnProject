@@ -9341,156 +9341,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 401752, guid: 9211b397ed1fec54fa30bd8c8b657e1f, type: 3}
   m_PrefabInstance: {fileID: 213755235}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &214921641
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 214921646}
-  - component: {fileID: 214921645}
-  - component: {fileID: 214921644}
-  - component: {fileID: 214921643}
-  - component: {fileID: 214921642}
-  - component: {fileID: 214921647}
-  m_Layer: 7
-  m_Name: Cube
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &214921642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9418e33be29459240a841e9ae2b716e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Story::StoryTrigger
-  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  storyEventChannel: {fileID: 11400000, guid: c0f3f4d2df4cf4e4088a580d4d80482c, type: 2}
-  toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
-  flagToSet: test
-  triggerOnlyOnce: 1
---- !u!65 &214921643
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &214921644
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &214921645
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &214921646
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.50005, y: 0.9, z: -2.19379}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &214921647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214921641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9460982229a40c04883b760516142f4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
-  npcName: Cube
-  npcImage: {fileID: 0}
-  storyState: {fileID: 0}
-  fallbackDialogueKey: 
-  prioritizedDialogues: []
-  dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
-  dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!1001 &215479070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18875,10 +18725,12 @@ MonoBehaviour:
   npcName: Ragnar
   npcImage: {fileID: 21300000, guid: 67b2828c3400f5541acc93b1303afe76, type: 3}
   storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  fallbackDialogueKey: test
+  fallbackDialogueKey: Dia1
   prioritizedDialogues:
-  - requiredFlag: test
-    dialogueKey: test
+  - requiredFlag: 
+    dialogueKey: Dia1
+  - requiredFlag: Story2
+    dialogueKey: Dia2
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
 --- !u!65 &418582339
@@ -52784,10 +52636,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Dialogue::DialogueManager
   toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
   dialogueEventChannel: {fileID: 11400000, guid: 0c9d44bd83f8b984d8a5aacb94ae8656, type: 2}
-  dialogueChannelData: {fileID: 0}
+  dialogueChannelData: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueEndedChannel: {fileID: 11400000, guid: d49002a884acf1a44a9531bf3bf0d270, type: 2}
-  storyState: {fileID: 0}
-  storyEventChannel: {fileID: 0}
+  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
+  storyEventChannel: {fileID: 11400000, guid: c0f3f4d2df4cf4e4088a580d4d80482c, type: 2}
 --- !u!4 &1242532213
 Transform:
   m_ObjectHideFlags: 0
@@ -91882,7 +91734,6 @@ SceneRoots:
   - {fileID: 1703560401}
   - {fileID: 1073451715}
   - {fileID: 2016080680}
-  - {fileID: 214921646}
   - {fileID: 1703524249}
   - {fileID: 660503549}
   - {fileID: 418582334}

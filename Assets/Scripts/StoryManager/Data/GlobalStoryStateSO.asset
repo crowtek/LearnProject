@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb45f2894da29bf43aea597b21d34279, type: 3}
   m_Name: GlobalStoryStateSO
   m_EditorClassIdentifier: Project.Story::GlobalStoryStateSO
-  completedFlags:
-  - test
+  completedFlags: []

@@ -20,7 +20,6 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (interactAction != null && interactAction.action != null)
         {
-            // Sicherstellen, dass die Map aktiv ist
             interactAction.action.actionMap.Enable();
             interactAction.action.Enable();
             interactAction.action.performed += OnInteractPerformed;

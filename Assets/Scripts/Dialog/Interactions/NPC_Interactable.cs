@@ -36,11 +36,11 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
             }
         }
 
-        var entry = dialogueDatabase.dialogueEntries.Find(e => e.key == selectedKey);
+        var entry = dialogueDatabase.GetEntry(selectedKey);
 
         var data = new DialogueData
         {
-            Lines = dialogueDatabase.GetText(selectedKey),
+            Lines = entry.conversationLines,
             SpeakerName = npcName,
             SpeakerPortrait = npcImage,
             ResultFlag = entry.resultFlag,
