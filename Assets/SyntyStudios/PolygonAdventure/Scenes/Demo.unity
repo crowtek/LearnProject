@@ -45394,7 +45394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1c34679e60c551489d9cd8028c52362, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
-  battleHUD: {fileID: 2016080679}
+  uiController: {fileID: 2016080682}
   playerTemplate: {fileID: 11400000, guid: 8ee8eb4aa198dc841b073aa6c74e7ac7, type: 2}
   playerRuntime: {fileID: 11400000, guid: 111447a9599e90c46bd065eede477cb7, type: 2}
   battleStateEventChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
@@ -86328,6 +86328,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2016080680}
   - component: {fileID: 2016080679}
+  - component: {fileID: 2016080682}
+  - component: {fileID: 2016080681}
   m_Layer: 5
   m_Name: BattleUI
   m_TagString: Untagged
@@ -86373,6 +86375,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2016080681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016080678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe730c4076f106c4eaabc0c052f85eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Events::TypewriterHandler
+--- !u!114 &2016080682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016080678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 482edc6668a19b34d9df6c17eff8c16a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.BattleSystem::BattleUIController
+  battleHUD: {fileID: 2016080679}
+  typewriter: {fileID: 2016080681}
 --- !u!1001 &2016265589
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92059,8 +92087,6 @@ SceneRoots:
   - {fileID: 955615628}
   - {fileID: 720601898}
   - {fileID: 1703560401}
-  - {fileID: 1073451715}
-  - {fileID: 2016080680}
   - {fileID: 1703524249}
   - {fileID: 660503549}
   - {fileID: 418582334}
@@ -92069,3 +92095,5 @@ SceneRoots:
   - {fileID: 1144750246}
   - {fileID: 1311728459}
   - {fileID: 944250422153172081}
+  - {fileID: 1073451715}
+  - {fileID: 2016080680}

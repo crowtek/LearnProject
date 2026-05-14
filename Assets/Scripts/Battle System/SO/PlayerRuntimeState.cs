@@ -15,9 +15,10 @@ public class PlayerRuntimeState : ScriptableObject
     {
         currentLevel = 1;
         currentEXP = 0;
+        expToNextLevel = 100;
         maxHP = template.maxHP;
         attack = template.attack;
-        currentHP = maxHP;
+        currentHP = template.maxHP;
         isDead = false;
 
         expToNextLevel = LevelCalculator.GetRequiredEXP(currentLevel);

@@ -16,7 +16,24 @@ public class ProgressionManager : MonoBehaviour
     {
         if (!result.isVictory) return;
 
+        // 1. Capture the "Before" state for the UI
+        int startLevel = playerState.currentLevel;
+        int startHP = playerState.maxHP;
+        int startAtk = playerState.attack;
+
+        // 2. Perform the actual logic (Only once!)
         AddExperience(result.earnedEXP);
+
+        // 3. Compare and Notify
+        if (playerState.currentLevel > startLevel)
+        {
+            string changes = $"Level {startLevel} > {playerState.currentLevel}\n" +
+                             $"HP: {startHP} > {playerState.maxHP}\n" +
+                             $"ATK: {startAtk} > {playerState.attack}";
+
+            Debug.Log($"Level Up Details: {changes}");
+            // Trigger your UI event here
+        }
     }
 
     private void AddExperience(int amount)
@@ -27,7 +44,6 @@ public class ProgressionManager : MonoBehaviour
         {
             LevelUp();
         }
-        Debug.Log($"Exp gained: {amount} current Level: {playerState.currentLevel}");
     }
 
     private void LevelUp()
@@ -35,17 +51,10 @@ public class ProgressionManager : MonoBehaviour
         playerState.currentEXP -= playerState.expToNextLevel;
         playerState.currentLevel++;
 
-        // Stat Progression
         playerState.maxHP += hpGainPerLevel;
         playerState.attack += atkGainPerLevel;
-
-        // Full Heal (Dragon Quest Style)
         playerState.currentHP = playerState.maxHP;
 
-        // Recalculate next requirement
         playerState.expToNextLevel = LevelCalculator.GetRequiredEXP(playerState.currentLevel);
-
-        Debug.Log($"Level Up! Now Level {playerState.currentLevel}");
-        // Here you would trigger the UI Level Up Overlay
     }
 }

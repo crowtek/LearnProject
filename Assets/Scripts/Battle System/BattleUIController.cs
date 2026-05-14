@@ -1,0 +1,94 @@
+﻿using log4net.Core;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public class BattleUIController : MonoBehaviour
+{
+    [SerializeField] private UIDocument battleHUD;
+    [SerializeField] private TypewriterHandler typewriter;
+
+    // UI Elements
+    private VisualElement root;
+    private VisualElement playerPortre, playerSprite, enemySprite;
+    private VisualElement hpBarFill, textboxContainer;
+    private Label playerHPLabel, levelLabel, resultText;
+    private Button attackBtn, defButton, closeBtn;
+
+    public void Initialize()
+    {
+        root = battleHUD.rootVisualElement;
+
+        // Querying elements - Using your exact UXML strings
+        playerPortre = root.Q<VisualElement>("PlayerImage");
+        playerSprite = root.Q<VisualElement>("PlayerSprite");
+        enemySprite = root.Q<VisualElement>("EnemySprite");
+        playerHPLabel = root.Q<Label>("PlayerHP");
+        hpBarFill = root.Q<VisualElement>("HPBarFill");
+        levelLabel = root.Q<Label>("level");
+        textboxContainer = root.Q<VisualElement>("TextBoxContainer");
+        resultText = root.Q<Label>("ResultText");
+
+        attackBtn = root.Q<Button>("AttackButton");
+        defButton = root.Q<Button>("DefButton");
+        closeBtn = root.Q<Button>("CloseButton");
+
+        root.style.display = DisplayStyle.None;
+    }
+
+    public void SetActive(bool active)
+    {
+        root.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    public void SetupBattleImages(Sprite playerPort, Sprite playerBat, Sprite enemyBat, string playerName)
+    {
+        root.Q<Label>("PlayerName").text = playerName;
+        playerPortre.style.backgroundImage = new StyleBackground(playerPort);
+        playerSprite.style.backgroundImage = new StyleBackground(playerBat);
+        enemySprite.style.backgroundImage = new StyleBackground(enemyBat);
+    }
+
+    public void UpdateStats(int currentHP, int maxHP, int level)
+    {
+        playerHPLabel.text = $"HP: {currentHP} / {maxHP}";
+        levelLabel.text = $"Lv. {level}";
+
+        float hpRatio = (float)currentHP / maxHP;
+        float hpPercent = Mathf.Clamp(hpRatio * 100f, 0, 100f);
+
+        hpBarFill.style.width = new Length(hpPercent, LengthUnit.Percent);
+    }
+
+    public void ShowVictoryScreen(string message, System.Action onContinue)
+    {
+        textboxContainer.style.display = DisplayStyle.Flex;
+        typewriter.RunText(resultText, message);
+
+        textboxContainer.UnregisterCallback<PointerDownEvent, System.Action>(OnContainerClicked);
+        textboxContainer.RegisterCallback<PointerDownEvent, System.Action>(OnContainerClicked, onContinue);
+
+        attackBtn.SetEnabled(false);
+        defButton.SetEnabled(false);
+    }
+
+    private void OnContainerClicked(PointerDownEvent evt, System.Action callback)
+    {
+        callback?.Invoke();
+        textboxContainer.style.display = DisplayStyle.None;
+    }
+
+    // Connect buttons to logic
+    public void BindButtons(System.Action onAttack, System.Action onDefend, System.Action onEnd)
+    {
+        attackBtn.clicked += onAttack;
+        defButton.clicked += onDefend;
+        closeBtn.clicked += onEnd;
+    }
+
+    public void UnbindButtons(System.Action onAttack, System.Action onDefend, System.Action onEnd)
+    {
+        attackBtn.clicked -= onAttack;
+        defButton.clicked -= onDefend;
+        closeBtn.clicked -= onEnd;
+    }
+}

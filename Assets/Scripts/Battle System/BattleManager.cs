@@ -1,33 +1,18 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance;
 
-    [SerializeField] private UIDocument battleHUD;
-    [SerializeField] private BattleEntityData playerTemplate; 
+    [SerializeField] private BattleUIController uiController;
+    [SerializeField] private BattleEntityData playerTemplate;
     [SerializeField] private PlayerRuntimeState playerRuntime;
     [SerializeField] private BoolEventChannelSO battleStateEventChannel;
-
-    [Header("Results")]
     [SerializeField] private BattleResultEventChannelSO battleResultEventChannel;
-    private int accumulatedEXP;
 
     private int currentPlayerHP;
     private int currentEnemyHP;
-    private string currentEnemyName;
-
-    private VisualElement root;
-    private VisualElement playerPortre;
-    private VisualElement playerSprite;
-    private VisualElement enemySprite;
-    private Button closeBtn;
-    private Button attackBtn;
-    private Button defButton;
-    private Label playerHPLabel;
-    private VisualElement HpBarFill;
-    private Label level;
+    private int accumulatedEXP;
 
     public enum BattleState { Idle, Start, PlayerTurn, EnemyTurn, Busy, Won, Lost, End }
     private BattleState currentState = BattleState.Idle;
@@ -35,7 +20,7 @@ public class BattleManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        battleHUD.gameObject.SetActive(false);
+        uiController.Initialize();
     }
 
     public void StartBattle(BattleEntityData enemyData)
@@ -44,58 +29,31 @@ public class BattleManager : MonoBehaviour
 
         currentPlayerHP = playerRuntime.currentHP;
         currentEnemyHP = enemyData.maxHP;
-        currentEnemyName = enemyData.entityName;
-
-        battleHUD.gameObject.SetActive(true);
-        currentState = BattleState.Start;
-        root = battleHUD.rootVisualElement;
-
-        playerPortre = root.Q<VisualElement>("PlayerImage");
-        playerSprite = root.Q<VisualElement>("PlayerSprite");
-        enemySprite = root.Q<VisualElement>("EnemySprite");
-        playerHPLabel = root.Q<Label>("PlayerHP");
-        HpBarFill = root.Q<VisualElement>("HPBarFill");
-        level = root.Q<Label>("level");
-
-        root.Q<Label>("PlayerName").text = playerTemplate.entityName;
-
-        playerPortre.style.backgroundImage = new StyleBackground(playerTemplate.portrait);
-        playerSprite.style.backgroundImage = new StyleBackground(playerTemplate.battleImage);
-        enemySprite.style.backgroundImage = new StyleBackground(enemyData.battleImage);
-
-        UpdateUI();
-
-        attackBtn = root.Q<Button>("AttackButton"); 
-        attackBtn.clicked += PlayerAttack;
-        closeBtn = root.Q<Button>("CloseButton");
-        closeBtn.clicked += EndBattle;
-        defButton = root.Q<Button>("DefButton");
-        defButton.clicked += () => EnemyAttacks(enemyData.attack);
-
-        battleStateEventChannel.RaiseEvent(false);
         accumulatedEXP = enemyData.expReward;
-        Debug.Log($"Kampf gegen {currentEnemyName} beginnt!");
-        Debug.Log($"Erfahrungspunkte zu gewinnen: {accumulatedEXP}");
+        currentState = BattleState.Start;
+
+        uiController.SetActive(true);
+        uiController.SetupBattleImages(playerTemplate.portrait, playerTemplate.battleImage, enemyData.battleImage, playerTemplate.entityName);
+
+        uiController.BindButtons(PlayerAttack, () => EnemyAttacks(enemyData.attack), EndBattle);
+
+        UpdateGameState();
+        battleStateEventChannel.RaiseEvent(false);
     }
 
-    private void UpdateUI()
+    private void UpdateGameState()
     {
-        playerHPLabel.text = $"HP: {currentPlayerHP} / {playerRuntime.maxHP}";
-        level.text = $"Lv. {playerRuntime.currentLevel}";
-
-        float hpRatio = (float)currentPlayerHP / playerRuntime.maxHP;
-        float hpPercent = Mathf.Clamp(hpRatio * 100f, 0, 100f);
-
-        HpBarFill.style.width = new Length(hpPercent, LengthUnit.Percent);
+        uiController.UpdateStats(currentPlayerHP, playerRuntime.maxHP, playerRuntime.currentLevel);
     }
 
     public void PlayerAttack()
     {
         currentEnemyHP -= playerRuntime.attack;
-        UpdateUI();
+        UpdateGameState();
 
         if (currentEnemyHP <= 0) EndBattle();
     }
+
     public void EnemyAttacks(int damage)
     {
         currentPlayerHP -= damage;
@@ -104,29 +62,36 @@ public class BattleManager : MonoBehaviour
         {
             currentPlayerHP = 0;
             playerRuntime.isDead = true;
-            // Handle Game Over
         }
-        UpdateUI();
+        UpdateGameState();
     }
-
 
     private void EndBattle()
     {
-        currentState = BattleState.Idle;
-        playerRuntime.currentHP = currentPlayerHP;
+        if (currentEnemyHP <= 0)
+        {
+            string msg = $"You won! \nEarned {accumulatedEXP} EXP.";
+            if (playerRuntime.currentEXP + accumulatedEXP >= playerRuntime.expToNextLevel)
+                msg += "\n\nLEVEL UP!";
 
-        battleHUD.gameObject.SetActive(false);
+            uiController.ShowVictoryScreen(msg, CloseBattleUI);
+        }
+        else CloseBattleUI();
+    }
+
+    private void CloseBattleUI()
+    {
+        uiController.UnbindButtons(PlayerAttack, null, EndBattle);
+        uiController.SetActive(false);
+
+        playerRuntime.currentHP = currentPlayerHP;
+        currentState = BattleState.Idle;
         battleStateEventChannel.RaiseEvent(true);
 
-        closeBtn.clicked -= EndBattle;
-        attackBtn.clicked -= PlayerAttack;
-
-        BattleResult result = new BattleResult
+        battleResultEventChannel.RaiseEvent(new BattleResult
         {
             earnedEXP = (currentEnemyHP <= 0) ? accumulatedEXP : 0,
             isVictory = currentEnemyHP <= 0
-        };
-
-        battleResultEventChannel.RaiseEvent(result);
+        });
     }
 }
