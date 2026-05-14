@@ -49,6 +49,7 @@ public class BattleManager : MonoBehaviour
     public void PlayerAttack()
     {
         currentEnemyHP -= playerRuntime.attack;
+        uiController.ShowMonsterDamage(playerRuntime.attack);
         UpdateGameState();
 
         if (currentEnemyHP <= 0) EndBattle();
@@ -57,12 +58,14 @@ public class BattleManager : MonoBehaviour
     public void EnemyAttacks(int damage)
     {
         currentPlayerHP -= damage;
+        uiController.ShowPlayerDamage(damage);
 
         if (currentPlayerHP <= 0)
         {
             currentPlayerHP = 0;
             playerRuntime.isDead = true;
         }
+
         UpdateGameState();
     }
 

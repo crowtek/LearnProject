@@ -1,4 +1,5 @@
 ﻿using log4net.Core;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,8 +12,10 @@ public class BattleUIController : MonoBehaviour
     private VisualElement root;
     private VisualElement playerPortre, playerSprite, enemySprite;
     private VisualElement hpBarFill, textboxContainer;
-    private Label playerHPLabel, levelLabel, resultText;
+    private Label playerHPLabel, levelLabel, resultText, enemyDamage, playerDamage;
     private Button attackBtn, defButton, closeBtn;
+
+    private Coroutine damageTextCoroutine;
 
     public void Initialize()
     {
@@ -27,6 +30,8 @@ public class BattleUIController : MonoBehaviour
         levelLabel = root.Q<Label>("level");
         textboxContainer = root.Q<VisualElement>("TextBoxContainer");
         resultText = root.Q<Label>("ResultText");
+        enemyDamage = root.Q<Label>("EnemyDamage");
+        playerDamage = root.Q<Label>("PlayerDamage");
 
         attackBtn = root.Q<Button>("AttackButton");
         defButton = root.Q<Button>("DefButton");
@@ -52,11 +57,33 @@ public class BattleUIController : MonoBehaviour
     {
         playerHPLabel.text = $"HP: {currentHP} / {maxHP}";
         levelLabel.text = $"Lv. {level}";
+        enemyDamage.text = "";
+        playerDamage.text = "";
 
         float hpRatio = (float)currentHP / maxHP;
         float hpPercent = Mathf.Clamp(hpRatio * 100f, 0, 100f);
 
         hpBarFill.style.width = new Length(hpPercent, LengthUnit.Percent);
+    }
+
+    public void ShowMonsterDamage(int damage)
+    {
+        enemyDamage.text = $"-{damage}";
+        typewriter.RunText(enemyDamage, enemyDamage.text);
+        damageTextCoroutine = StartCoroutine(HideDamageTextAfterDelay(enemyDamage, 1.0f));
+    }
+
+    public void ShowPlayerDamage(int damage)
+    {
+        playerDamage.text = $"-{damage}";
+        typewriter.RunText(playerDamage, playerDamage.text);
+        damageTextCoroutine = StartCoroutine(HideDamageTextAfterDelay(playerDamage, 1.0f));
+    }
+
+    private IEnumerator HideDamageTextAfterDelay(Label label,float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        label.text = "";
     }
 
     public void ShowVictoryScreen(string message, System.Action onContinue)
