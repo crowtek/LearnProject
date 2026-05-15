@@ -94,9 +94,6 @@ public class BattleUIController : MonoBehaviour
 
         textboxContainer.UnregisterCallback<PointerDownEvent, System.Action>(OnContainerClicked);
         textboxContainer.RegisterCallback<PointerDownEvent, System.Action>(OnContainerClicked, onContinue);
-
-        attackBtn.SetEnabled(false);
-        defButton.SetEnabled(false);
     }
 
     private void OnContainerClicked(PointerDownEvent evt, System.Action callback)

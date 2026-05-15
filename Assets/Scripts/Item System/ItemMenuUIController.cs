@@ -95,7 +95,21 @@ public class ItemMenuUIController : MonoBehaviour
         icon.style.height = Length.Percent(80);
         itemBox.Add(icon);
 
-        // Create the Label (Equipped and Amount)
+        if (slot.item is EquipmentItemSO equipment && inventoryData.IsAlreadyEquipped(equipment))
+        {
+            Label equippedBadge = new Label("E");
+
+            // Styling the "E" to appear in a corner (e.g., top-left)
+            equippedBadge.style.position = Position.Absolute;
+            equippedBadge.style.top = 2;
+            equippedBadge.style.left = 5;
+            equippedBadge.style.color = Color.yellow;
+            equippedBadge.style.unityFontStyleAndWeight = FontStyle.Bold;
+            equippedBadge.style.fontSize = 12;
+
+            itemBox.Add(equippedBadge);
+        }
+
         Label itemLabel = new Label($" x{slot.amount}");
         itemLabel.style.fontSize = 10;
         itemLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
