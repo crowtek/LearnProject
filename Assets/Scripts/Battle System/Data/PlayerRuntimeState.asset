@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32303eca038e25343aa8cfe762ec464c, type: 3}
   m_Name: PlayerRuntimeState
   m_EditorClassIdentifier: Project.BattleSystem::PlayerRuntimeState
+  equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
   currentLevel: 8
   currentEXP: 1857
   expToNextLevel: 2263
   currentHP: 80
   maxHP: 80
   attack: 9
+  defense: 0
+  agility: 0
   isDead: 0
+  isPoisoned: 0

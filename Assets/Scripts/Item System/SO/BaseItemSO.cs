@@ -15,3 +15,9 @@ public interface IUsableItem
 {
     bool Use(PlayerRuntimeState player);
 }
+
+public interface IEquipableItem
+{
+    void Equip(PlayerRuntimeState player);
+    void Unequip(PlayerRuntimeState player);
+}

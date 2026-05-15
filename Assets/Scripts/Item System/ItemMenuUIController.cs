@@ -32,6 +32,7 @@ public class ItemMenuUIController : MonoBehaviour
         root.style.display = DisplayStyle.None;
         root.Q<Button>("UseButton").clicked += () => UseSelectedItem();
         root.Q<Button>("DiscardButton").clicked += () => DiscardSelectedItem();
+        root.Q<Button>("EquipButton").clicked += () => UseSelectedEQ();
     }
 
     private void OnEnable()
@@ -74,7 +75,6 @@ public class ItemMenuUIController : MonoBehaviour
         if (!isMenuOpen) return;
 
         itemListContainer.Clear();
-        Debug.Log($"Refreshing Inventory UI. Found {inventoryData.slots.Count} slots.");
 
         foreach (var slot in inventoryData.slots)
         {
@@ -128,6 +128,16 @@ public class ItemMenuUIController : MonoBehaviour
         itemDetailLabel.text = $"{slot.item.itemName}\n\n{slot.item.description}";
     }
 
+    private void UseSelectedEQ()
+    {
+        if (currentlySelectedSlot?.item is EquipmentItemSO equipment)
+        {
+            inventoryData.RequestEquip(equipment);
+
+            itemMenu.style.display = DisplayStyle.None;
+            RefreshUI();
+        }
+    }
     private void UseSelectedItem()
     {
         if (currentlySelectedSlot?.item is IUsableItem usable)

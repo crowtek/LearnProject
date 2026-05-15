@@ -11,8 +11,9 @@ public class InventorySO : ScriptableObject
         public int amount;
     }
 
-    [SerializeField] private VoidEventChannelSO onInventoryChanged;
+    [SerializeField] private EquipmentChangeChannelSO equipmentChannel;
     public List<InventorySlot> slots = new List<InventorySlot>();
+    public List<EquipmentItemSO> currentlyEquipped = new List<EquipmentItemSO>();
 
     public void AddItem(BaseItemSO newItem, int amount = 1)
     {
@@ -53,4 +54,52 @@ public class InventorySO : ScriptableObject
             Debug.LogWarning($"Attempted to remove {item.itemName}, but it wasn't found in inventory.");
         }
     }
+
+    public bool IsAlreadyEquipped(EquipmentItemSO item)
+    {
+        return currentlyEquipped.Contains(item);
+    }
+
+    public void RequestEquip(EquipmentItemSO equipment)
+    {
+        bool isEquipping = !IsAlreadyEquipped(equipment);
+
+        if (isEquipping)
+        {
+            // Logic for "Unique" slots: Unequip item already in that slot
+            EquipmentItemSO oldItem = currentlyEquipped.Find(x => x.slot == equipment.slot);
+            if (oldItem != null)
+            {
+                ToggleState(oldItem, false);
+            }
+
+            ToggleState(equipment, true);
+        }
+        else
+        {
+            ToggleState(equipment, false);
+        }
+    }
+    private void ToggleState(EquipmentItemSO item, bool state)
+    {
+        if (state)
+        {
+            currentlyEquipped.Add(item);
+        }
+        else
+        {
+            currentlyEquipped.Remove(item);
+        }
+
+        // Send the raw data to the Player assembly via the Channel
+        equipmentChannel.RaiseEvent(new EquipmentChange
+        {
+            slot = item.slot,
+            attackBonus = item.attackBonus,
+            defenseBonus = item.defenseBonus,
+            agilityBonus = item.agilityBonus,
+            isEquipping = state
+        });
+    }
+
 }

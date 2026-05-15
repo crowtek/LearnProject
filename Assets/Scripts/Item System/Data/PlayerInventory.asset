@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67ac98c6c90d13045ae1765890c0e7b6, type: 3}
   m_Name: PlayerInventory
   m_EditorClassIdentifier: Assembly-CSharp::InventorySO
-  onInventoryChanged: {fileID: 11400000, guid: f2a36a05076c773428fd64b53e580198, type: 2}
+  equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
   slots:
   - item: {fileID: 11400000, guid: 2f5ef28d1979bb049823cdec14724501, type: 2}
     amount: 2
   - item: {fileID: 11400000, guid: 8fb22665c25e3b247868114cc1f7c993, type: 2}
     amount: 1
+  - item: {fileID: 11400000, guid: 0ec5c2e7886f904479afc06e86cff09c, type: 2}
+    amount: 1
+  currentlyEquipped: []

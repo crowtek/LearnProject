@@ -7,6 +7,8 @@ public class BattleEntityData : ScriptableObject
     public string entityName;
     public int maxHP;
     public int attack;
+    public int defense;
+    public int agility;
     public int expReward;
     public Sprite portrait;
     public Sprite battleImage;

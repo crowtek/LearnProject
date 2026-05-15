@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentItemSO
   itemName: Bronze Sword
   description: An unremarkable, workaday weapon beaten from burnished bronze.
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 1f8f1e1c4a462dc4e8ef302c9bb1e288, type: 3}
   goldValue: 50
   slot: 0
   attackBonus: 5
