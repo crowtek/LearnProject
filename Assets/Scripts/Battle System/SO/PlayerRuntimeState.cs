@@ -10,6 +10,7 @@ public class PlayerRuntimeState : ScriptableObject
     public int maxHP;
     public int attack;
     public bool isDead;
+    public bool isPoisoned;
 
     public void ResetStats(BattleEntityData template)
     {

@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32303eca038e25343aa8cfe762ec464c, type: 3}
   m_Name: PlayerRuntimeState
   m_EditorClassIdentifier: Project.BattleSystem::PlayerRuntimeState
-  currentLevel: 1
-  currentEXP: 0
-  expToNextLevel: 100
-  currentHP: 10
-  maxHP: 10
-  attack: 10
+  currentLevel: 8
+  currentEXP: 1857
+  expToNextLevel: 2263
+  currentHP: 80
+  maxHP: 80
+  attack: 9
   isDead: 0

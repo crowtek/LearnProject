@@ -10,7 +10,7 @@ public class BattleUIController : MonoBehaviour
 
     // UI Elements
     private VisualElement root;
-    private VisualElement playerPortre, playerSprite, enemySprite;
+    private VisualElement container, playerPortre, playerSprite, enemySprite;
     private VisualElement hpBarFill, textboxContainer;
     private Label playerHPLabel, levelLabel, resultText, enemyDamage, playerDamage;
     private Button attackBtn, defButton, closeBtn;
@@ -20,6 +20,7 @@ public class BattleUIController : MonoBehaviour
     public void Initialize()
     {
         root = battleHUD.rootVisualElement;
+        container = root.Q<VisualElement>("container");
 
         // Querying elements - Using your exact UXML strings
         playerPortre = root.Q<VisualElement>("PlayerImage");
@@ -37,12 +38,12 @@ public class BattleUIController : MonoBehaviour
         defButton = root.Q<Button>("DefButton");
         closeBtn = root.Q<Button>("CloseButton");
 
-        root.style.display = DisplayStyle.None;
+        container.style.display = DisplayStyle.None;
     }
 
     public void SetActive(bool active)
     {
-        root.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
+        container.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     public void SetupBattleImages(Sprite playerPort, Sprite playerBat, Sprite enemyBat, string playerName)

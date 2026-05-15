@@ -1,0 +1,69 @@
+:root {
+}
+
+.list {
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+}
+
+.item {
+    background-color: rgb(144, 144, 144);
+    width: 100px;
+    height: 100px;
+}
+
+.item-focused {
+    border-color: gold;
+    border-width: 2px;
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+.ItemDetails {
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 20px;
+}
+
+.DetailsContainer {
+    width: 300px;
+    height: 300px;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+}
+
+.itemMenu {
+    margin-top: 20px;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+}
+
+.text {
+    color: rgb(253, 253, 253);
+    font-size: 18px;
+    -unity-text-outline-width: 0.5px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    -unity-font-style: bold;
+}
+
+.box {
+    background-color: rgba(2, 2, 2, 0.66);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+}
