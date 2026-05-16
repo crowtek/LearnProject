@@ -139,7 +139,53 @@ public class ItemMenuUIController : MonoBehaviour
         currentlyFocusedItem.AddToClassList("item-focused");
         currentlyFocusedItem.Focus();
 
-        itemDetailLabel.text = $"{slot.item.itemName}\n\n{slot.item.description}";
+        string detailText = $"<b>{slot.item.itemName}</b>\n\n{slot.item.description}";
+
+        if (slot.item is EquipmentItemSO focusedEq)
+        {
+            detailText += "\n";
+            EquipmentItemSO currentEquipped = inventoryData.currentlyEquipped.Find(x => x.slot == focusedEq.slot);
+
+            if (currentEquipped == focusedEq)
+            {
+                detailText += $"\nAttack: {focusedEq.attackBonus}";
+                detailText += $"\nDefense: {focusedEq.defenseBonus}";
+                detailText += $"\nAgility: {focusedEq.agilityBonus}";
+            }
+            else
+            {
+                // Compare stats (if nothing equipped, current stats are 0)
+                int curAtk = currentEquipped != null ? currentEquipped.attackBonus : 0;
+                int curDef = currentEquipped != null ? currentEquipped.defenseBonus : 0;
+                int curAgi = currentEquipped != null ? currentEquipped.agilityBonus : 0;
+
+                detailText += $"\n{FormatStatComparison("Attack", focusedEq.attackBonus, curAtk)}";
+                detailText += $"\n{FormatStatComparison("Defense", focusedEq.defenseBonus, curDef)}";
+                detailText += $"\n{FormatStatComparison("Agility", focusedEq.agilityBonus, curAgi)}";
+            }
+
+            detailText += $"\n\nSlot: <color=#FFFF55>{focusedEq.slot}</color>";
+        }
+
+        itemDetailLabel.text = detailText;
+    }
+
+    private string FormatStatComparison(string statName, int newValue, int oldValue)
+    {
+        int diff = newValue - oldValue;
+
+        if (diff > 0) // Better
+        {
+            return $"<color=#55FF55>{statName}: {newValue} (+{diff})</color>";
+        }
+        else if (diff < 0) // Worse
+        {
+            return $"<color=#FF5555>{statName}: {newValue} ({diff})</color>";
+        }
+        else // Same
+        {
+            return $"{statName}: {newValue}";
+        }
     }
 
     private void UseSelectedEQ()

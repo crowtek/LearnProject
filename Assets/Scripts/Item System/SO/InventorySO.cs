@@ -91,7 +91,6 @@ public class InventorySO : ScriptableObject
             currentlyEquipped.Remove(item);
         }
 
-        // Send the raw data to the Player assembly via the Channel
         equipmentChannel.RaiseEvent(new EquipmentChange
         {
             slot = item.slot,
