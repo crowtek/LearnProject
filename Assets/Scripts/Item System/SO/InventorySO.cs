@@ -1,17 +1,21 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class InventorySlot
+{
+    public BaseItemSO item;
+    public int amount;
+}
+
+
 [CreateAssetMenu(fileName = "PlayerInventory", menuName = "Systems/Inventory")]
 public class InventorySO : ScriptableObject
 {
-    [System.Serializable]
-    public class InventorySlot
-    {
-        public BaseItemSO item;
-        public int amount;
-    }
-
     [SerializeField] private EquipmentChangeChannelSO equipmentChannel;
+    [SerializeField] private VoidEventChannelSO onInventoryChanged;
+    [SerializeField] private PlayerRuntimeState playerState;
+
     public List<InventorySlot> slots = new List<InventorySlot>();
     public List<EquipmentItemSO> currentlyEquipped = new List<EquipmentItemSO>();
 
@@ -27,6 +31,8 @@ public class InventorySO : ScriptableObject
         {
             slots.Add(new InventorySlot { item = newItem, amount = amount });
         }
+
+        onInventoryChanged.RaiseEvent(); // Tell system Inventory changed
     }
 
     public bool HasItem(BaseItemSO item, int amount = 1)
@@ -42,17 +48,17 @@ public class InventorySO : ScriptableObject
         if (slot != null)
         {
             slot.amount -= amount;
-
-            // Clean up: If the stack reaches zero, remove the slot entirely
             if (slot.amount <= 0)
             {
-                slots.Remove(slot);
+                slots.Remove(slot);// If the stack reaches zero, remove the slot entirely
             }
         }
         else
         {
             Debug.LogWarning($"Attempted to remove {item.itemName}, but it wasn't found in inventory.");
         }
+
+        onInventoryChanged.RaiseEvent(); // Tell system Inventory changed
     }
 
     public bool IsAlreadyEquipped(EquipmentItemSO item)
@@ -70,17 +76,17 @@ public class InventorySO : ScriptableObject
             EquipmentItemSO oldItem = currentlyEquipped.Find(x => x.slot == equipment.slot);
             if (oldItem != null)
             {
-                ToggleState(oldItem, false);
+                ToggleEquipmentState(oldItem, false);
             }
 
-            ToggleState(equipment, true);
+            ToggleEquipmentState(equipment, true);
         }
         else
         {
-            ToggleState(equipment, false);
+            ToggleEquipmentState(equipment, false);
         }
     }
-    private void ToggleState(EquipmentItemSO item, bool state)
+    private void ToggleEquipmentState(EquipmentItemSO item, bool state)
     {
         if (state)
         {
@@ -99,6 +105,20 @@ public class InventorySO : ScriptableObject
             agilityBonus = item.agilityBonus,
             isEquipping = state
         });
+
+        onInventoryChanged.RaiseEvent();
+    }
+
+    public void UseItemFromInventory(BaseItemSO item)
+    {
+        if (item is IUsableItem usable)
+        {
+            if (usable.Use(playerState))
+            {
+                RemoveItem(item, 1);
+                onInventoryChanged?.RaiseEvent();
+            }
+        }
     }
 
 }

@@ -22860,7 +22860,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemMenuUIController
   inventoryData: {fileID: 11400000, guid: 6bb795242a65c6345b326156cfef0c35, type: 2}
   onInventoryChanged: {fileID: 11400000, guid: f2a36a05076c773428fd64b53e580198, type: 2}
-  playerState: {fileID: 11400000, guid: 111447a9599e90c46bd065eede477cb7, type: 2}
   inventoryDocument: {fileID: 540905880}
   inventoryToggleAction: {fileID: -8429735522532839577, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!4 &540905882

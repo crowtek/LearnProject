@@ -7,7 +7,6 @@ public class ItemMenuUIController : MonoBehaviour
     [Header("Data & Events")]
     [SerializeField] private InventorySO inventoryData;
     [SerializeField] private VoidEventChannelSO onInventoryChanged;
-    [SerializeField] private PlayerRuntimeState playerState; // For using items that affect player stats
 
     [Header("UI Setup")]
     [SerializeField] private UIDocument inventoryDocument;
@@ -20,7 +19,7 @@ public class ItemMenuUIController : MonoBehaviour
 
     private bool isMenuOpen = false;
     private VisualElement currentlyFocusedItem;
-    private InventorySO.InventorySlot currentlySelectedSlot;
+    private InventorySlot currentlySelectedSlot;
 
     private void Awake()
     {
@@ -82,7 +81,7 @@ public class ItemMenuUIController : MonoBehaviour
         }
     }
 
-    private void CreateItemElement(InventorySO.InventorySlot slot)
+    private void CreateItemElement(InventorySlot slot)
     {
         // Create a new VisualElement (the "box")
         VisualElement itemBox = new VisualElement();
@@ -129,7 +128,7 @@ public class ItemMenuUIController : MonoBehaviour
         itemListContainer.Add(itemBox);
     }
 
-    private void FocusItem(VisualElement element, InventorySO.InventorySlot slot)
+    private void FocusItem(VisualElement element, InventorySlot slot)
     {
         currentlyFocusedItem?.RemoveFromClassList("item-focused");
 
@@ -195,18 +194,16 @@ public class ItemMenuUIController : MonoBehaviour
             inventoryData.RequestEquip(equipment);
 
             itemMenu.style.display = DisplayStyle.None;
-            RefreshUI();
         }
     }
     private void UseSelectedItem()
     {
-        if (currentlySelectedSlot?.item is IUsableItem usable)
+        if (currentlySelectedSlot?.item != null)
         {
-            if (usable.Use(playerState))
-            {
-                inventoryData.RemoveItem(currentlySelectedSlot.item, 1);
-                itemMenu.style.display = DisplayStyle.None;
-            }
+            inventoryData.UseItemFromInventory(currentlySelectedSlot.item);
+
+            itemMenu.style.display = DisplayStyle.None;
+            RefreshUI();
         }
     }
 

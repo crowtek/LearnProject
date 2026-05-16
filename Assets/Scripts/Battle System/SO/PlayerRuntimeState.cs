@@ -6,6 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PlayerRuntimeState", menuName = "Scriptable Objects/PlayerRuntimeState")]
 public class PlayerRuntimeState : ScriptableObject
 {
+    [SerializeField] private PlayerRuntimeStateEventChannelSO playerStateChangedChannel;
     [SerializeField] private EquipmentChangeChannelSO equipmentChannel;
 
     public int currentLevel = 1;
@@ -21,14 +22,7 @@ public class PlayerRuntimeState : ScriptableObject
 
     private void OnEnable()
     {
-        if (equipmentChannel != null)
-        {
-            equipmentChannel.OnEventRaised += UpdateStats;
-        }
-        else
-        {
-            Debug.LogWarning("OnEnable: EquipmentChannel is missing!");
-        }
+        equipmentChannel.OnEventRaised += UpdateStats;
     }
 
     private void OnDisable()
@@ -51,6 +45,8 @@ public class PlayerRuntimeState : ScriptableObject
         defense += change.defenseBonus * multiplier;
         agility += change.agilityBonus * multiplier;
 
+        RaiseStateChanged();
+
         // Detailed Debug Log
         Debug.Log($"<color=green>[Equipment Event]</color> {action} Item in slot: {change.slot}\n" +
                   $"Attack: {oldAtk} -> {attack} ({change.attackBonus * multiplier})\n" +
@@ -71,5 +67,13 @@ public class PlayerRuntimeState : ScriptableObject
         isDead = false;
 
         expToNextLevel = LevelCalculator.GetRequiredEXP(currentLevel);
+    }
+
+    public void RaiseStateChanged()
+    {
+        if (playerStateChangedChannel != null)
+        {
+            playerStateChangedChannel.RaiseEvent(this);
+        }
     }
 }
