@@ -9,6 +9,7 @@ public class PlayerRuntimeState : ScriptableObject
     [SerializeField] private PlayerRuntimeStateEventChannelSO playerStateChangedChannel;
     [SerializeField] private EquipmentChangeChannelSO equipmentChannel;
 
+    public string playerName = "Hero";
     public int currentLevel = 1;
     public int currentEXP;
     public int expToNextLevel;

@@ -4,6 +4,7 @@ public enum EquipmentSlot { Weapon, Shield, Armor, Accessory }
 
 public struct EquipmentChange
 {
+    public string name;
     public EquipmentSlot slot;
     public int attackBonus;
     public int defenseBonus;

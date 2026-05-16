@@ -21296,6 +21296,7 @@ MonoBehaviour:
   playerStatsUI: {fileID: 486588338}
   toggleStatsUIAction: {fileID: -8992828640908115106, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   playerRuntimeState: {fileID: 11400000, guid: 111447a9599e90c46bd065eede477cb7, type: 2}
+  inventoryData: {fileID: 11400000, guid: 6bb795242a65c6345b326156cfef0c35, type: 2}
 --- !u!4 &486588340
 Transform:
   m_ObjectHideFlags: 0

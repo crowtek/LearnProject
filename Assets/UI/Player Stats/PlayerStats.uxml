@@ -2,8 +2,42 @@
     <Style src="project://database/Assets/UI/Player%20Stats/PlayerStats.uss?fileID=7433441132597879392&amp;guid=403edcdeb4e1c7743809168cf1da3ef0&amp;type=3#PlayerStats"/>
     <ui:VisualElement name="PlayerStatsContainer" style="flex-grow: 1; flex-direction: row; flex-basis: auto; flex-wrap: wrap-reverse; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
         <ui:VisualElement name="LeftSide" style="flex-grow: 1;">
-            <ui:VisualElement name="GernalDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0;"/>
-            <ui:VisualElement name="EquipmentDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0; margin-top: 20px;"/>
+            <ui:VisualElement name="GeneralDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0;">
+                <ui:VisualElement name="stat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Hero Name" name="Name" class="text"/>
+                    <ui:Label text="Label" name="PlayerNameValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="stat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Lv." name="Name" class="text"/>
+                    <ui:Label text="Label" name="LevelValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="stat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Exp" name="Name" class="text"/>
+                    <ui:Label text="Label" name="ExpValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="stat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Needed Exp" name="Name" class="text"/>
+                    <ui:Label text="Label" name="NeededExpValue" class="text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="EquipmentDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0; margin-top: 20px; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                <ui:VisualElement name="wapponContainer" style="flex-grow: 0; flex-direction: row; justify-content: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Image name="Image" class="icon" style="background-image: url(&quot;project://database/Assets/Images/Gemini_Generated_Image_zaag4wzaag4wzaag-Photoroom.png?fileID=2800000&amp;guid=cd5d2da95b086034889be17781f8fa1b&amp;type=3#Gemini_Generated_Image_zaag4wzaag4wzaag-Photoroom&quot;);"/>
+                    <ui:Label text="Label" name="WeaponSlotValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="armorContainer" style="flex-grow: 0; flex-direction: row; justify-content: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Image name="Image" class="icon" style="background-image: url(&quot;project://database/Assets/Images/Gemini_Generated_Image_u9g4y6u9g4y6u9g4-Photoroom.png?fileID=2800000&amp;guid=d5ce56ff9e8c40c42b945adefb3da792&amp;type=3#Gemini_Generated_Image_u9g4y6u9g4y6u9g4-Photoroom&quot;);"/>
+                    <ui:Label text="Label" name="ArmorSlotValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="shildContainer" style="flex-grow: 0; flex-direction: row; justify-content: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Image name="Image" class="icon" style="background-image: url(&quot;project://database/Assets/Images/Gemini_Generated_Image_2iejwp2iejwp2iej-Photoroom.png?fileID=2800000&amp;guid=76d2453edd0901d4aae44488c4f8ff50&amp;type=3#Gemini_Generated_Image_2iejwp2iejwp2iej-Photoroom&quot;);"/>
+                    <ui:Label text="Label" name="ShieldSlotValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="AccessoryContainer" style="flex-grow: 0; flex-direction: row; justify-content: flex-start; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Image name="Image" class="icon" style="background-image: url(&quot;project://database/Assets/Images/Gemini_Generated_Image_k1knkik1knkik1kn-Photoroom.png?fileID=2800000&amp;guid=0d61721f56b8dab4981122261db3122d&amp;type=3#Gemini_Generated_Image_k1knkik1knkik1kn-Photoroom&quot;);"/>
+                    <ui:Label text="Label" name="AccessorySlotValue" class="text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="RightSide" style="flex-grow: 1; margin-left: 20px; max-width: 40%; min-width: 250px;">
             <ui:VisualElement name="StatsContainer" class="box" style="flex-grow: 1; flex-shrink: 1;">
@@ -16,7 +50,7 @@
                 </ui:VisualElement>
                 <ui:VisualElement name="MaxMpStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
                     <ui:Label text="Max Mp." name="Name" class="text"/>
-                    <ui:Label text="Label" name="MaxMpValue" class="text"/>
+                    <ui:Label text="Label" name="MaxMPValue" class="text"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="AttackStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
                     <ui:Label text="Attack" name="Name" class="text"/>
