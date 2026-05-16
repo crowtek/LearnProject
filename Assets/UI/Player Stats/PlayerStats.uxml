@@ -1,0 +1,52 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Player%20Stats/PlayerStats.uss?fileID=7433441132597879392&amp;guid=403edcdeb4e1c7743809168cf1da3ef0&amp;type=3#PlayerStats"/>
+    <ui:VisualElement name="PlayerStatsContainer" style="flex-grow: 1; flex-direction: row; flex-basis: auto; flex-wrap: wrap-reverse; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+        <ui:VisualElement name="LeftSide" style="flex-grow: 1;">
+            <ui:VisualElement name="GernalDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0;"/>
+            <ui:VisualElement name="EquipmentDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0; margin-top: 20px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="RightSide" style="flex-grow: 1; margin-left: 20px; max-width: 40%; min-width: 250px;">
+            <ui:VisualElement name="StatsContainer" class="box" style="flex-grow: 1; flex-shrink: 1;">
+                <ui:VisualElement name="StatTitle" style="flex-grow: 0; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; border-bottom-width: 2px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);">
+                    <ui:Label text="Attributes" class="text" style="-unity-text-align: upper-center;"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="MaxHpStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Max Hp." name="Name" class="text"/>
+                    <ui:Label text="Label" name="MaxHPValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="MaxMpStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Max Mp." name="Name" class="text"/>
+                    <ui:Label text="Label" name="MaxMpValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="AttackStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Attack" name="Name" class="text"/>
+                    <ui:Label text="Label" name="AttackValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="DefenseStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Defense" name="Name" class="text"/>
+                    <ui:Label text="Label" name="DefenseValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="AgilityStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Agility" name="Name" class="text"/>
+                    <ui:Label text="Label" name="AgilityValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="ResilienceStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Resilience" name="Name" class="text"/>
+                    <ui:Label text="Label" name="ResilienceValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="LuckStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Luck" name="Name" class="text"/>
+                    <ui:Label text="Label" name="LuckValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="StaminaStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Stamina" name="Name" class="text"/>
+                    <ui:Label text="Label" name="StaminaValue" class="text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="WisdomStat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                    <ui:Label text="Wisdom" name="Name" class="text"/>
+                    <ui:Label text="Label" name="WisdomValue" class="text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

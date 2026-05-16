@@ -13,12 +13,18 @@ public class PlayerRuntimeState : ScriptableObject
     public int currentEXP;
     public int expToNextLevel;
     public int currentHP;
+    public bool isDead;
+    public bool isPoisoned;
+
     public int maxHP;
+    public int maxMP;
     public int attack;
     public int defense;
     public int agility;
-    public bool isDead;
-    public bool isPoisoned;
+    public int resilience;
+    public int luck;
+    public int stamina;
+    public int wisdom;
 
     private void OnEnable()
     {
@@ -54,20 +60,6 @@ public class PlayerRuntimeState : ScriptableObject
                   $"Agility: {oldAgi} -> {agility} ({change.agilityBonus * multiplier})");
     }
 
-    public void ResetStats(BattleEntityData template)
-    {
-        currentLevel = 1;
-        currentEXP = 0;
-        expToNextLevel = 100;
-        maxHP = template.maxHP;
-        attack = template.attack;
-        defense = template.defense;
-        agility = template.agility;
-        currentHP = template.maxHP;
-        isDead = false;
-
-        expToNextLevel = LevelCalculator.GetRequiredEXP(currentLevel);
-    }
 
     public void RaiseStateChanged()
     {

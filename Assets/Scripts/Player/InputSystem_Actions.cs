@@ -132,7 +132,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": ""Crouch"",
                     ""type"": ""Button"",
                     ""id"": ""27c5f898-bc57-4ee1-8800-db469aca5fe3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -673,6 +673,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenStats"",
+                    ""type"": ""Button"",
+                    ""id"": ""02d6ded3-b202-4e5b-b229-72185811bb7e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1115,6 +1124,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""OpenSettings"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b621b61c-638e-471c-9a28-ef44125ed05e"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OpenStats"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1207,6 +1227,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
         m_UI_Inventory = m_UI.FindAction("Inventory", throwIfNotFound: true);
         m_UI_OpenSettings = m_UI.FindAction("OpenSettings", throwIfNotFound: true);
+        m_UI_OpenStats = m_UI.FindAction("OpenStats", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -1484,6 +1505,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_TrackedDeviceOrientation;
     private readonly InputAction m_UI_Inventory;
     private readonly InputAction m_UI_OpenSettings;
+    private readonly InputAction m_UI_OpenStats;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1543,6 +1565,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/OpenSettings".
         /// </summary>
         public InputAction @OpenSettings => m_Wrapper.m_UI_OpenSettings;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/OpenStats".
+        /// </summary>
+        public InputAction @OpenStats => m_Wrapper.m_UI_OpenStats;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1605,6 +1631,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @OpenSettings.started += instance.OnOpenSettings;
             @OpenSettings.performed += instance.OnOpenSettings;
             @OpenSettings.canceled += instance.OnOpenSettings;
+            @OpenStats.started += instance.OnOpenStats;
+            @OpenStats.performed += instance.OnOpenStats;
+            @OpenStats.canceled += instance.OnOpenStats;
         }
 
         /// <summary>
@@ -1652,6 +1681,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @OpenSettings.started -= instance.OnOpenSettings;
             @OpenSettings.performed -= instance.OnOpenSettings;
             @OpenSettings.canceled -= instance.OnOpenSettings;
+            @OpenStats.started -= instance.OnOpenStats;
+            @OpenStats.performed -= instance.OnOpenStats;
+            @OpenStats.canceled -= instance.OnOpenStats;
         }
 
         /// <summary>
@@ -1912,5 +1944,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnOpenSettings(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OpenStats" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpenStats(InputAction.CallbackContext context);
     }
 }

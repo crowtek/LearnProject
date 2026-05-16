@@ -1,0 +1,27 @@
+:root {
+}
+
+.text {
+    color: rgb(224, 224, 224);
+    font-size: 18px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    -unity-text-outline-width: 0.5px;
+    -unity-font-style: bold;
+    text-shadow: 1px 1px 3px rgba(9, 9, 9, 0.61);
+}
+
+.box {
+    background-color: rgba(7, 7, 7, 0.64);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+}
