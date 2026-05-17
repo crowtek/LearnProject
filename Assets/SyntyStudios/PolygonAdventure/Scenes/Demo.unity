@@ -86721,6 +86721,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.BattleSystem::SkillDistroUIController
   weaponRowTemplate: {fileID: 9197481963319205126, guid: 106844d6cea2930429c07f4fc990e612, type: 3}
+  activeWeaponCategories:
+  - {fileID: 11400000, guid: 48d368b009cc6134a9cbd2d01f5584d4, type: 2}
 --- !u!1001 &2016265589
 PrefabInstance:
   m_ObjectHideFlags: 0

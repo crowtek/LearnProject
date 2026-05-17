@@ -4,35 +4,37 @@ using UnityEngine.UIElements;
 
 public class WeaponSkillRowInstance
 {
-    public string weaponName;
+    public WeaponCategorySO config;
     public Label pointsLabel;
-    public System.Action onIncrement;
-
-    public System.Func<int> GetCurrentPoints;
-    public System.Action<int> SetCurrentPoints;
 }
 
 public class SkillDistroUIController : MonoBehaviour
 {
     [Header("UI Templates & Containers")]
     [SerializeField] private VisualTreeAsset weaponRowTemplate;
+    [Header("Data Configurations")]
+    [SerializeField] private List<WeaponCategorySO> activeWeaponCategories;
 
     private VisualElement skillDistroWindow;
     private VisualElement skillRowsContainer;
     private Label unspentPointsLabel;
 
+    private Label detailTitleLabel;
+    private Label detailDescLabel;
+
     private List<WeaponSkillRowInstance> spawnedRows = new List<WeaponSkillRowInstance>();
     private Dictionary<string, int> tempAllocations = new Dictionary<string, int>();
     private int tempUnspent;
     private System.Action onDistributionComplete;
-    private VisualElement rootVisualElement;
 
     public void Initialize(VisualElement root)
     {
-        rootVisualElement = root;
         skillDistroWindow = root.Q<VisualElement>("SkillDistroWindow");
         unspentPointsLabel = root.Q<Label>("UnspentPointsValue");
         skillRowsContainer = root.Q<VisualElement>("SkillRowsContainer");
+
+        detailTitleLabel = root.Q<Label>("DetailTitleLabel");
+        detailDescLabel = root.Q<Label>("DetailDescriptionLabel");
 
         if (skillDistroWindow != null)
         {
@@ -49,45 +51,44 @@ public class SkillDistroUIController : MonoBehaviour
         spawnedRows.Clear();
         skillRowsContainer.pickingMode = PickingMode.Ignore;
 
-        var categories = new[]
-        {
-            new { Name = "Sword", Get = (System.Func<int>)(() => player.swordPoints), Set = (System.Action<int>)(v => player.swordPoints = v) },
-            new { Name = "Spear", Get = (System.Func<int>)(() => player.spearPoints), Set = (System.Action<int>)(v => player.spearPoints = v) },
-            new { Name = "Boomerang", Get = (System.Func<int>)(() => player.boomerangPoints), Set = (System.Action<int>)(v => player.boomerangPoints = v) },
-            new { Name = "Fisticuffs", Get = (System.Func<int>)(() => player.fisticuffsPoints), Set = (System.Action<int>)(v => player.fisticuffsPoints = v) }
-        };
-
-        foreach (var cat in categories)
+        foreach (var weaponConfig in activeWeaponCategories)
         {
             VisualElement rowInstance = weaponRowTemplate.CloneTree();
             rowInstance.pickingMode = PickingMode.Ignore;
 
             Label nameLabel = rowInstance.Q<Label>("WeaponNameLabel");
             Label pointsLabel = rowInstance.Q<Label>("WeaponPointsLabel");
+            VisualElement iconContainer = rowInstance.Q<VisualElement>("WeaponIcon");
             Button addBtn = rowInstance.Q<Button>("AddPointsBTN");
             Button removeBtn = rowInstance.Q<Button>("RemovePointsBTN");
 
-            if (nameLabel != null) nameLabel.text = cat.Name;
+            if (nameLabel != null) nameLabel.text = weaponConfig.weaponName;
+            if (iconContainer != null && weaponConfig.weaponIcon != null) iconContainer.style.backgroundImage = new StyleBackground(weaponConfig.weaponIcon);
+
             if (addBtn != null) addBtn.pickingMode = PickingMode.Position;
             if (removeBtn != null) removeBtn.pickingMode = PickingMode.Position;
 
             var rowData = new WeaponSkillRowInstance
             {
-                weaponName = cat.Name,
-                pointsLabel = pointsLabel,
-                GetCurrentPoints = cat.Get,
-                SetCurrentPoints = cat.Set
+                config = weaponConfig,
+                pointsLabel = pointsLabel
             };
+
+            // Display details on hover
+            rowInstance.RegisterCallback<PointerEnterEvent>(evt => DisplayWeaponDetails(weaponConfig, player.GetPointsForWeapon(weaponConfig.weaponName) + tempAllocations[weaponConfig.weaponName]));
 
             if (addBtn != null)
             {
                 addBtn.clicked += () =>
                 {
-                    if (tempUnspent > 0 && (rowData.GetCurrentPoints() + tempAllocations[rowData.weaponName]) < 100)
+                    string weaponKey = rowData.config.weaponName;
+                    int activeTotal = player.GetPointsForWeapon(weaponKey) + tempAllocations[weaponKey];
+                    if (tempUnspent > 0 && activeTotal < 100)
                     {
-                        tempAllocations[rowData.weaponName]++;
+                        tempAllocations[weaponKey]++;
                         tempUnspent--;
-                        UpdateSkillLabels();
+                        UpdateSkillLabels(player);
+                        DisplayWeaponDetails(rowData.config, activeTotal + 1);
                     }
                 };
             }
@@ -96,11 +97,13 @@ public class SkillDistroUIController : MonoBehaviour
             {
                 removeBtn.clicked += () =>
                 {
-                    if (tempAllocations[rowData.weaponName] > 0)
+                    string weaponKey = rowData.config.weaponName;
+                    if (tempAllocations[weaponKey] > 0)
                     {
-                        tempAllocations[rowData.weaponName]--;
+                        tempAllocations[weaponKey]--;
                         tempUnspent++;
-                        UpdateSkillLabels();
+                        UpdateSkillLabels(player);
+                        DisplayWeaponDetails(rowData.config, player.GetPointsForWeapon(weaponKey) + tempAllocations[weaponKey]);
                     }
                 };
             }
@@ -118,17 +121,31 @@ public class SkillDistroUIController : MonoBehaviour
         tempAllocations.Clear();
         foreach (var row in spawnedRows)
         {
-            tempAllocations[row.weaponName] = 0;
+            tempAllocations[row.config.weaponName] = 0;
         }
 
-        UpdateSkillLabels();
+        UpdateSkillLabels(player);
         skillDistroWindow.style.display = DisplayStyle.Flex;
 
-        rootVisualElement.RegisterCallback<KeyDownEvent>(HandleSkillNavigation);
-        rootVisualElement.Focus();
+        // Find your 'Confirm' or 'Close' button inside the window and bind it directly to mouse click instead
+        Button confirmBtn = skillDistroWindow.Q<Button>("ConfirmSkillsBTN"); // Adjust name to your actual close button element
+        if (confirmBtn != null)
+        {
+            confirmBtn.clicked += CloseDistributionWindow;
+        }
     }
 
-    private void UpdateSkillLabels()
+    private void CloseDistributionWindow()
+    {
+        // Unbind click to prevent double assignments on subsequent battles
+        Button confirmBtn = skillDistroWindow.Q<Button>("ConfirmSkillsBTN");
+        if (confirmBtn != null) confirmBtn.clicked -= CloseDistributionWindow;
+
+        skillDistroWindow.style.display = DisplayStyle.None;
+        onDistributionComplete?.Invoke();
+    }
+
+    private void UpdateSkillLabels(PlayerRuntimeState player)
     {
         if (unspentPointsLabel == null) return;
         unspentPointsLabel.text = $"Skill Points Left: {tempUnspent}";
@@ -141,8 +158,8 @@ public class SkillDistroUIController : MonoBehaviour
             Label additionLabel = visualRow.Q<Label>("WapponSkillAddition");
             Label pointsLabel = visualRow.Q<Label>("WeaponPointsLabel");
 
-            int basePoints = rowData.GetCurrentPoints();
-            int addedPoints = tempAllocations[rowData.weaponName];
+            int basePoints = player.GetPointsForWeapon(rowData.config.weaponName);
+            int addedPoints = tempAllocations[rowData.config.weaponName];
 
             if (additionLabel != null)
                 additionLabel.text = addedPoints > 0 ? $"+{addedPoints}" : "0";
@@ -152,43 +169,32 @@ public class SkillDistroUIController : MonoBehaviour
         }
     }
 
-    private void HandleSkillNavigation(KeyDownEvent evt)
+    private void DisplayWeaponDetails(WeaponCategorySO config, int currentTotalPoints)
     {
-        if (tempUnspent > 0)
-        {
-            int selectionIndex = -1;
-            if (evt.keyCode == KeyCode.Alpha1) selectionIndex = 0;
-            if (evt.keyCode == KeyCode.Alpha2) selectionIndex = 1;
-            if (evt.keyCode == KeyCode.Alpha3) selectionIndex = 2;
-            if (evt.keyCode == KeyCode.Alpha4) selectionIndex = 3;
+        if (detailTitleLabel == null || detailDescLabel == null) return;
 
-            if (selectionIndex >= 0 && selectionIndex < spawnedRows.Count)
-            {
-                var targetRow = spawnedRows[selectionIndex];
-                if ((targetRow.GetCurrentPoints() + tempAllocations[targetRow.weaponName]) < 100)
-                {
-                    tempAllocations[targetRow.weaponName]++;
-                    tempUnspent--;
-                    UpdateSkillLabels();
-                }
-            }
+        detailTitleLabel.text = config.weaponName;
+
+        string infoText = $"{config.categoryDescription}\n\nProgression unlocks:\n";
+        foreach (var node in config.skillNodes)
+        {
+            string status = currentTotalPoints >= node.pointsRequired ? "[UNLOCKED]" : $"[{node.pointsRequired} Pts]";
+            infoText += $"{status} {node.skillName}: {node.description}\n";
         }
 
-        if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter)
-        {
-            rootVisualElement.UnregisterCallback<KeyDownEvent>(HandleSkillNavigation);
-            skillDistroWindow.style.display = DisplayStyle.None;
-            onDistributionComplete?.Invoke();
-        }
+        detailDescLabel.text = infoText;
     }
 
     public void ApplyAllocatedPoints(PlayerRuntimeState player)
     {
         player.unspentSkillPoints = tempUnspent;
+
         foreach (var row in spawnedRows)
         {
-            int finalValue = row.GetCurrentPoints() + tempAllocations[row.weaponName];
-            row.SetCurrentPoints(finalValue);
+            int finalValue = player.GetPointsForWeapon(row.config.weaponName) + tempAllocations[row.config.weaponName];
+            player.SetPointsForWeapon(row.config.weaponName, finalValue);
         }
+
+        player.RecalculateWeaponSkillBonuses(activeWeaponCategories);
     }
 }
