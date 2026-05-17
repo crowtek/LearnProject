@@ -55,6 +55,21 @@ public class ProgressionManager : MonoBehaviour
         playerState.attack += atkGainPerLevel;
         playerState.currentHP = playerState.maxHP;
 
+        playerState.unspentSkillPoints += 3;
+        CheckWeaponSkillUnlocks();
+
         playerState.expToNextLevel = LevelCalculator.GetRequiredEXP(playerState.currentLevel);
+    }
+
+    private void CheckWeaponSkillUnlocks()
+    {
+        // Example threshold logic matching your rule: "Unlock every 5 points"
+        if (playerState.swordPoints >= 5)
+        {
+            // add skills via scriptable objects
+            // needed skill points to consume.
+            // skill name and effect.
+            // add skill to player list of skills
+        }
     }
 }

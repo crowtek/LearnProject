@@ -86635,6 +86635,7 @@ GameObject:
   - component: {fileID: 2016080679}
   - component: {fileID: 2016080682}
   - component: {fileID: 2016080681}
+  - component: {fileID: 2016080683}
   m_Layer: 5
   m_Name: BattleUI
   m_TagString: Untagged
@@ -86706,6 +86707,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.BattleSystem::BattleUIController
   battleHUD: {fileID: 2016080679}
   typewriter: {fileID: 2016080681}
+  skillDistroUI: {fileID: 2016080683}
+--- !u!114 &2016080683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2016080678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f1000a5d6e770940a2189ddbf84a0ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.BattleSystem::SkillDistroUIController
+  weaponRowTemplate: {fileID: 9197481963319205126, guid: 106844d6cea2930429c07f4fc990e612, type: 3}
 --- !u!1001 &2016265589
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -21,6 +21,9 @@ public class BattleManager : MonoBehaviour
     {
         Instance = this;
         uiController.Initialize();
+
+        uiController.Initialize();
+        uiController.SkillDistro.SetupDynamicWeaponRows(playerRuntime);
     }
 
     public void StartBattle(BattleEntityData enemyData)
@@ -74,12 +77,39 @@ public class BattleManager : MonoBehaviour
         if (currentEnemyHP <= 0)
         {
             string msg = $"You won! \nEarned {accumulatedEXP} EXP.";
-            if (playerRuntime.currentEXP + accumulatedEXP >= playerRuntime.expToNextLevel)
-                msg += "\n\nLEVEL UP!";
 
-            uiController.ShowVictoryScreen(msg, CloseBattleUI);
+            // Note: Check level projection status matching ProgressionManager's threshold logic
+            if (playerRuntime.currentEXP + accumulatedEXP >= playerRuntime.expToNextLevel)
+            {
+                msg += "\n\nLEVEL UP!";
+                // Show screen, but route continue pipeline through the skill point check sequence instead!
+                uiController.ShowVictoryScreen(msg, EvaluatePostBattleSkillFlow);
+            }
+            else
+            {
+                uiController.ShowVictoryScreen(msg, CloseBattleUI);
+            }
         }
-        else CloseBattleUI();
+        else
+        {
+            CloseBattleUI();
+        }
+    }
+
+    private void EvaluatePostBattleSkillFlow()
+    {
+        if (playerRuntime.unspentSkillPoints > 0)
+        {
+            uiController.SkillDistro.OpenSkillDistribution(playerRuntime, () =>
+            {
+                uiController.SkillDistro.ApplyAllocatedPoints(playerRuntime);
+                CloseBattleUI();
+            });
+        }
+        else
+        {
+            CloseBattleUI();
+        }
     }
 
     private void CloseBattleUI()

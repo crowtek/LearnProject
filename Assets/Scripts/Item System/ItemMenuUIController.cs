@@ -13,6 +13,7 @@ public class ItemMenuUIController : MonoBehaviour
     [SerializeField] private InputActionReference inventoryToggleAction;
 
     private VisualElement root;
+    private VisualElement container;
     private VisualElement itemListContainer;
     private VisualElement itemMenu;
     private Label itemDetailLabel;
@@ -24,11 +25,11 @@ public class ItemMenuUIController : MonoBehaviour
     private void Awake()
     {
         root = inventoryDocument.rootVisualElement;
+        container = root.Q<VisualElement>("Inventory");
         itemListContainer = root.Q<VisualElement>("ItemList");
         itemMenu = root.Q<VisualElement>("ItemMenu");
         itemDetailLabel = root.Q<Label>("ItemDetailText");
 
-        root.style.display = DisplayStyle.None;
         root.Q<Button>("UseButton").clicked += () => UseSelectedItem();
         root.Q<Button>("DiscardButton").clicked += () => DiscardSelectedItem();
         root.Q<Button>("EquipButton").clicked += () => UseSelectedEQ();
@@ -61,7 +62,7 @@ public class ItemMenuUIController : MonoBehaviour
     public void ToggleMenu()
     {
         isMenuOpen = !isMenuOpen;
-        root.style.display = isMenuOpen ? DisplayStyle.Flex : DisplayStyle.None;
+        container.style.display = isMenuOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
         if (isMenuOpen)
         {

@@ -1,5 +1,4 @@
-﻿using log4net.Core;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,8 +6,8 @@ public class BattleUIController : MonoBehaviour
 {
     [SerializeField] private UIDocument battleHUD;
     [SerializeField] private TypewriterHandler typewriter;
+    [SerializeField] private SkillDistroUIController skillDistroUI;
 
-    // UI Elements
     private VisualElement root;
     private VisualElement container, playerPortre, playerSprite, enemySprite;
     private VisualElement hpBarFill, textboxContainer;
@@ -17,12 +16,13 @@ public class BattleUIController : MonoBehaviour
 
     private Coroutine damageTextCoroutine;
 
+    public SkillDistroUIController SkillDistro => skillDistroUI;
+
     public void Initialize()
     {
         root = battleHUD.rootVisualElement;
         container = root.Q<VisualElement>("container");
 
-        // Querying elements - Using your exact UXML strings
         playerPortre = root.Q<VisualElement>("PlayerImage");
         playerSprite = root.Q<VisualElement>("PlayerSprite");
         enemySprite = root.Q<VisualElement>("EnemySprite");
@@ -38,7 +38,10 @@ public class BattleUIController : MonoBehaviour
         defButton = root.Q<Button>("DefButton");
         closeBtn = root.Q<Button>("CloseButton");
 
-        container.style.display = DisplayStyle.None;
+        if (skillDistroUI != null)
+        {
+            skillDistroUI.Initialize(root);
+        }
     }
 
     public void SetActive(bool active)
@@ -58,30 +61,27 @@ public class BattleUIController : MonoBehaviour
     {
         playerHPLabel.text = $"HP: {currentHP} / {maxHP}";
         levelLabel.text = $"Lv. {level}";
-        enemyDamage.text = "";
-        playerDamage.text = "";
 
         float hpRatio = (float)currentHP / maxHP;
         float hpPercent = Mathf.Clamp(hpRatio * 100f, 0, 100f);
-
         hpBarFill.style.width = new Length(hpPercent, LengthUnit.Percent);
     }
 
     public void ShowMonsterDamage(int damage)
     {
         enemyDamage.text = $"-{damage}";
-        typewriter.RunText(enemyDamage, enemyDamage.text);
+        if (damageTextCoroutine != null) StopCoroutine(damageTextCoroutine);
         damageTextCoroutine = StartCoroutine(HideDamageTextAfterDelay(enemyDamage, 1.0f));
     }
 
     public void ShowPlayerDamage(int damage)
     {
         playerDamage.text = $"-{damage}";
-        typewriter.RunText(playerDamage, playerDamage.text);
+        if (damageTextCoroutine != null) StopCoroutine(damageTextCoroutine);
         damageTextCoroutine = StartCoroutine(HideDamageTextAfterDelay(playerDamage, 1.0f));
     }
 
-    private IEnumerator HideDamageTextAfterDelay(Label label,float delay)
+    private IEnumerator HideDamageTextAfterDelay(Label label, float delay)
     {
         yield return new WaitForSeconds(delay);
         label.text = "";
@@ -102,7 +102,6 @@ public class BattleUIController : MonoBehaviour
         textboxContainer.style.display = DisplayStyle.None;
     }
 
-    // Connect buttons to logic
     public void BindButtons(System.Action onAttack, System.Action onDefend, System.Action onEnd)
     {
         attackBtn.clicked += onAttack;

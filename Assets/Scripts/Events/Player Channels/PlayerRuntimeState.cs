@@ -27,6 +27,22 @@ public class PlayerRuntimeState : ScriptableObject
     public int stamina;
     public int wisdom;
 
+    [Header("Skill System")]
+    public int unspentSkillPoints;
+    public int swordPoints;
+    public int spearPoints;
+    public int boomerangPoints;
+    public int fisticuffsPoints;
+
+    public void ResetSkillPoints()
+    {
+        unspentSkillPoints = 0;
+        swordPoints = 0;
+        spearPoints = 0;
+        boomerangPoints = 0;
+        fisticuffsPoints = 0;
+    }
+
     private void OnEnable()
     {
         equipmentChannel.OnEventRaised += UpdateStats;

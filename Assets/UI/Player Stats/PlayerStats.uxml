@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Player%20Stats/PlayerStats.uss?fileID=7433441132597879392&amp;guid=403edcdeb4e1c7743809168cf1da3ef0&amp;type=3#PlayerStats"/>
-    <ui:VisualElement name="PlayerStatsContainer" style="flex-grow: 1; flex-direction: row; flex-basis: auto; flex-wrap: wrap-reverse; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+    <ui:VisualElement name="PlayerStatsContainer" style="flex-grow: 1; flex-direction: row; flex-basis: auto; flex-wrap: wrap-reverse; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px; display: none;">
         <ui:VisualElement name="LeftSide" style="flex-grow: 1;">
             <ui:VisualElement name="GeneralDataContainer" class="box" style="flex-grow: 1; flex-shrink: 0;">
                 <ui:VisualElement name="stat" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
