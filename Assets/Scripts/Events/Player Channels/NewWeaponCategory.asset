@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: sword
-  m_EditorClassIdentifier: Project.BattleSystem::WeaponCategorySO
+  m_Name: NewWeaponCategory
+  m_EditorClassIdentifier: Project.Events::WeaponCategorySO
   weaponName: Sword
-  weaponIcon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  categoryDescription: Sword Discriptuion
+  weaponIcon: {fileID: 21300000, guid: d246d8e4b3aba904c9648c75177c1b9e, type: 3}
+  categoryDescription: Sword dis
   skillNodes:
-  - skillName: first skill
-    description: first skill desc
+  - skillName: test
+    description: tesf
     pointsRequired: 5
     nodeType: 0
-    attackBonus: 5
+    attackBonus: 4
     defenseBonus: 0
-    skillIdToUnlock: firstSkillID
+    skillIdToUnlock: 

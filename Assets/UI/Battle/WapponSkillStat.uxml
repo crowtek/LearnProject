@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UI/Battle/Battle.uss?fileID=7433441132597879392&amp;guid=da00258b319d54c438bb033ea50dc12d&amp;type=3#Battle"/>
     <ui:VisualElement name="WeaponSkillRow" style="flex-grow: 0; flex-direction: row; justify-content: space-between; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
         <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: center; min-width: 50%; max-width: 50%;">
-            <ui:Image name="icon" class="icon" style="background-image: url(&quot;project://database/Assets/Images/sword.png?fileID=2800000&amp;guid=cd5d2da95b086034889be17781f8fa1b&amp;type=3#sword&quot;);"/>
+            <ui:VisualElement name="WeaponIcon" class="icon" style="flex-grow: 0;"/>
             <ui:Label text="Sword" name="WeaponNameLabel" class="title"/>
         </ui:VisualElement>
         <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: center;">

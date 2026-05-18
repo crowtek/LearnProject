@@ -21,6 +21,7 @@ public class SkillDistroUIController : MonoBehaviour
 
     private Label detailTitleLabel;
     private Label detailDescLabel;
+    private Label weaponSkillAddition;
 
     private List<WeaponSkillRowInstance> spawnedRows = new List<WeaponSkillRowInstance>();
     private Dictionary<string, int> tempAllocations = new Dictionary<string, int>();
@@ -35,6 +36,7 @@ public class SkillDistroUIController : MonoBehaviour
 
         detailTitleLabel = root.Q<Label>("DetailTitleLabel");
         detailDescLabel = root.Q<Label>("DetailDescriptionLabel");
+        weaponSkillAddition = root.Q<Label>("WapponSkillAddition");
 
         if (skillDistroWindow != null)
         {
@@ -49,18 +51,23 @@ public class SkillDistroUIController : MonoBehaviour
 
         skillRowsContainer.Clear();
         spawnedRows.Clear();
+        tempAllocations.Clear();
         skillRowsContainer.pickingMode = PickingMode.Ignore;
 
         foreach (var weaponConfig in activeWeaponCategories)
         {
+            tempAllocations[weaponConfig.weaponName] = 0;
+
             VisualElement rowInstance = weaponRowTemplate.CloneTree();
             rowInstance.pickingMode = PickingMode.Ignore;
 
             Label nameLabel = rowInstance.Q<Label>("WeaponNameLabel");
-            Label pointsLabel = rowInstance.Q<Label>("WeaponPointsLabel");
             VisualElement iconContainer = rowInstance.Q<VisualElement>("WeaponIcon");
+
+            Label pointsLabel = rowInstance.Q<Label>("WeaponPointsLabel");
             Button addBtn = rowInstance.Q<Button>("AddPointsBTN");
             Button removeBtn = rowInstance.Q<Button>("RemovePointsBTN");
+            Label additionLabel = rowInstance.Q<Label>("WapponSkillAddition");
 
             if (nameLabel != null) nameLabel.text = weaponConfig.weaponName;
             if (iconContainer != null && weaponConfig.weaponIcon != null) iconContainer.style.backgroundImage = new StyleBackground(weaponConfig.weaponIcon);
@@ -75,7 +82,11 @@ public class SkillDistroUIController : MonoBehaviour
             };
 
             // Display details on hover
-            rowInstance.RegisterCallback<PointerEnterEvent>(evt => DisplayWeaponDetails(weaponConfig, player.GetPointsForWeapon(weaponConfig.weaponName) + tempAllocations[weaponConfig.weaponName]));
+            rowInstance.RegisterCallback<PointerEnterEvent>(evt =>
+            {
+                int allocated = tempAllocations.TryGetValue(weaponConfig.weaponName, out int val) ? val : 0;
+                DisplayWeaponDetails(weaponConfig, player.GetPointsForWeapon(weaponConfig.weaponName) + allocated);
+            });
 
             if (addBtn != null)
             {
