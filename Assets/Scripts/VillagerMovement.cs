@@ -38,6 +38,7 @@ public class VillagerMovement : MonoBehaviour
         {
             while (!token.IsCancellationRequested)
             {
+                if (agent == null) return;
                 Vector3 targetDestination = GetRandomPoint(transform.position, 10f);
                 agent.SetDestination(targetDestination);
 

@@ -24504,6 +24504,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 498332, guid: 00ed5f0c12fd8d5499f54fb0096adab9, type: 3}
   m_PrefabInstance: {fileID: 584645249}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &585583616
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 585583618}
+  m_Layer: 0
+  m_Name: SnowExit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &585583618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 585583616}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.27452627, z: -0, w: 0.9615796}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 847270683}
+  m_LocalEulerAnglesHint: {x: 0, y: 31.868, z: 0}
 --- !u!1001 &587712078
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33132,7 +33163,7 @@ AudioSource:
   m_GameObject: {fileID: 805650685}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 7319186604426151043, guid: b22cda75a007ab4429d1b20679bb7e01, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
@@ -33229,7 +33260,7 @@ AudioSource:
   m_GameObject: {fileID: 805650685}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 7972160519486391400, guid: b22cda75a007ab4429d1b20679bb7e01, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
@@ -33326,7 +33357,7 @@ AudioSource:
   m_GameObject: {fileID: 805650685}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 7972160519486391400, guid: b22cda75a007ab4429d1b20679bb7e01, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
@@ -35567,6 +35598,41 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 449432, guid: 390c2bf1514a09e49a2aa0361d9e314c, type: 3}
   m_PrefabInstance: {fileID: 845597722}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &847270682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 847270683}
+  m_Layer: 0
+  m_Name: Tunnel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &847270683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847270682}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 15.07, y: 8.342, z: -87.33}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1386771992}
+  - {fileID: 1708935949}
+  - {fileID: 1144207975}
+  - {fileID: 585583618}
+  m_Father: {fileID: 1574049760}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &851499268
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -49583,6 +49649,74 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 412700, guid: f7e91e1d54c5ad64f8125310343f0d30, type: 3}
   m_PrefabInstance: {fileID: 1141715699}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1144207972
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1144207975}
+  - component: {fileID: 1144207974}
+  - component: {fileID: 1144207973}
+  m_Layer: 0
+  m_Name: SnowEntrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1144207973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144207972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a4f135061fe9204ba9caa66eb41f91a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalTeleporter
+  targetDestination: {fileID: 1708935949}
+  matchRotation: 1
+--- !u!65 &1144207974
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144207972}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1144207975
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144207972}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.27452627, z: -0, w: 0.9615796}
+  m_LocalPosition: {x: -2.1339998, y: 0, z: 1.1470032}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 847270683}
+  m_LocalEulerAnglesHint: {x: 0, y: 31.868, z: 0}
 --- !u!1 &1144750241
 GameObject:
   m_ObjectHideFlags: 0
@@ -57670,6 +57804,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.BattleSystem::ZoneTrigger
   zoneData: {fileID: 11400000, guid: 31094c702f458d54994cfc8a6685e390, type: 2}
+  musicChannel: {fileID: 11400000, guid: 00b75084b1dcf90419d63979f831959b, type: 2}
+  sfxChannel: {fileID: 11400000, guid: 411765ba03b86cb41896b10d52c6c359, type: 2}
+  BGM_enter: {fileID: 11400000, guid: b788c6c2b7e96084eaaf425db28cf428, type: 2}
+  BGM_exit: {fileID: 11400000, guid: 4bbffb40d9f7cd344a62f0a92d4082d5, type: 2}
 --- !u!65 &1331608518
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -60015,6 +60153,74 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 402700, guid: 77009d3729b694c498bdc68c9d75018d, type: 3}
   m_PrefabInstance: {fileID: 1386317197}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1386771991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1386771992}
+  - component: {fileID: 1386771994}
+  - component: {fileID: 1386771993}
+  m_Layer: 0
+  m_Name: GroundEntrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1386771992
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386771991}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.46105814, z: -0, w: 0.88736993}
+  m_LocalPosition: {x: -36.875, y: -6.112, z: 28.651001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 847270683}
+  m_LocalEulerAnglesHint: {x: 0, y: 54.911, z: 0}
+--- !u!114 &1386771993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386771991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a4f135061fe9204ba9caa66eb41f91a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalTeleporter
+  targetDestination: {fileID: 585583618}
+  matchRotation: 1
+--- !u!65 &1386771994
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386771991}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1387824168
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -69767,6 +69973,7 @@ Transform:
   - {fileID: 782997814}
   - {fileID: 1839163006}
   - {fileID: 206115591}
+  - {fileID: 847270683}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1574271252
@@ -75493,6 +75700,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 433594, guid: bd797f8b461dda044840c3a0bd197fe7, type: 3}
   m_PrefabInstance: {fileID: 1706485458}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1708935948
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1708935949}
+  m_Layer: 0
+  m_Name: GroundExit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1708935949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708935948}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.46105814, z: -0, w: 0.88736993}
+  m_LocalPosition: {x: -37.87, y: -6.322, z: 29.580002}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 847270683}
+  m_LocalEulerAnglesHint: {x: 0, y: 54.911, z: 0}
 --- !u!1001 &1711655776
 PrefabInstance:
   m_ObjectHideFlags: 0

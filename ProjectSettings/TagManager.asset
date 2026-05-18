@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - VillageWall
+  - Spawn_Village_East
   layers:
   - Default
   - TransparentFX
