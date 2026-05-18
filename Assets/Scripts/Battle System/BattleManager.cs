@@ -10,6 +10,15 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private BoolEventChannelSO battleStateEventChannel;
     [SerializeField] private BattleResultEventChannelSO battleResultEventChannel;
 
+    [Header("Audio Channels")]
+    [SerializeField] private AudioEventChannelSO musicChannel;
+    [SerializeField] private AudioEventChannelSO sfxChannel;
+
+    [Header("Audio Configurations")]
+    [SerializeField] private AudioConfigurationSO battleStartSFX;
+    [SerializeField] private AudioConfigurationSO battleMusicBGM;
+    [SerializeField] private AudioConfigurationSO attackSFX;
+
     private int currentPlayerHP;
     private int currentEnemyHP;
     private int accumulatedEXP;
@@ -30,6 +39,9 @@ public class BattleManager : MonoBehaviour
     {
         if (currentState != BattleState.Idle) return;
 
+        sfxChannel.RaiseEvent(battleStartSFX); 
+        musicChannel.RaiseEvent(battleMusicBGM);
+
         currentPlayerHP = playerRuntime.currentHP;
         currentEnemyHP = enemyData.maxHP;
         accumulatedEXP = enemyData.expReward;
@@ -42,6 +54,7 @@ public class BattleManager : MonoBehaviour
 
         UpdateGameState();
         battleStateEventChannel.RaiseEvent(false);
+
     }
 
     private void UpdateGameState()
@@ -51,6 +64,7 @@ public class BattleManager : MonoBehaviour
 
     public void PlayerAttack()
     {
+        sfxChannel.RaiseEvent(attackSFX);
         currentEnemyHP -= playerRuntime.attack;
         uiController.ShowMonsterDamage(playerRuntime.attack);
         UpdateGameState();
