@@ -53860,8 +53860,7 @@ MonoBehaviour:
   dialogueEventChannel: {fileID: 11400000, guid: 0c9d44bd83f8b984d8a5aacb94ae8656, type: 2}
   dialogueChannelData: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueEndedChannel: {fileID: 11400000, guid: d49002a884acf1a44a9531bf3bf0d270, type: 2}
-  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  storyEventChannel: {fileID: 11400000, guid: c0f3f4d2df4cf4e4088a580d4d80482c, type: 2}
+  setStoryFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
 --- !u!4 &1242532213
 Transform:
   m_ObjectHideFlags: 0
@@ -75460,11 +75459,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Quest::QuestManager
   storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  storyEventChannel: {fileID: 11400000, guid: c0f3f4d2df4cf4e4088a580d4d80482c, type: 2}
+  storyFlagChangedBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
   allAvailableQuests:
   - {fileID: 11400000, guid: ba75d2e2a99e3ee4b921edb3b03eaeed, type: 2}
   - {fileID: 11400000, guid: cc7ade9b7c6ab094481d591197a23fcc, type: 2}
-  activeQuests: []
+  - {fileID: 11400000, guid: 21d6b9f0bd2f36345abeddc0425d7f92, type: 2}
+  - {fileID: 11400000, guid: bee4e2fac73b958448710a317bbdbcc9, type: 2}
+  activeQuests:
+  - {fileID: 11400000, guid: ba75d2e2a99e3ee4b921edb3b03eaeed, type: 2}
   completedQuests: []
 --- !u!4 &1703524249
 Transform:

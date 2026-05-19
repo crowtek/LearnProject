@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28b55f618aa925b48bc16da5537974ae, type: 3}
   m_Name: Quest 1
   m_EditorClassIdentifier: Project.Quest::QuestDataSO
-  questName: Quest 1
-  description: test
-  startFlag: test
-  completionFlag: test_Done
+  questName: FirstQuest
+  description: Find informations about your old friend Erik.
+  startFlag: FirstQuest
+  completionFlag: FirstQuest_done

@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class QuestManager : MonoBehaviour
 {
-    [SerializeField] private GlobalStoryStateSO storyState;
-    [SerializeField] private StoryEventChannelSO storyEventChannel;
-
     [Header("DB for Quests")]
     [SerializeField] private List<QuestDataSO> allAvailableQuests;
 
@@ -13,25 +10,25 @@ public class QuestManager : MonoBehaviour
     [SerializeField] private List<QuestDataSO> activeQuests = new List<QuestDataSO>();
     [SerializeField] private List<QuestDataSO> completedQuests = new List<QuestDataSO>();
 
+    [Header("Story Broadcast Channel")]
+    [SerializeField] private StringEventChannelSO storyFlagChangedBroadcastChannel;
+
     public System.Action OnQuestListChanged;
     public List<QuestDataSO> GetActiveQuest => activeQuests;
+    public QuestDataSO CurrentStoryFlag;
 
     private void OnEnable()
     {
-        if (storyEventChannel != null)
-            storyEventChannel.OnEventRaised += EvaluateQuests; 
+        if (storyFlagChangedBroadcastChannel != null)
+            storyFlagChangedBroadcastChannel.OnEventRaised += EvaluateQuests; 
     }
 
     private void OnDisable()
     {
-        if (storyEventChannel != null)
-            storyEventChannel.OnEventRaised -= EvaluateQuests;
+        if (storyFlagChangedBroadcastChannel != null)
+            storyFlagChangedBroadcastChannel.OnEventRaised -= EvaluateQuests;
     }
 
-    private void Start()
-    {
-        EvaluateAllQuestsOnStart();
-    }
 
     private void EvaluateQuests(string changedFlag)
     {
@@ -52,6 +49,7 @@ public class QuestManager : MonoBehaviour
     private void ActivateQuest(QuestDataSO quest)
     {
         activeQuests.Add(quest);
+        CurrentStoryFlag = quest;
         Debug.Log($"Quest gestartet: {quest.questName}");
         OnQuestListChanged?.Invoke();
     }
@@ -61,19 +59,6 @@ public class QuestManager : MonoBehaviour
         activeQuests.Remove(quest);
         completedQuests.Add(quest);
         Debug.Log($"Quest abgeschlossen: {quest.questName}");
-        OnQuestListChanged?.Invoke();
-    }
-
-    private void EvaluateAllQuestsOnStart()
-    {
-        foreach (var quest in allAvailableQuests)
-        {
-            if (storyState.IsFlagCompleted(quest.completionFlag)) 
-                completedQuests.Add(quest);
-            else if (storyState.IsFlagCompleted(quest.startFlag))
-                activeQuests.Add(quest);
-        }
-
         OnQuestListChanged?.Invoke();
     }
 }

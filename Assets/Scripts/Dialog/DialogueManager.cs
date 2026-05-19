@@ -8,10 +8,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private VoidEventChannelSO dialogueEndedChannel;
 
     [Header("Story Channel")]
-    [SerializeField] private GlobalStoryStateSO storyState;
-    [SerializeField] private StoryEventChannelSO storyEventChannel;
+    [SerializeField] private StringEventChannelSO setStoryFlagRequestChannel;
 
-    private string activeResultFlag; // Setting Story flag after Dialogue
+    private string activeResultFlag;
 
     public System.Action<string, string> OnDialogueStarted;
     private void OnEnable()
@@ -35,10 +34,9 @@ public class DialogueManager : MonoBehaviour
 
     public void EndDialogue()
     {
-        if (!string.IsNullOrEmpty(activeResultFlag))
+        if (!string.IsNullOrEmpty(activeResultFlag) && setStoryFlagRequestChannel != null)
         {
-            storyState.SetFlag(activeResultFlag);
-            storyEventChannel.RaiseEvent(activeResultFlag);
+            setStoryFlagRequestChannel.RaiseEvent(activeResultFlag);
             activeResultFlag = null;
         }
 

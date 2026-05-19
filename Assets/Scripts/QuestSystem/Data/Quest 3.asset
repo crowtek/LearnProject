@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28b55f618aa925b48bc16da5537974ae, type: 3}
-  m_Name: Quest 2
+  m_Name: Quest 3
   m_EditorClassIdentifier: Project.Quest::QuestDataSO
-  questName: FetchHerbs
-  description: Bring Herbs to the ill men.
-  startFlag: FetchHerbs
-  completionFlag: FetchHerbs_done
+  questName: FindAWay
+  description: Find a way up the Hill.
+  startFlag: FindAWay
+  completionFlag: FindAWay_done

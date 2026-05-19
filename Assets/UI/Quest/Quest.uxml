@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Quest/quest.uss?fileID=7433441132597879392&amp;guid=fe392ac212c8a124194229ddf1479f64&amp;type=3#quest"/>
-    <ui:VisualElement name="QuestContainer" class="container">
-        <ui:Label text="Label" name="QuestName"/>
+    <ui:VisualElement name="QuestContainer" class="container" style="max-width: none;">
+        <ui:Label text="Label" name="QuestName" style="white-space: pre-wrap; color: rgb(226, 226, 226);"/>
     </ui:VisualElement>
 </ui:UXML>

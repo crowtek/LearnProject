@@ -4,7 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GlobalStoryStateSO", menuName = "Scriptable Objects/Story/GlobalStoryStateSO")]
 public class GlobalStoryStateSO : ScriptableObject
 {
-    [SerializeField] private List<string> completedFlags = new List<string>();
+    [SerializeField] public List<string> completedFlags = new List<string>();
+    private string lastAddedFlag;
 
     public void SetFlag(string flagName)
     {
@@ -19,5 +20,13 @@ public class GlobalStoryStateSO : ScriptableObject
         return completedFlags.Contains(flagName);
     }
 
-    // Für Quests Dictionary oder Enums nutzen
+    public string GetLastFlag()
+    {
+        if(completedFlags.Count > 0)
+        {
+            lastAddedFlag = completedFlags[^1];
+        }
+
+        return lastAddedFlag;
+    }
 }

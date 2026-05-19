@@ -8,9 +8,11 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [SerializeField] private Sprite npcImage;
 
     [Header("Dialogue Logic")]
-    [SerializeField] private GlobalStoryStateSO storyState;
     [DialogueKey] [SerializeField] private string fallbackDialogueKey; 
-    [SerializeField] private List<DialogueCondition> prioritizedDialogues; 
+    [SerializeField] private List<DialogueCondition> prioritizedDialogues;
+
+    [Header("Story Chanenel")]
+    [SerializeField] private StringEventChannelSO StoryBroadcastChannel;
 
     [Header("Channels")]
     [SerializeField] private DialogueEventChannelSO dialogueChannel;
@@ -19,13 +21,40 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [Header("UI Placement")]
     [SerializeField] private Transform interactionPoint;
 
+    private HashSet<string> completedStoryFlags = new HashSet<string>(); // save all completed story flags
+
+    private void OnEnable()
+    {
+        if(StoryBroadcastChannel != null)
+        {
+            StoryBroadcastChannel.OnEventRaised += RegisterStoryFlag;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (StoryBroadcastChannel != null)
+        {
+            StoryBroadcastChannel.OnEventRaised -= RegisterStoryFlag;
+        }
+    }
+
+    private void RegisterStoryFlag(string setFlag) // Gets all completed story flag at game start
+    {
+        if (!string.IsNullOrEmpty(setFlag) && !completedStoryFlags.Contains(setFlag))
+        {
+            completedStoryFlags.Add(setFlag);
+        }
+    }
+
     public void Interact()
     {
         string selectedKey = fallbackDialogueKey;
 
+        // Check for the dialog option with highest Prio in the list
         foreach (var condition in prioritizedDialogues)
         {
-            if (storyState.IsFlagCompleted(condition.requiredFlag))
+            if (completedStoryFlags.Contains(condition.requiredFlag))
             {
                 selectedKey = condition.dialogueKey;
                 break;

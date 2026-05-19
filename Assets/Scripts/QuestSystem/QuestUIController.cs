@@ -40,7 +40,7 @@ public class QuestUIController : MonoBehaviour
         
         foreach (var quest in questManager.GetActiveQuest)
         {
-            Label newQuestLabel = new Label($"- {quest.questName}");
+            Label newQuestLabel = new Label($"Current Quest: {quest.description}");
             questContainer.Add(newQuestLabel);
         }
 

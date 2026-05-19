@@ -1,33 +1,42 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+// Works with the StoryFlagDatabaseSO
 [CustomPropertyDrawer(typeof(StoryFlagAttribute))]
 public class StoryFlagDrawer : PropertyDrawer
 {
+    private StoryFlagDatabaseSO chachedDatabase;
+
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        string[] guids = AssetDatabase.FindAssets("t:StoryFlagDatabaseSO"); // Suche nach der Datenbank
-
-        if (guids.Length == 0)
+        if(chachedDatabase == null)
         {
-            EditorGUI.LabelField(position, label.text, "No StoryFlagDatabaseSO found!");
-            return;
+            // Search for Story Flag Database asset
+            string[] guids = AssetDatabase.FindAssets("t:StoryFlagDatabaseSO");
+
+            // Check if DB is not empty
+            if (guids.Length == 0)
+            {
+                EditorGUI.LabelField(position, label.text, "No StoryFlagDatabaseSO found!");
+                return;
+            }
+
+            // Get Data path and loads DB from it
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            chachedDatabase = AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(path);
         }
+       
 
-        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-        var database = AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(path);
-
-        if (database == null || database.allFlags == null)
+        if (chachedDatabase == null || chachedDatabase.allFlags == null)
         {
             EditorGUI.PropertyField(position, property, label);
             return;
         }
 
-        List<string> flagsOptions = new List<string> { "No value" };
-        flagsOptions.AddRange(database.allFlags);
-
+        // Build a list for the Dropdown
+        List<string> flagsOptions = new List<string> { "No Story Flag" }; // add a empty first value
+        flagsOptions.AddRange(chachedDatabase.allFlags);
         string[] flags = flagsOptions.ToArray();
 
         int currentIndex = 0;
@@ -37,7 +46,21 @@ public class StoryFlagDrawer : PropertyDrawer
             if (currentIndex == -1) currentIndex = 0; 
         }
 
+        EditorGUI.BeginChangeCheck();
+
+        // Draw the Dropdown with empty first value
         currentIndex = EditorGUI.Popup(position, label.text, currentIndex, flags);
-        property.stringValue = (currentIndex == 0) ? string.Empty : flags[currentIndex];
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            if (currentIndex == 0)
+            {
+                property.stringValue = string.Empty;
+            }
+            else
+            {
+                property.stringValue = flags[currentIndex];
+            }
+        }
     }
 }
