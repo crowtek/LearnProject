@@ -18714,13 +18714,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.Dialogue::NPC_Interactable
   npcName: Ragnar
   npcImage: {fileID: 21300000, guid: 67b2828c3400f5541acc93b1303afe76, type: 3}
-  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
   fallbackDialogueKey: Dia1
   prioritizedDialogues:
   - requiredFlag: 
     dialogueKey: Dia1
   - requiredFlag: Story2
     dialogueKey: Dia2
+  StoryBroadcastChannel: {fileID: 0}
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   interactionPoint: {fileID: 219874504}
@@ -27744,7 +27744,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0eb0de397fb5d45b0c11ade14b6b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Quest::QuestUIController
-  questManager: {fileID: 1703524248}
+  questManagerSO: {fileID: 11400000, guid: 04ead6ae7cbf91e4ab02a6d69e2848c3, type: 2}
+  questChangedChannel: {fileID: 11400000, guid: 113e6933754181e47a50701e65cd75a7, type: 2}
   uiDocument: {fileID: 660503547}
 --- !u!4 &660503549
 Transform:
@@ -62340,6 +62341,51 @@ Transform:
   - {fileID: 2060797917}
   m_Father: {fileID: 206115591}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1426244347
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1426244349}
+  - component: {fileID: 1426244348}
+  m_Layer: 0
+  m_Name: GameInitializer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1426244348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426244347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e88c17c8d5708744991dad2d3840eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameInitializer
+  questManager: {fileID: 11400000, guid: 04ead6ae7cbf91e4ab02a6d69e2848c3, type: 2}
+--- !u!4 &1426244349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426244347}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.568, y: 1.38201, z: 8.73122}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1426916711
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -75429,60 +75475,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 433594, guid: bd797f8b461dda044840c3a0bd197fe7, type: 3}
   m_PrefabInstance: {fileID: 1701692095}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1703524247
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1703524249}
-  - component: {fileID: 1703524248}
-  m_Layer: 0
-  m_Name: QuestManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1703524248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1703524247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22828196ba9fc3e428ecca532fb2c716, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Quest::QuestManager
-  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  storyFlagChangedBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
-  allAvailableQuests:
-  - {fileID: 11400000, guid: ba75d2e2a99e3ee4b921edb3b03eaeed, type: 2}
-  - {fileID: 11400000, guid: cc7ade9b7c6ab094481d591197a23fcc, type: 2}
-  - {fileID: 11400000, guid: 21d6b9f0bd2f36345abeddc0425d7f92, type: 2}
-  - {fileID: 11400000, guid: bee4e2fac73b958448710a317bbdbcc9, type: 2}
-  activeQuests:
-  - {fileID: 11400000, guid: ba75d2e2a99e3ee4b921edb3b03eaeed, type: 2}
-  completedQuests: []
---- !u!4 &1703524249
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1703524247}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.17178, y: 0.43974, z: 9.46335}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1703560397
 GameObject:
   m_ObjectHideFlags: 0
@@ -84012,10 +84004,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40260c4dd7e169c4595448c6b49c3cfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Story::ConditionCheckedObject
-  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
-  storyEventChannel: {fileID: 11400000, guid: c0f3f4d2df4cf4e4088a580d4d80482c, type: 2}
+  StoryFlagBroadcast: {fileID: 0}
   requiredFlag: 
-  hideIfFlagCompleted: 1
+  showWhenRight: 1
 --- !u!1001 &1903014203
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94021,7 +94012,6 @@ SceneRoots:
   - {fileID: 955615628}
   - {fileID: 720601898}
   - {fileID: 1703560401}
-  - {fileID: 1703524249}
   - {fileID: 660503549}
   - {fileID: 418582334}
   - {fileID: 1242532213}
@@ -94035,3 +94025,4 @@ SceneRoots:
   - {fileID: 435871715}
   - {fileID: 486588340}
   - {fileID: 805650690}
+  - {fileID: 1426244349}

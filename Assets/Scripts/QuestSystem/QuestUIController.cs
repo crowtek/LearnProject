@@ -4,47 +4,56 @@ using UnityEngine.UIElements;
 
 public class QuestUIController : MonoBehaviour
 {
-    [SerializeField] private QuestManager questManager;
+    [Header("Dependencies (Asset References)")]
+    [SerializeField] private QuestManagerSO questManagerSO;
+    [SerializeField] private BoolEventChannelSO questChangedChannel;
+
+    [Header("Scene Dependencies")]
     [SerializeField] private UIDocument uiDocument;
 
     private VisualElement questContainer;
     private Label questName;
+    private Label questDiscription;
 
-    private QuestDataSO currentQuest;
-
-    private void OnEnable()
+    private void Awake()
     {
         var root = uiDocument.rootVisualElement;
         questContainer = root.Q<VisualElement>("QuestContainer");
         questName = root.Q<Label>("QuestName");
+        questDiscription = root.Q<Label>("QuestDiscription");
+    }
 
-        if (questManager != null)
+    private void OnEnable()
+    {
+        if (questChangedChannel != null)
         {
-            questManager.OnQuestListChanged += RefreshQuestUI;
+            questChangedChannel.OnEventRaised += RefreshQuestUI;
         }
+
+        RefreshQuestUI(true);
     }
 
     void OnDisable()
     {
-        if(questManager != null)
+        if(questChangedChannel != null)
         {
-            questManager.OnQuestListChanged -= RefreshQuestUI;
+            questChangedChannel.OnEventRaised -= RefreshQuestUI;
         }
     }
 
-    private void RefreshQuestUI()
+    private void RefreshQuestUI(bool isUpdated)
     {
+        if (questContainer == null || questName == null || questManagerSO == null) return;
+
         questContainer.Clear();
 
-        if (questManager.GetActiveQuest.Count == 0) return;
-        
-        foreach (var quest in questManager.GetActiveQuest)
+        if (questManagerSO.ActiveQuest == null)
         {
-            Label newQuestLabel = new Label($"Current Quest: {quest.description}");
-            questContainer.Add(newQuestLabel);
+            questName.text = "Keine aktive Quest";
+            return;
         }
 
-        // Den Namen der neuesten Quest als Haupttitel setzen
-        questName.text = questManager.GetActiveQuest[questManager.GetActiveQuest.Count - 1].questName;
+        questName.text = questManagerSO.ActiveQuest.questName;
+        questDiscription.text = questManagerSO.ActiveQuest.description;
     }
 }
