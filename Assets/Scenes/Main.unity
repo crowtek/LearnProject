@@ -10619,6 +10619,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 449432, guid: 390c2bf1514a09e49a2aa0361d9e314c, type: 3}
   m_PrefabInstance: {fileID: 236068158}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &236091331 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 491582, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+  m_PrefabInstance: {fileID: 955615628}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &236780847
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22785,6 +22790,7 @@ GameObject:
   - component: {fileID: 540905882}
   - component: {fileID: 540905881}
   - component: {fileID: 540905880}
+  - component: {fileID: 540905883}
   m_Layer: 0
   m_Name: ItemMenuUIController
   m_TagString: Untagged
@@ -22830,6 +22836,7 @@ MonoBehaviour:
   inventoryData: {fileID: 11400000, guid: 6bb795242a65c6345b326156cfef0c35, type: 2}
   onInventoryChanged: {fileID: 11400000, guid: f2a36a05076c773428fd64b53e580198, type: 2}
   inventoryDocument: {fileID: 540905880}
+  itemTemplate: {fileID: 9197481963319205126, guid: fad39e77888139f44a357999f915c5e8, type: 3}
   inventoryToggleAction: {fileID: -8429735522532839577, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!4 &540905882
 Transform:
@@ -22846,6 +22853,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &540905883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540905879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a5e8d4943839244b268c62b011400c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerEqHandler
+  weaponHoldPoint: {fileID: 236091331}
+  inventoryData: {fileID: 11400000, guid: 6bb795242a65c6345b326156cfef0c35, type: 2}
+  equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
+  positionOffset: {x: -0.4, y: 1.7, z: -0.14}
+  rotationOffset: {x: 187.16, y: -172.32, z: 46.15}
 --- !u!1001 &542040317
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40520,6 +40544,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 121836, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 180246, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
       propertyPath: m_Name
       value: Player
@@ -40573,7 +40601,11 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 113096, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+    - {fileID: 124210, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+    - {fileID: 137240, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+    - {fileID: 134140, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 180246, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}

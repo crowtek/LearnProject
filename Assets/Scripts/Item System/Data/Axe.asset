@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2624b761796a6264e99a167a8b905de4, type: 3}
-  m_Name: Bronze Sword
+  m_Name: Axe
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentItemSO
-  itemName: Bronze Sword
-  description: An unremarkable, workaday weapon beaten from burnished bronze.
-  icon: {fileID: 21300000, guid: 1f8f1e1c4a462dc4e8ef302c9bb1e288, type: 3}
-  goldValue: 50
+  itemName: Axe
+  description: Axe
+  icon: {fileID: 21300000, guid: d5ce56ff9e8c40c42b945adefb3da792, type: 3}
+  goldValue: 500
   slot: 0
-  weaponPrefab: {fileID: 181534, guid: 13af847dfa6dbe844ba4b7c902f98f67, type: 3}
-  attackBonus: 5
-  defenseBonus: 0
-  agilityBonus: 0
+  weaponPrefab: {fileID: 193736, guid: 1d57899ee20f82343aa0fec3900f9ac2, type: 3}
+  attackBonus: 20
+  defenseBonus: 4
+  agilityBonus: 2

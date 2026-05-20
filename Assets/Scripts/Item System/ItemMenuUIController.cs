@@ -10,13 +10,12 @@ public class ItemMenuUIController : MonoBehaviour
 
     [Header("UI Setup")]
     [SerializeField] private UIDocument inventoryDocument;
+    [SerializeField] private VisualTreeAsset itemTemplate;
     [SerializeField] private InputActionReference inventoryToggleAction;
 
-    private VisualElement root;
-    private VisualElement container;
-    private VisualElement itemListContainer;
-    private VisualElement itemMenu;
+    private VisualElement root, container, itemListContainer, itemMenu;
     private Label itemDetailLabel;
+    private Button equipButton;
 
     private bool isMenuOpen = false;
     private VisualElement currentlyFocusedItem;
@@ -29,6 +28,7 @@ public class ItemMenuUIController : MonoBehaviour
         itemListContainer = root.Q<VisualElement>("ItemList");
         itemMenu = root.Q<VisualElement>("ItemMenu");
         itemDetailLabel = root.Q<Label>("ItemDetailText");
+        equipButton = root.Q<Button>("EquipButton");
 
         root.Q<Button>("UseButton").clicked += () => UseSelectedItem();
         root.Q<Button>("DiscardButton").clicked += () => DiscardSelectedItem();
@@ -84,37 +84,28 @@ public class ItemMenuUIController : MonoBehaviour
 
     private void CreateItemElement(InventorySlot slot)
     {
-        // Create a new VisualElement (the "box")
-        VisualElement itemBox = new VisualElement();
-        itemBox.AddToClassList("item");
+        if (slot == null || slot.item == null) return;
 
-        // Create the Icon
-        VisualElement icon = new VisualElement();
-        icon.style.backgroundImage = new StyleBackground(slot.item.icon);
-        icon.style.width = Length.Percent(100);
-        icon.style.height = Length.Percent(80);
-        itemBox.Add(icon);
+        VisualElement templateRoot = itemTemplate.CloneTree();
+        VisualElement itemBox = templateRoot[0];
 
-        if (slot.item is EquipmentItemSO equipment && inventoryData.IsAlreadyEquipped(equipment))
+        // Set item Icon
+        VisualElement itemIcon = itemBox.Q<VisualElement>("ItemIcon");
+        if (itemIcon != null && slot.item.icon != null)
         {
-            Label equippedBadge = new Label("E");
-
-            // Styling the "E" to appear in a corner (e.g., top-left)
-            equippedBadge.style.position = Position.Absolute;
-            equippedBadge.style.top = 2;
-            equippedBadge.style.left = 5;
-            equippedBadge.style.color = Color.yellow;
-            equippedBadge.style.unityFontStyleAndWeight = FontStyle.Bold;
-            equippedBadge.style.fontSize = 12;
-
-            itemBox.Add(equippedBadge);
+            itemIcon.style.backgroundImage = new StyleBackground(slot.item.icon);
         }
 
-        Label itemLabel = new Label($" x{slot.amount}");
-        itemLabel.style.fontSize = 10;
-        itemLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-        itemLabel.style.whiteSpace = WhiteSpace.Normal;
-        itemBox.Add(itemLabel);
+        // Set item counter
+        Label countLabel = itemBox.Q<Label>("ItemCount");
+        countLabel.text = slot.amount > 1 ? $"x{slot.amount}" : string.Empty;
+        
+        // If item = Equioment check if equiped
+        Label equippedBadge = itemBox.Q<Label>("EQBadge");
+        if (slot.item is EquipmentItemSO equipment && inventoryData.IsAlreadyEquipped(equipment))
+        {
+            equippedBadge.text = "E";
+        }
 
         // Add click event
         itemBox.RegisterCallback<PointerDownEvent>(evt =>
@@ -132,6 +123,7 @@ public class ItemMenuUIController : MonoBehaviour
     private void FocusItem(VisualElement element, InventorySlot slot)
     {
         currentlyFocusedItem?.RemoveFromClassList("item-focused");
+        itemMenu.style.display = DisplayStyle.Flex; // Show Item menu
 
         currentlyFocusedItem = element;
         currentlySelectedSlot = slot;
@@ -143,6 +135,8 @@ public class ItemMenuUIController : MonoBehaviour
 
         if (slot.item is EquipmentItemSO focusedEq)
         {
+            equipButton.style.display = DisplayStyle.Flex; // Show equip button
+
             detailText += "\n";
             EquipmentItemSO currentEquipped = inventoryData.currentlyEquipped.Find(x => x.slot == focusedEq.slot);
 

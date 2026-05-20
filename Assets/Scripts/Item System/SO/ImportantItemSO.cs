@@ -4,5 +4,4 @@
 public class ImportantItemSO : BaseItemSO
 {
     public override string ItemTypeDisplayName => "Important Item";
-    // Usually no 'Use' logic, just existence checks in the code
 }

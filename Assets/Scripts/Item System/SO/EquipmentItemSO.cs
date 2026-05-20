@@ -7,8 +7,11 @@ public class EquipmentItemSO : BaseItemSO, IEquipableItem
 {
     public override string ItemTypeDisplayName => "Equipment";
 
-
     public EquipmentSlot slot;
+
+    [Header("Visual Prefab")]
+    [Tooltip("Das 3D-Modell / Prefab, das in der Hand des Spielers platziert wird.")]
+    public GameObject weaponPrefab;
 
     [Header("Stat Bonuses")]
     public int attackBonus;
