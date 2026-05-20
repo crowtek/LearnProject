@@ -6,25 +6,27 @@ public class TypewriterHandler : MonoBehaviour
 {
     private Coroutine typingCoroutine;
 
+    // Das UI kann von außen prüfen, ob der Typewriter noch läuft
+    public bool IsTyping => typingCoroutine != null;
+
     public void RunText(Label targetLabel, string message, float delay = 0.05f)
     {
-        // Stop any existing typing before starting a new one
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-        }
+        // Falls bereits ein Text getippt wird, stoppen wir ihn
+        StopTyping();
 
-        typingCoroutine = StartCoroutine(TypeText(targetLabel, message, delay));
+        typingCoroutine = StartCoroutine(TypeTextRoutine(targetLabel, message, delay));
     }
 
-    private IEnumerator TypeText(Label targetLabel, string message, float delay)
+    private IEnumerator TypeTextRoutine(Label targetLabel, string message, float delay)
     {
         targetLabel.text = "";
+
         foreach (char letter in message.ToCharArray())
         {
             targetLabel.text += letter;
             yield return new WaitForSeconds(delay);
         }
+
         typingCoroutine = null;
     }
 

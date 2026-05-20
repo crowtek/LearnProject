@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Linq; // Required for .Select()
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 

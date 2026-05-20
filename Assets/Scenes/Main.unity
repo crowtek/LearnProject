@@ -11445,6 +11445,7 @@ GameObject:
   - component: {fileID: 260480486}
   - component: {fileID: 260480485}
   - component: {fileID: 260480484}
+  - component: {fileID: 260480487}
   m_Layer: 0
   m_Name: DialogueUIController
   m_TagString: Untagged
@@ -11487,10 +11488,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04387a0b67a43cc46b3579190c5b5be6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Dialogue::DialogueUIController
+  dialogueEventChannel: {fileID: 11400000, guid: 0c9d44bd83f8b984d8a5aacb94ae8656, type: 2}
+  dialogueDataChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
+  setStoryFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
+  toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
   typewritingSpeed: 0.05
   uiDocument: {fileID: 260480484}
-  dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
-  dialogEndedChannel: {fileID: 11400000, guid: d49002a884acf1a44a9531bf3bf0d270, type: 2}
+  typewriter: {fileID: 2016080681}
 --- !u!4 &260480486
 Transform:
   m_ObjectHideFlags: 0
@@ -11506,6 +11510,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &260480487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260480483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a71c997ce010ce44a10707ebb26cde4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Dialogue::StoryCutsceneTrigger
+  cutsceneDatabase: {fileID: 11400000, guid: ca94b49a7a6f8364cb20cd1b28278927, type: 2}
+  dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
+  storyFlagChangedBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
+  dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
 --- !u!1001 &260670997
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18720,7 +18740,7 @@ MonoBehaviour:
     dialogueKey: Dia1
   - requiredFlag: Story2
     dialogueKey: Dia2
-  StoryBroadcastChannel: {fileID: 0}
+  StoryBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   interactionPoint: {fileID: 219874504}
@@ -53828,55 +53848,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 433594, guid: bd797f8b461dda044840c3a0bd197fe7, type: 3}
   m_PrefabInstance: {fileID: 1241918716}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1242532211
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1242532213}
-  - component: {fileID: 1242532212}
-  m_Layer: 0
-  m_Name: DialogueManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1242532212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1242532211}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bbbffcb29a795d408f142e6612f0649, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Project.Dialogue::DialogueManager
-  toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
-  dialogueEventChannel: {fileID: 11400000, guid: 0c9d44bd83f8b984d8a5aacb94ae8656, type: 2}
-  dialogueChannelData: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
-  dialogueEndedChannel: {fileID: 11400000, guid: d49002a884acf1a44a9531bf3bf0d270, type: 2}
-  setStoryFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
---- !u!4 &1242532213
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1242532211}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.77682, y: 0.73097, z: 3.64165}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1246389401
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94014,7 +93985,6 @@ SceneRoots:
   - {fileID: 1703560401}
   - {fileID: 660503549}
   - {fileID: 418582334}
-  - {fileID: 1242532213}
   - {fileID: 260480486}
   - {fileID: 1144750246}
   - {fileID: 1311728459}

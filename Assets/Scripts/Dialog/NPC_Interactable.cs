@@ -14,7 +14,7 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [Header("Story Chanenel")]
     [SerializeField] private StringEventChannelSO StoryBroadcastChannel;
 
-    [Header("Channels")]
+    [Header("Diallog Channels")]
     [SerializeField] private DialogueEventChannelSO dialogueChannel;
     [SerializeField] private DialogueDatabaseSO dialogueDatabase;
 

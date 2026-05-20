@@ -1,31 +1,35 @@
-using Cysharp.Threading.Tasks; // UniTask Namespace
-using System.Data;
-using System.Threading;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class DialogueUIController : MonoBehaviour
 {
+    [Header("Dialog Channals")]
+    [SerializeField] private BoolEventChannelSO dialogueEventChannel; // Tells other systems if dialog is happening
+    [SerializeField] private DialogueEventChannelSO dialogueDataChannel; // Get dialog data and starts dialog
+
+    [Header("Story Channel")]
+    [SerializeField] private StringEventChannelSO setStoryFlagRequestChannel; // posible set of story flag after dialog
+
+    [Header("Player Input stop handler")]
+    [SerializeField] private BoolEventChannelSO toggleInputChannel; // Stops player input while dialog aktive
+
+    [Header("UI configs")]
     [SerializeField] private float typewritingSpeed = 0.05f;
     [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private DialogueEventChannelSO dialogueChannel;
-    [SerializeField] private VoidEventChannelSO dialogEndedChannel;
+    [SerializeField] private TypewriterHandler typewriter; // Handlle typeing effect
 
+    // UI Elemenets
     private VisualElement root;
     private VisualElement dialogueBox;
     private Label nameLabel;
     private Label textLabel;
     private Image npcImage;
 
-    private string fullText;
-    private bool isTyping = false;
+    private string fullText, activeResultFlag;
     private bool isDialogueActive = false;
-
     private string[] currentLines; 
     private int currentLineIndex = 0;
 
-    private CancellationTokenSource cts;
 
     private void OnEnable()
     {
@@ -36,16 +40,19 @@ public class DialogueUIController : MonoBehaviour
         npcImage = root.Q<Image>("NPCImage");
 
         dialogueBox.RegisterCallback<PointerDownEvent>(OnBoxClicked);
-
-        dialogueChannel.OnEventRaised += StartDialogue;
+        dialogueDataChannel.OnEventRaised += StartDialogue;
     }
     private void OnDisable()
     {
-        dialogueChannel.OnEventRaised -= StartDialogue;
+        dialogueDataChannel.OnEventRaised -= StartDialogue;
     }
 
     private void StartDialogue(DialogueData data)
     {
+        activeResultFlag = data.ResultFlag;
+        toggleInputChannel.RaiseEvent(false);
+        dialogueEventChannel.RaiseEvent(true);
+
         isDialogueActive = true;
         dialogueBox.style.display = DisplayStyle.Flex;
         nameLabel.text = data.SpeakerName;
@@ -62,7 +69,8 @@ public class DialogueUIController : MonoBehaviour
         if (currentLineIndex < currentLines.Length)
         {
             fullText = currentLines[currentLineIndex];
-            RunTypewriter(fullText).Forget();
+            typewriter.RunText(textLabel, fullText, typewritingSpeed);
+
             currentLineIndex++;
         }
         else
@@ -71,38 +79,17 @@ public class DialogueUIController : MonoBehaviour
         }
     }
 
-    private async UniTaskVoid RunTypewriter(string text)
-    {
-        isTyping = true;
-        textLabel.text = "";
-
-        cts?.Cancel();
-        cts = new CancellationTokenSource();
-
-        try
-        {
-            foreach (char c in text)
-            {
-                textLabel.text += c;
-                await UniTask.Delay((int)(typewritingSpeed * 1000), cancellationToken: cts.Token);
-            }
-            isTyping = false;
-        }
-        catch (System.OperationCanceledException)
-        {
-            // Task abgebrochen
-        }
-    }
-
     private void OnBoxClicked(PointerDownEvent evt)
     {
         if (!isDialogueActive) return;
 
-        if (isTyping)
+        if (typewriter != null && typewriter.IsTyping)
         {
-            cts?.Cancel();
+            // Stop type Coroutine
+            typewriter.StopTyping();
+
+            // Show complete text
             textLabel.text = fullText;
-            isTyping = false;
         }
         else
         {
@@ -112,10 +99,21 @@ public class DialogueUIController : MonoBehaviour
 
     private void CloseDialogue()
     {
+        if (typewriter != null)
+        {
+            typewriter.StopTyping();
+        }
+
         dialogueBox.style.display = DisplayStyle.None;
         isDialogueActive = false;
-        cts?.Cancel();
 
-        dialogEndedChannel.RaiseEvent();
+        if (!string.IsNullOrEmpty(activeResultFlag) && setStoryFlagRequestChannel != null)
+        {
+            setStoryFlagRequestChannel.RaiseEvent(activeResultFlag);
+            activeResultFlag = null;
+        }
+
+        toggleInputChannel?.RaiseEvent(true);
+        dialogueEventChannel?.RaiseEvent(false);
     }
 }
