@@ -15,8 +15,8 @@ MonoBehaviour:
   entityName: Slime
   maxHP: 10
   maxMP: 0
-  attack: 2
-  defense: 0
+  attack: 5
+  defense: 1
   agility: 0
   resilience: 0
   luck: 0
@@ -25,3 +25,4 @@ MonoBehaviour:
   expReward: 7000
   portrait: {fileID: 21300000, guid: d58f30fc044aa1346800ae0303803bb4, type: 3}
   battleImage: {fileID: 21300000, guid: d58f30fc044aa1346800ae0303803bb4, type: 3}
+  combatPrefab: {fileID: 1164208219162828618, guid: 3f38b222784ae1e4b9538bb52148795d, type: 3}

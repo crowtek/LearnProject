@@ -1,7 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Battle/Battle.uss?fileID=7433441132597879392&amp;guid=da00258b319d54c438bb033ea50dc12d&amp;type=3#Battle"/>
-    <ui:VisualElement name="container" class="container" style="flex-grow: 1; display: none;">
-        <ui:Button text="confirm" name="ConfirmSkillsBTN"/>
+    <ui:VisualElement name="container" class="container" style="flex-grow: 1; display: flex;">
         <ui:VisualElement name="menu" class="menu" style="flex-grow: 1;">
             <ui:Button text="Attack" name="AttackButton" class="button"/>
             <ui:Button text="Run" name="CloseButton" class="button"/>
@@ -22,10 +21,10 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="PlayerSprite" style="background-image: url(&quot;project://database/Assets/Images/BattlePosition.png?fileID=2800000&amp;guid=f4441afb3206916489e31b9219a17e55&amp;type=3#BattlePosition&quot;); width: 389px; height: 455px; position: absolute; bottom: 0%; left: 40%;">
+        <ui:VisualElement name="PlayerSprite" style="width: 389px; height: 455px; position: absolute; bottom: 0%; left: 40%;">
             <ui:Label text="" name="PlayerDamage" class="title" style="margin-left: 40%;"/>
         </ui:VisualElement>
-        <ui:VisualElement name="EnemySprite" style="width: 100px; height: 100px; background-image: url(&quot;project://database/Assets/Images/Monster1.png?fileID=2800000&amp;guid=d58f30fc044aa1346800ae0303803bb4&amp;type=3#Monster1&quot;); position: absolute; top: 45%; left: 22%;">
+        <ui:VisualElement name="EnemySprite" style="width: 100px; height: 100px; position: absolute; top: 45%; left: 22%;">
             <ui:Label text="" name="EnemyDamage" class="title"/>
         </ui:VisualElement>
         <ui:VisualElement name="TextBoxContainer" class="textBox textBoxContainer" style="flex-grow: 1; width: 100%; display: none;">
@@ -33,15 +32,18 @@
                 <ui:Label text="Label" name="ResultText" class="text"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="SkillDistroWindow" class="SkillDistroWindow" style="flex-grow: 0; display: none; flex-direction: row;">
-            <ui:VisualElement name="SkillContainer" class="textbox" style="flex-grow: 1; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; min-width: 500px;">
-                <ui:Label text="Label" name="UnspentPointsValue" class="title" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-bottom-width: 2px; -unity-text-align: upper-center;"/>
-                <ui:VisualElement name="SkillRowsContainer" style="flex-grow: 1;"/>
+        <ui:VisualElement name="SkillDistroWindow" class="SkillDistroWindow" style="flex-grow: 0; display: none; flex-direction: row; flex-wrap: wrap;">
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="SkillContainer" class="textbox" style="flex-grow: 1; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; min-width: 500px; width: 50%;">
+                    <ui:Label text="Label" name="UnspentPointsValue" class="title" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-bottom-width: 2px; -unity-text-align: upper-center;"/>
+                    <ui:VisualElement name="SkillRowsContainer" style="flex-grow: 1;"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="SkillDetails" class="textbox" style="flex-grow: 1; margin-left: 20px;">
+                    <ui:Label text="Label" name="DetailTitleLabel"/>
+                    <ui:Label text="Label" name="DetailDescriptionLabel"/>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="SkillDetails" class="textbox" style="flex-grow: 1; margin-left: 20px;">
-                <ui:Label text="Label" name="DetailTitleLabel"/>
-                <ui:Label text="Label" name="DetailDescriptionLabel"/>
-            </ui:VisualElement>
+            <ui:Button text="Button" name="ConfirmSkillsBTN"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

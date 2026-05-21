@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EncounterZoneData", menuName = "Scriptable Objects/EncounterZoneData")]
+[CreateAssetMenu(fileName = "EncounterZoneData", menuName = "Scriptable Objects/Battle/EncounterZoneData")]
 public class EncounterZoneData : ScriptableObject
 {
     public string zoneName;

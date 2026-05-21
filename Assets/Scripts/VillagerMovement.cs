@@ -27,9 +27,10 @@ public class VillagerMovement : MonoBehaviour
 
     void Update()
     {
+        if (agent == null || animator == null || !agent.isActiveAndEnabled) return;
+
         animator.SetFloat(SpeedHash, agent.velocity.magnitude);
     }
-
     private async Awaitable WanderRoutine()
     {
         var token = destroyCancellationToken;
@@ -38,15 +39,30 @@ public class VillagerMovement : MonoBehaviour
         {
             while (!token.IsCancellationRequested)
             {
-                if (agent == null) return;
+                // 1. Check vor der Zielbestimmung: Ist der Agent aktiv und auf dem NavMesh?
+                if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh)
+                {
+                    // Warte kurz und versuche es im nächsten Zyklus erneut (wenn die Oberwelt wieder aktiv ist)
+                    await Awaitable.WaitForSecondsAsync(0.5f, token);
+                    continue;
+                }
+
                 Vector3 targetDestination = GetRandomPoint(transform.position, 10f);
                 agent.SetDestination(targetDestination);
 
-                while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+                // 2. Sicherheitscheck INNERHALB der Bewegungsschleife
+                while (agent.pathPending || (agent.isActiveAndEnabled && agent.isOnNavMesh && agent.remainingDistance > agent.stoppingDistance))
                 {
+                    // Wenn der Agent während des Gehens deaktiviert wird, brechen wir die Bewegungsschleife sofort ab
+                    if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
+                    {
+                        break;
+                    }
+
                     await Awaitable.EndOfFrameAsync();
                 }
 
+                // Warte 2 Sekunden vor dem nächsten Punkt, sofern wir nicht gecancelt wurden
                 await Awaitable.WaitForSecondsAsync(2f, token);
             }
         }
@@ -54,7 +70,6 @@ public class VillagerMovement : MonoBehaviour
         {
             Debug.Log("Wander routine canceled.");
         }
-        
     }
 
     Vector3 GetRandomPoint(Vector3 center, float distance)

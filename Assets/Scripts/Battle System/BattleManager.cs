@@ -1,112 +1,192 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
-    public static BattleManager Instance;
+    public enum BattleState { Idle, Start, PlayerTurn, EnemyTurn, Busy, Won, Lost, End }
 
+    [Header("UI Ref")]
     [SerializeField] private BattleUIController uiController;
-    [SerializeField] private BattleEntityData playerTemplate;
+    private Camera overworldCamera;
+
+    [Header("Bridge Data")]
+    [SerializeField] private BattleTransferDataSO battleTransferData;
+
+    [Header("3D Spawn Points in the Arena")]
+    [SerializeField] private Transform player3DSpawnPoint;
+    [SerializeField] private Transform enemy3DSpawnPoint;
+
+    [Header("Player Ref")]
     [SerializeField] private PlayerRuntimeState playerRuntime;
-    [SerializeField] private BoolEventChannelSO battleStateEventChannel;
+
+    [Header("Broadcasting Channels")]
     [SerializeField] private BattleResultEventChannelSO battleResultEventChannel;
+    [SerializeField] private BoolEventChannelSO battleStateEventChannel;
 
     [Header("Audio Channels")]
     [SerializeField] private AudioEventChannelSO musicChannel;
     [SerializeField] private AudioEventChannelSO sfxChannel;
 
-    [Header("Audio Configurations")]
+    [Header("Audio files to play")]
     [SerializeField] private AudioConfigurationSO battleStartSFX;
     [SerializeField] private AudioConfigurationSO battleMusicBGM;
     [SerializeField] private AudioConfigurationSO attackSFX;
+    [SerializeField] private AudioConfigurationSO mapBGM;
+    [SerializeField] private AudioConfigurationSO battleWonBGM;
 
+    private BattleEntityData currentEnemy;
     private int currentPlayerHP;
     private int currentEnemyHP;
     private int accumulatedEXP;
-
-    public enum BattleState { Idle, Start, PlayerTurn, EnemyTurn, Busy, Won, Lost, End }
     private BattleState currentState = BattleState.Idle;
+
+    private GameObject spawnedPlayerGO;
+    private GameObject spawnedEnemyGO;
 
     void Awake()
     {
-        Instance = this;
         uiController.Initialize();
-
-        uiController.Initialize();
-        uiController.SkillDistro.SetupDynamicWeaponRows(playerRuntime);
+        if (uiController.SkillDistro != null)
+        {
+            uiController.SkillDistro.SetupDynamicWeaponRows(playerRuntime);
+        }
     }
 
-    public void StartBattle(BattleEntityData enemyData)
+    void Start()
     {
-        if (currentState != BattleState.Idle) return;
+        overworldCamera = Camera.main;
+        if (overworldCamera != null)
+        {
+            overworldCamera.gameObject.SetActive(false);
+        }
 
-        sfxChannel.RaiseEvent(battleStartSFX); 
-        musicChannel.RaiseEvent(battleMusicBGM);
+        if (battleTransferData == null || battleTransferData.currentEnemyData == null)
+        {
+            Debug.LogError("Keine Kampfdaten für die 3D-Szene gefunden!");
+            return;
+        }
 
+        currentEnemy = battleTransferData.currentEnemyData;
         currentPlayerHP = playerRuntime.currentHP;
-        currentEnemyHP = enemyData.maxHP;
-        accumulatedEXP = enemyData.expReward;
-        currentState = BattleState.Start;
+        currentEnemyHP = currentEnemy.maxHP;
+        accumulatedEXP = currentEnemy.expReward;
 
-        uiController.SetActive(true);
-        uiController.SetupBattleImages(playerTemplate.portrait, playerTemplate.battleImage, enemyData.battleImage, playerTemplate.entityName);
+        // Play battle start and BGM audio
+        if (sfxChannel != null) sfxChannel.RaiseEvent(battleStartSFX);
+        if (musicChannel != null) musicChannel.RaiseEvent(battleMusicBGM);
 
-        uiController.BindButtons(PlayerAttack, () => EnemyAttacks(enemyData.attack), EndBattle);
+        Spawn3DCombatants();
 
-        UpdateGameState();
-        battleStateEventChannel.RaiseEvent(false);
+        uiController.ShowBattleUI(true);
+        uiController.BindButtons(PlayerAttack, PlayerDefend, () => EndBattle(false));
 
+        UpdateGameState(); // Init UI Update at start
+        currentState = BattleState.PlayerTurn;
     }
 
-    private void UpdateGameState()
+    private void Spawn3DCombatants()
+    {
+        if (playerRuntime.playerCombatPrefab != null && player3DSpawnPoint != null)
+        {
+            spawnedPlayerGO = Instantiate(playerRuntime.playerCombatPrefab, player3DSpawnPoint.position, player3DSpawnPoint.rotation);
+        }
+        else
+        {
+            Debug.LogWarning("Player Combat Prefab oder Spawn Point nicht zugewiesen!");
+        }
+
+        if (currentEnemy.combatPrefab != null && enemy3DSpawnPoint != null)
+        {
+            spawnedEnemyGO = Instantiate(currentEnemy.combatPrefab, enemy3DSpawnPoint.position, enemy3DSpawnPoint.rotation);
+        }
+        else
+        {
+            Debug.LogWarning("Enemy Combat Prefab oder Spawn Point nicht zugewiesen!");
+        }
+    }
+
+    private void UpdateGameState() // UI-Updates
     {
         uiController.UpdateStats(currentPlayerHP, playerRuntime.maxHP, playerRuntime.currentLevel);
     }
 
     public void PlayerAttack()
     {
-        sfxChannel.RaiseEvent(attackSFX);
-        currentEnemyHP -= playerRuntime.attack;
-        uiController.ShowMonsterDamage(playerRuntime.attack);
-        UpdateGameState();
+        if (currentState != BattleState.PlayerTurn) return;
+        currentState = BattleState.Busy;
 
-        if (currentEnemyHP <= 0) EndBattle();
+        if (sfxChannel != null) sfxChannel.RaiseEvent(attackSFX);
+
+        int damage = Mathf.Max(1, playerRuntime.attack - (currentEnemy.defense / 2));
+        currentEnemyHP -= damage;
+
+        uiController.ShowMonsterDamage(damage);
+
+        // Check if enemy is dead 
+        if (currentEnemyHP <= 0)
+        {
+            DetermineBattleOutcome();
+        }
+        else
+        {
+            Invoke(nameof(EnemyTurn), 1.5f);
+        }
     }
 
-    public void EnemyAttacks(int damage)
+    public void PlayerDefend()
     {
+        if (currentState != BattleState.PlayerTurn) return;
+        currentState = BattleState.Busy;
+        // Defend logic
+        EnemyTurn();
+    }
+
+    private void EnemyTurn()
+    {
+        currentState = BattleState.EnemyTurn;
+
+        int damage = Mathf.Max(1, currentEnemy.attack - (playerRuntime.defense / 2));
         currentPlayerHP -= damage;
+
+        // Verhindern, dass HP unter 0 fallen (sieht in der UI sonst komisch aus)
+        currentPlayerHP = Mathf.Max(0, currentPlayerHP);
+
         uiController.ShowPlayerDamage(damage);
+
+        UpdateGameState();
 
         if (currentPlayerHP <= 0)
         {
-            currentPlayerHP = 0;
-            playerRuntime.isDead = true;
+            DetermineBattleOutcome();
         }
-
-        UpdateGameState();
+        else
+        {
+            currentState = BattleState.PlayerTurn;
+        }
     }
 
-    private void EndBattle()
+    private void DetermineBattleOutcome()
     {
         if (currentEnemyHP <= 0)
         {
-            string msg = $"You won! \nEarned {accumulatedEXP} EXP.";
+            if (musicChannel != null) musicChannel.RaiseEvent(battleWonBGM);
+            currentState = BattleState.Won;
+            string msg = $"{currentEnemy.entityName} wurde besiegt!\r\nDu erhältst {accumulatedEXP} EXP.";
 
-            // Note: Check level projection status matching ProgressionManager's threshold logic
             if (playerRuntime.currentEXP + accumulatedEXP >= playerRuntime.expToNextLevel)
             {
-                msg += "\n\nLEVEL UP!";
-                // Show screen, but route continue pipeline through the skill point check sequence instead!
+                msg += "\r\n\r\nLEVEL UP!";
                 uiController.ShowVictoryScreen(msg, EvaluatePostBattleSkillFlow);
             }
             else
             {
-                uiController.ShowVictoryScreen(msg, CloseBattleUI);
+                uiController.ShowVictoryScreen(msg, () => EndBattle(true));
             }
         }
-        else
+        else if (currentPlayerHP <= 0)
         {
-            CloseBattleUI();
+            currentState = BattleState.Lost;
+            uiController.ShowVictoryScreen("Du wurdest kampfunfähig...", () => EndBattle(false));
         }
     }
 
@@ -117,28 +197,41 @@ public class BattleManager : MonoBehaviour
             uiController.SkillDistro.OpenSkillDistribution(playerRuntime, () =>
             {
                 uiController.SkillDistro.ApplyAllocatedPoints(playerRuntime);
-                CloseBattleUI();
+                EndBattle(true);
             });
         }
         else
         {
-            CloseBattleUI();
+            EndBattle(true);
         }
     }
 
-    private void CloseBattleUI()
+    public void EndBattle(bool isVictory)
     {
-        uiController.UnbindButtons(PlayerAttack, null, EndBattle);
-        uiController.SetActive(false);
+        uiController.UnbindButtons(PlayerAttack, PlayerDefend, null);
+        uiController.ShowBattleUI(false);
 
         playerRuntime.currentHP = currentPlayerHP;
-        currentState = BattleState.Idle;
-        battleStateEventChannel.RaiseEvent(true);
 
         battleResultEventChannel.RaiseEvent(new BattleResult
         {
-            earnedEXP = (currentEnemyHP <= 0) ? accumulatedEXP : 0,
-            isVictory = currentEnemyHP <= 0
+            earnedEXP = isVictory ? accumulatedEXP : 0,
+            isVictory = isVictory
         });
+
+        battleTransferData.Clear();
+        battleStateEventChannel.RaiseEvent(true);
+        if (musicChannel != null) musicChannel.RaiseEvent(mapBGM);
+
+        if (spawnedPlayerGO != null) Destroy(spawnedPlayerGO);
+        if (spawnedEnemyGO != null) Destroy(spawnedEnemyGO);
+
+        // Show workd camera again
+        if (overworldCamera != null)
+        {
+            overworldCamera.gameObject.SetActive(true);
+        }
+
+        SceneManager.UnloadSceneAsync("BattleScene");
     }
 }

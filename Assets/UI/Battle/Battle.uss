@@ -2,7 +2,6 @@
 }
 
 .container {
-    background-image: url("project://database/Assets/Images/background1.png?fileID=2800000&guid=e4abe850e03d91a43ba84fe2bfed8573&type=3#background1");
 }
 
 .menu {

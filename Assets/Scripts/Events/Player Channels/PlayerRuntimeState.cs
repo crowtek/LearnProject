@@ -13,6 +13,9 @@ public class PlayerRuntimeState : ScriptableObject
     [Header("Skill System Configuration")]
     public int unspentSkillPoints;
 
+    [Header("3D Visuals")]
+    public GameObject playerCombatPrefab;
+
     [SerializeField] private List<string> allocatedWeaponNames = new List<string>();
     [SerializeField] private List<int> allocatedWeaponPoints = new List<int>();
     private Dictionary<string, int> weaponPointsMap = new Dictionary<string, int>();

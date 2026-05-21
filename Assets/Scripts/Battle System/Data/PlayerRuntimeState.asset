@@ -12,27 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32303eca038e25343aa8cfe762ec464c, type: 3}
   m_Name: PlayerRuntimeState
   m_EditorClassIdentifier: Project.BattleSystem::PlayerRuntimeState
-  playerStateChangedChannel: {fileID: 0}
+  playerStateChangedChannel: {fileID: 11400000, guid: 9639d45df54109e4db083a3c9c584e58, type: 2}
   equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
-  unspentSkillPoints: 12
-  allocatedWeaponNames: []
-  allocatedWeaponPoints: 
+  unspentSkillPoints: 5
+  playerCombatPrefab: {fileID: 180246, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+  allocatedWeaponNames:
+  - Sword
+  allocatedWeaponPoints: 07000000
   playerName: Hero
-  currentLevel: 9
-  currentEXP: 1410
-  expToNextLevel: 2700
-  currentHP: 220
+  currentLevel: 1
+  currentEXP: 0
+  expToNextLevel: 9000
+  currentHP: 15
   isDead: 0
   isPoisoned: 0
-  maxHP: 220
-  maxMP: 0
-  attack: 37
-  defense: 0
-  agility: 0
-  resilience: 0
-  luck: 0
-  stamina: 0
-  wisdom: 0
+  maxHP: 15
+  maxMP: 10
+  attack: 6
+  defense: 2
+  agility: 3
+  resilience: 3
+  luck: 3
+  stamina: 3
+  wisdom: 3
   swordPoints: 15
   spearPoints: 6
   boomerangPoints: 7

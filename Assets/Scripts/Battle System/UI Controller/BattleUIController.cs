@@ -9,7 +9,7 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private SkillDistroUIController skillDistroUI;
 
     private VisualElement root;
-    private VisualElement container, playerPortre, playerSprite, enemySprite;
+    private VisualElement container, playerPortre;
     private VisualElement hpBarFill, textboxContainer;
     private Label playerHPLabel, levelLabel, resultText, enemyDamage, playerDamage;
     private Button attackBtn, defButton, closeBtn;
@@ -24,8 +24,6 @@ public class BattleUIController : MonoBehaviour
         container = root.Q<VisualElement>("container");
 
         playerPortre = root.Q<VisualElement>("PlayerImage");
-        playerSprite = root.Q<VisualElement>("PlayerSprite");
-        enemySprite = root.Q<VisualElement>("EnemySprite");
         playerHPLabel = root.Q<Label>("PlayerHP");
         hpBarFill = root.Q<VisualElement>("HPBarFill");
         levelLabel = root.Q<Label>("level");
@@ -44,7 +42,7 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
-    public void SetActive(bool active)
+    public void ShowBattleUI(bool active)
     {
         container.style.display = active ? DisplayStyle.Flex : DisplayStyle.None;
     }
@@ -53,8 +51,6 @@ public class BattleUIController : MonoBehaviour
     {
         root.Q<Label>("PlayerName").text = playerName;
         playerPortre.style.backgroundImage = new StyleBackground(playerPort);
-        playerSprite.style.backgroundImage = new StyleBackground(playerBat);
-        enemySprite.style.backgroundImage = new StyleBackground(enemyBat);
     }
 
     public void UpdateStats(int currentHP, int maxHP, int level)

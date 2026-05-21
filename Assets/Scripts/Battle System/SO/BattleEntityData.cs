@@ -18,4 +18,7 @@ public class BattleEntityData : ScriptableObject
     public int expReward;
     public Sprite portrait;
     public Sprite battleImage;
+
+    [Header("3D Visuals")]
+    public GameObject combatPrefab;
 }

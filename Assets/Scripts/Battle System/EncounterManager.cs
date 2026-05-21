@@ -1,10 +1,17 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EncounterManager : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private EncounterZoneData currentZone;
     [SerializeField] private float stepDistanceThreshold = 2f;
+
+    [Header("Data Bridge")]
+    [SerializeField] private BattleTransferDataSO battleTransferData;
+
+    [Header("Event Channels")]
+    [SerializeField] private BoolEventChannelSO battleStateEventChannel;
 
     private Vector3 lastPosition;
     private float distanceWalked;
@@ -16,11 +23,32 @@ public class EncounterManager : MonoBehaviour
         lastPosition = transform.position;
     }
 
+    private void OnEnable()
+    {
+        if (battleStateEventChannel != null)
+        {
+            battleStateEventChannel.OnEventRaised += OnBattleStateChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (battleStateEventChannel != null)
+        {
+            battleStateEventChannel.OnEventRaised -= OnBattleStateChanged;
+        }
+    }
+
     void Update()
     {
         if (!isInDangerZone) return;
 
-        float distanceThisFrame = Vector3.Distance(transform.position, lastPosition);
+        Vector2 currentPositionFlat = new Vector2(transform.position.x, transform.position.z);
+        Vector2 lastPositionFlat = new Vector2(lastPosition.x, lastPosition.z);
+
+        // Calculate the distance based ONLY on horizontal movement
+        float distanceThisFrame = Vector2.Distance(currentPositionFlat, lastPositionFlat);
+
         distanceWalked += distanceThisFrame;
         lastPosition = transform.position;
 
@@ -30,6 +58,7 @@ public class EncounterManager : MonoBehaviour
             CheckForEncounter();
         }
     }
+
     private void CheckForEncounter()
     {
         stepsSinceLastBattle++;
@@ -46,12 +75,22 @@ public class EncounterManager : MonoBehaviour
     {
         stepsSinceLastBattle = 0;
 
-        // Wähle ein zufälliges Monster aus der Zone
         int randomIndex = Random.Range(0, currentZone.possibleEncounters.Length);
-        BattleEntityData randomMonster = currentZone.possibleEncounters[randomIndex];
+        battleTransferData.PrepareBattle(currentZone.possibleEncounters[randomIndex]);
 
-        Debug.Log($"Random Encounter! Ein {randomMonster.entityName} erscheint!");
-        BattleManager.Instance.StartBattle(randomMonster);
+        battleStateEventChannel.RaiseEvent(false); 
+        SceneManager.LoadScene("BattleScene", LoadSceneMode.Additive);
+    }
+
+    private void OnBattleStateChanged(bool isOverworldInputActive)
+    {
+        if (isOverworldInputActive)
+        {
+            isInDangerZone = true;
+            stepsSinceLastBattle = 0;
+            distanceWalked = 0f;
+            lastPosition = transform.position;
+        }
     }
 
     public void SetInDangerZone(bool active, EncounterZoneData zone = null)
