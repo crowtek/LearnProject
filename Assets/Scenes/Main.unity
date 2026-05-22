@@ -56979,6 +56979,8 @@ MonoBehaviour:
   battleResultChannel: {fileID: 11400000, guid: ed70d04a9589616448c7e7fffa53f772, type: 2}
   hpGainPerLevel: 10
   atkGainPerLevel: 2
+  mpGainPerLevel: 5
+  skillPointsPerLevel: 3
 --- !u!4 &1311728459
 Transform:
   m_ObjectHideFlags: 0

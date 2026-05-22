@@ -5,6 +5,10 @@
             <ui:Button text="Attack" name="AttackButton" class="button"/>
             <ui:Button text="Run" name="CloseButton" class="button"/>
             <ui:Button text="Get Attacked" name="DefButton" class="button"/>
+            <ui:Button text="Skills" name="SkillsButton" class="button"/>
+            <ui:VisualElement name="SkillMenuPanel" style="flex-grow: 1; position: absolute;">
+                <ui:ScrollView name="SkillButtonsContainer"/>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="stats" class="stats">
             <ui:VisualElement name="ImageContainer">

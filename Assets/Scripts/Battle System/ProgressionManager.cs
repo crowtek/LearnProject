@@ -8,6 +8,8 @@ public class ProgressionManager : MonoBehaviour
     [Header("Growth Settings")]
     [SerializeField] private int hpGainPerLevel = 10;
     [SerializeField] private int atkGainPerLevel = 2;
+    [SerializeField] private int mpGainPerLevel = 5;
+    [SerializeField] private int skillPointsPerLevel = 3;
 
     private void OnEnable() => battleResultChannel.OnEventRaised += HandleBattleResult;
     private void OnDisable() => battleResultChannel.OnEventRaised -= HandleBattleResult;
@@ -16,34 +18,21 @@ public class ProgressionManager : MonoBehaviour
     {
         if (!result.isVictory) return;
 
-        // 1. Capture the "Before" state for the UI
         int startLevel = playerState.currentLevel;
-        int startHP = playerState.maxHP;
-        int startAtk = playerState.attack;
-
-        // 2. Perform the actual logic (Only once!)
         AddExperience(result.earnedEXP);
 
-        // 3. Compare and Notify
         if (playerState.currentLevel > startLevel)
         {
-            string changes = $"Level {startLevel} > {playerState.currentLevel}\n" +
-                             $"HP: {startHP} > {playerState.maxHP}\n" +
-                             $"ATK: {startAtk} > {playerState.attack}";
-
-            Debug.Log($"Level Up Details: {changes}");
-            // Trigger your UI event here
+            Debug.Log($"[Progression] Level {startLevel} → {playerState.currentLevel}");
+            // TODO: fire level-up UI event channel here
         }
     }
 
     private void AddExperience(int amount)
     {
         playerState.currentEXP += amount;
-
         while (playerState.currentEXP >= playerState.expToNextLevel)
-        {
             LevelUp();
-        }
     }
 
     private void LevelUp()
@@ -52,24 +41,15 @@ public class ProgressionManager : MonoBehaviour
         playerState.currentLevel++;
 
         playerState.maxHP += hpGainPerLevel;
+        playerState.maxMP += mpGainPerLevel;
         playerState.attack += atkGainPerLevel;
-        playerState.currentHP = playerState.maxHP;
 
-        playerState.unspentSkillPoints += 3;
-        CheckWeaponSkillUnlocks();
+        // Restore to full on level up (classic Dragon Quest feel)
+        playerState.currentHP = playerState.maxHP;
+        playerState.currentMP = playerState.maxMP;
+
+        playerState.unspentSkillPoints += skillPointsPerLevel;
 
         playerState.expToNextLevel = LevelCalculator.GetRequiredEXP(playerState.currentLevel);
-    }
-
-    private void CheckWeaponSkillUnlocks()
-    {
-        // Example threshold logic matching your rule: "Unlock every 5 points"
-        if (playerState.swordPoints >= 5)
-        {
-            // add skills via scriptable objects
-            // needed skill points to consume.
-            // skill name and effect.
-            // add skill to player list of skills
-        }
     }
 }

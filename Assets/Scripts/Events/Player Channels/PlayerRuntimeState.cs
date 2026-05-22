@@ -1,7 +1,4 @@
-using Codice.CM.Common;
-using NUnit.Framework;
 using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlayerRuntimeState", menuName = "Scriptable Objects/PlayerRuntimeState")]
@@ -16,10 +13,22 @@ public class PlayerRuntimeState : ScriptableObject
     [Header("3D Visuals")]
     public GameObject playerCombatPrefab;
 
+    [Header("Animation Triggers")]
+    [Tooltip("Animator trigger for normal attack")]
+    public string normalAttackTrigger = "Attack";
+    [Tooltip("Animator trigger when taking damage")]
+    public string hurtTrigger = "Hurt";
+    [Tooltip("Animator trigger for death")]
+    public string deathTrigger = "Die";
+
     [SerializeField] private List<string> allocatedWeaponNames = new List<string>();
     [SerializeField] private List<int> allocatedWeaponPoints = new List<int>();
     private Dictionary<string, int> weaponPointsMap = new Dictionary<string, int>();
 
+    // Tracks which skill nodes have already been applied to prevent stacking on re-calculation
+    private HashSet<string> appliedSkillNodeIds = new HashSet<string>();
+
+    [Header("Identity")]
     public string playerName = "Hero";
     public int currentLevel = 1;
     public int currentEXP;
@@ -28,8 +37,10 @@ public class PlayerRuntimeState : ScriptableObject
     public bool isDead;
     public bool isPoisoned;
 
+    [Header("Base Stats")]
     public int maxHP;
     public int maxMP;
+    public int currentMP;
     public int attack;
     public int defense;
     public int agility;
@@ -38,73 +49,64 @@ public class PlayerRuntimeState : ScriptableObject
     public int stamina;
     public int wisdom;
 
-    [Header("Skill System")]
+    [Header("Legacy Weapon Points (kept for compatibility)")]
     public int swordPoints;
     public int spearPoints;
     public int boomerangPoints;
     public int fisticuffsPoints;
 
-    // Instead of adding directly to raw attack, separate Base Stats from Skill Bonus Stats
+    [Header("Known Battle Skills")]
+    [Tooltip("Skills available to the player in battle. Populated by the skill tree unlock system.")]
+    public List<BattleSkillData> knownSkills = new List<BattleSkillData>();
+
+
 
     private void OnEnable()
     {
-        // Rebuild runtime dictionary from serialized lists
         weaponPointsMap.Clear();
         for (int i = 0; i < allocatedWeaponNames.Count; i++)
         {
             weaponPointsMap[allocatedWeaponNames[i]] = allocatedWeaponPoints[i];
         }
-        equipmentChannel.OnEventRaised += UpdateStats;
+
+        if (equipmentChannel != null)
+            equipmentChannel.OnEventRaised += UpdateStats;
     }
 
     private void OnDisable()
     {
-        if (equipmentChannel != null)equipmentChannel.OnEventRaised -= UpdateStats;
+        if (equipmentChannel != null)
+            equipmentChannel.OnEventRaised -= UpdateStats;
     }
 
     private void UpdateStats(EquipmentChange change)
     {
         int multiplier = change.isEquipping ? 1 : -1;
-        string action = change.isEquipping ? "Equipped" : "Unequipped";
-
-        // Track old stats for the log
-        int oldAtk = attack;
-        int oldDef = defense;
-        int oldAgi = agility;
-
-        // Apply changes
         attack += change.attackBonus * multiplier;
         defense += change.defenseBonus * multiplier;
         agility += change.agilityBonus * multiplier;
-
         RaiseStateChanged();
     }
-
 
     public void RaiseStateChanged()
     {
         if (playerStateChangedChannel != null)
-        {
             playerStateChangedChannel.RaiseEvent(this);
-        }
     }
 
     public void SetPointsForWeapon(string weaponName, int points)
     {
         weaponPointsMap[weaponName] = points;
-
-        // Sync back to lists for serialization/inspector visibility
         int idx = allocatedWeaponNames.IndexOf(weaponName);
         if (idx >= 0)
-        {
             allocatedWeaponPoints[idx] = points;
-        }
         else
         {
             allocatedWeaponNames.Add(weaponName);
             allocatedWeaponPoints.Add(points);
         }
     }
+
     public int GetPointsForWeapon(string weaponName)
     {
         if (weaponPointsMap.TryGetValue(weaponName, out int points)) return points;
@@ -117,6 +119,7 @@ public class PlayerRuntimeState : ScriptableObject
         weaponPointsMap.Clear();
         allocatedWeaponNames.Clear();
         allocatedWeaponPoints.Clear();
+        appliedSkillNodeIds.Clear();
     }
 
     public void RecalculateWeaponSkillBonuses(List<WeaponCategorySO> categories)
@@ -127,31 +130,45 @@ public class PlayerRuntimeState : ScriptableObject
 
             foreach (var node in category.skillNodes)
             {
-                // If the player has enough points, grant the bonus!
-                if (allocatedPoints >= node.pointsRequired)
+                // Build a unique ID from category + node name
+                string nodeId = $"{category.weaponName}::{node.skillName}";
+
+                if (allocatedPoints >= node.pointsRequired && !appliedSkillNodeIds.Contains(nodeId))
                 {
+                    appliedSkillNodeIds.Add(nodeId);
+
                     if (node.nodeType == SkillNodeType.StatBonus)
                     {
-                        this.attack += node.attackBonus;
-                        this.defense += node.defenseBonus;
-
-                        Debug.Log($"Permanently added +{node.attackBonus} Atk from {category.weaponName} path!");
+                        attack += node.attackBonus;
+                        defense += node.defenseBonus;
+                        Debug.Log($"[Progression] Applied +{node.attackBonus} ATK / +{node.defenseBonus} DEF from '{nodeId}'");
                     }
                     else if (node.nodeType == SkillNodeType.ActiveSkill)
                     {
-                        // Handle adding the skill to your player's known spells/skills list
-                        UnlockActiveSkill(node.skillIdToUnlock);
+                        UnlockActiveSkill(node.skillToUnlock);
                     }
                 }
             }
         }
 
-        // Notify any active UIs that stats changed
         RaiseStateChanged();
     }
 
-    private void UnlockActiveSkill(string skillId)
+    private void UnlockActiveSkill(BattleSkillData skill)
     {
-        Debug.Log($"Player unlocked active skill: {skillId}");
+        if (skill == null)
+        {
+            Debug.LogWarning("[Progression] An ActiveSkill node has no skill assigned — check your WeaponCategorySO.");
+            return;
+        }
+
+        if (knownSkills.Contains(skill))
+        {
+            Debug.Log($"[Progression] '{skill.skillName}' already known — skipped.");
+            return;
+        }
+
+        knownSkills.Add(skill);
+        Debug.Log($"[Progression] Unlocked: '{skill.skillName}'");
     }
 }

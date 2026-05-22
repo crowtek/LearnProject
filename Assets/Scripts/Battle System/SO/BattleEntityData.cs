@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu(fileName = "NewEntity", menuName = "Scriptable Objects/Battle/Entity Data")]
 public class BattleEntityData : ScriptableObject
@@ -21,4 +20,16 @@ public class BattleEntityData : ScriptableObject
 
     [Header("3D Visuals")]
     public GameObject combatPrefab;
+
+    [Header("Animation Triggers")]
+    [Tooltip("Animator trigger for a normal attack")]
+    public string normalAttackTrigger = "Attack";
+    [Tooltip("Animator trigger when this entity takes damage")]
+    public string hurtTrigger = "Hurt";
+    [Tooltip("Animator trigger for the entity's death")]
+    public string deathTrigger = "Die";
+
+    [Header("Enemy Skills")]
+    [Tooltip("Skills this enemy can use in battle. Leave empty for attack-only enemies.")]
+    public BattleSkillData[] availableSkills;
 }

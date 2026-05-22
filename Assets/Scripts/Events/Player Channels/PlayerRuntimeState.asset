@@ -15,7 +15,10 @@ MonoBehaviour:
   playerStateChangedChannel: {fileID: 11400000, guid: 9639d45df54109e4db083a3c9c584e58, type: 2}
   equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
   unspentSkillPoints: 5
-  playerCombatPrefab: {fileID: 180246, guid: 4fd72ede44298284b89704ad0b9dedad, type: 3}
+  playerCombatPrefab: {fileID: 7842949921437115589, guid: 98a0c5ca2eb1f804cbc2afd1fec7f600, type: 3}
+  normalAttackTrigger: Attack
+  hurtTrigger: Hurt
+  deathTrigger: Die
   allocatedWeaponNames:
   - Sword
   allocatedWeaponPoints: 07000000
@@ -28,6 +31,7 @@ MonoBehaviour:
   isPoisoned: 0
   maxHP: 15
   maxMP: 10
+  currentMP: 0
   attack: 6
   defense: 2
   agility: 3
@@ -39,3 +43,5 @@ MonoBehaviour:
   spearPoints: 6
   boomerangPoints: 7
   fisticuffsPoints: 2
+  knownSkills:
+  - {fileID: 11400000, guid: 4155fc62ae5e2c6468e57a2381fff0e1, type: 2}

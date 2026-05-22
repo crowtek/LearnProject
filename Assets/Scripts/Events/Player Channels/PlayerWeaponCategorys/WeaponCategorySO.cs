@@ -16,7 +16,8 @@ public class WeaponSkillNode
     public int defenseBonus;
 
     [Header("Active Skill Settings")]
-    public string skillIdToUnlock;
+    [Tooltip("The skill that gets added to the player's battle skill list when this node is reached.")]
+    public BattleSkillData skillToUnlock;
 }
 
 [CreateAssetMenu(fileName = "NewWeaponCategory", menuName = "Scriptable Objects/Skills/Weapon Category")]
