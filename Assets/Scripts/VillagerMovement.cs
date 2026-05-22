@@ -11,8 +11,7 @@ public class VillagerMovement : MonoBehaviour
     [SerializeField] private NavMeshAgent agent;
     [SerializeField] private Animator animator;
 
-    // verhindert unnötige String Berechnungen in der Update
-    private static readonly int SpeedHash = Animator.StringToHash("Speed"); 
+    private static readonly int SpeedHash = Animator.StringToHash("Speed"); // verhindert unnötige String Berechnungen in der Update
 
     void Awake()
     {
@@ -50,7 +49,6 @@ public class VillagerMovement : MonoBehaviour
                 Vector3 targetDestination = GetRandomPoint(transform.position, 10f);
                 agent.SetDestination(targetDestination);
 
-                // 2. Sicherheitscheck INNERHALB der Bewegungsschleife
                 while (agent.pathPending || (agent.isActiveAndEnabled && agent.isOnNavMesh && agent.remainingDistance > agent.stoppingDistance))
                 {
                     // Wenn der Agent während des Gehens deaktiviert wird, brechen wir die Bewegungsschleife sofort ab
