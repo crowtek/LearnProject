@@ -14,26 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project.BattleSystem::PlayerRuntimeState
   playerStateChangedChannel: {fileID: 11400000, guid: 9639d45df54109e4db083a3c9c584e58, type: 2}
   equipmentChannel: {fileID: 11400000, guid: 849624e55f9dc6840bc9e9f21889ae4c, type: 2}
-  unspentSkillPoints: 5
+  unspentSkillPoints: 24
   playerCombatPrefab: {fileID: 7842949921437115589, guid: 98a0c5ca2eb1f804cbc2afd1fec7f600, type: 3}
   normalAttackTrigger: Attack
   hurtTrigger: Hurt
   deathTrigger: Die
   allocatedWeaponNames:
   - Sword
-  allocatedWeaponPoints: 07000000
+  allocatedWeaponPoints: 15000000
   playerName: Hero
-  currentLevel: 1
-  currentEXP: 0
-  expToNextLevel: 9000
-  currentHP: 15
+  currentLevel: 12
+  currentEXP: 1184
+  expToNextLevel: 4157
+  currentHP: 125
   isDead: 0
   isPoisoned: 0
-  maxHP: 15
-  maxMP: 10
-  currentMP: 0
-  attack: 6
-  defense: 2
+  maxHP: 125
+  maxMP: 65
+  currentMP: 65
+  attack: 32
+  defense: 8
   agility: 3
   resilience: 3
   luck: 3

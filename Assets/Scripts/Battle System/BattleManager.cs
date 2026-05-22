@@ -133,7 +133,7 @@ public class BattleManager : MonoBehaviour
         if (sfxChannel != null) sfxChannel.RaiseEvent(attackSFX);
 
         // Player swings — wait for animation, then apply damage
-        playerCombatAnimator?.PlayAndThen(playerRuntime.normalAttackTrigger, 0.8f, () =>
+        playerCombatAnimator?.PlayAndThen(playerRuntime.normalAttackTrigger, 0.3f, () =>
         {
             int damage = Mathf.Max(1, playerRuntime.attack - (currentEnemy.defense / 2));
             currentEnemyHP -= damage;
@@ -178,7 +178,7 @@ public class BattleManager : MonoBehaviour
             ? skill.attackerAnimationTrigger
             : playerRuntime.normalAttackTrigger;
 
-        playerCombatAnimator?.PlayAndThen(triggerToPlay, 1.0f, () =>
+        playerCombatAnimator?.PlayAndThen(triggerToPlay, 0.2f, () =>
         {
             ApplySkillEffect(skill, isPlayerCasting: true);
         });
@@ -258,7 +258,7 @@ public class BattleManager : MonoBehaviour
                 : currentEnemy.normalAttackTrigger;
 
             uiController.ShowBattleLog($"{currentEnemy.entityName} setzt {chosenSkill.skillName} ein!");
-            enemyCombatAnimator?.PlayAndThen(triggerName, 1.0f, () =>
+            enemyCombatAnimator?.PlayAndThen(triggerName, 0.2f, () =>
             {
                 ApplySkillEffect(chosenSkill, isPlayerCasting: false);
             });
@@ -266,7 +266,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             // Normal attack
-            enemyCombatAnimator?.PlayAndThen(currentEnemy.normalAttackTrigger, 0.8f, () =>
+            enemyCombatAnimator?.PlayAndThen(currentEnemy.normalAttackTrigger, 0.3f, () =>
             {
                 int damage = Mathf.Max(1, currentEnemy.attack - (playerRuntime.defense / 2));
                 currentPlayerHP = Mathf.Max(0, currentPlayerHP - damage);

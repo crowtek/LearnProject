@@ -18,7 +18,7 @@ MonoBehaviour:
   mpCost: 2
   targetType: 0
   effectType: 0
-  basePower: 20
+  basePower: 5
   attackMultiplier: 1.2
   attackerAnimationTrigger: Attack
   targetAnimationTrigger: Hurt
