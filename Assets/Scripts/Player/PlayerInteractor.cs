@@ -10,13 +10,16 @@ public class PlayerInteractor : MonoBehaviour
     [Header("Detection Settings")]
     [SerializeField] private float interactRadius = 2f;
     [SerializeField] private LayerMask interactLayer;
-    [SerializeField] private int maxInteractions = 5; // Limit detection for performance
+    [SerializeField] private int maxInteractions = 5;
 
     [Header("Events")]
     [SerializeField] private BoolEventChannelSO dialogueEventChannel;
 
     private bool _isDialogueActive = false;
-    private Collider[] _overlapResults; // Pre-allocated array to avoid GC
+    private Collider[] _overlapResults;
+
+    private IInteractable _currentClosestInteractable = null;
+    private Transform _lastInteractionTarget = null;
 
     private void Awake()
     {
@@ -50,19 +53,40 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (_isDialogueActive)
         {
-            interactionUI.Hide();
+            if (_currentClosestInteractable != null)
+            {
+                _currentClosestInteractable = null;
+                _lastInteractionTarget = null;
+                interactionUI.Hide();
+            }
             return;
         }
 
-        IInteractable closest = GetClosestInteractable();
+        IInteractable closest = FindClosestInteractable();
 
-        if (closest != null)
+        // Check if interactable changed since last frame
+        if (closest != _currentClosestInteractable)
         {
-            interactionUI.Show(closest.GetInteractionPoint());
+            _currentClosestInteractable = closest;
+
+            if (_currentClosestInteractable != null)
+            {
+                // get the Transform and give it directly to the UI
+                _lastInteractionTarget = _currentClosestInteractable.GetInteractionPoint();
+                interactionUI.Show(_lastInteractionTarget);
+            }
+            else
+            {
+                _lastInteractionTarget = null;
+                interactionUI.Hide();
+            }
         }
-        else
+        else if (_currentClosestInteractable != null)
         {
-            interactionUI.Hide();
+            if (_lastInteractionTarget != null)
+            {
+                interactionUI.transform.position = _lastInteractionTarget.position;
+            }
         }
     }
 
@@ -72,11 +96,10 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (_isDialogueActive) return;
 
-        IInteractable interactable = GetClosestInteractable();
-        interactable?.Interact();
+        _currentClosestInteractable?.Interact();
     }
 
-    private IInteractable GetClosestInteractable()
+    private IInteractable FindClosestInteractable()
     {
         int numFound = Physics.OverlapSphereNonAlloc(
             transform.position,
