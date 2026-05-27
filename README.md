@@ -22,7 +22,7 @@ The core focus is on separating data, runtime state, gameplay logic, and present
 
 ## Project Preview
 
-[Watch gameplay demo](./gameplay-demo.mp4)
+[Watch gameplay demo](./Assets/Images/gameplay-demo.mp4)
 
 Recommended media:
 
