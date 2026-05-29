@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public struct DialogueEntry
@@ -15,8 +16,23 @@ public struct DialogueEntry
 [System.Serializable]
 public struct DialogueCondition
 {
-    [StoryFlag] public string requiredFlag;
+    public FlagCondition flagCondition;
+
+    [FormerlySerializedAs("requiredFlag")]
+    [StoryFlag] public string legacyRequiredFlag;
     [DialogueKey] public string dialogueKey;
+
+    public bool IsMet(ICollection<string> completedFlags)
+    {
+        if (flagCondition.HasAnyFlag())
+        {
+            return flagCondition.IsMet(completedFlags);
+        }
+
+        return !string.IsNullOrEmpty(legacyRequiredFlag) &&
+               completedFlags != null &&
+               completedFlags.Contains(legacyRequiredFlag);
+    }
 }
 
 

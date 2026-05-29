@@ -54,7 +54,7 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
         // Check for the dialog option with highest Prio in the list
         foreach (var condition in prioritizedDialogues)
         {
-            if (completedStoryFlags.Contains(condition.requiredFlag))
+            if (condition.IsMet(completedStoryFlags))
             {
                 selectedKey = condition.dialogueKey;
                 break;

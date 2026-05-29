@@ -8,9 +8,25 @@ public class StoryFlagDrawer : PropertyDrawer
 {
     private StoryFlagDatabaseSO chachedDatabase;
 
+    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+    {
+        if (property.propertyType != SerializedPropertyType.String)
+        {
+            return EditorGUI.GetPropertyHeight(property, label, true);
+        }
+
+        return base.GetPropertyHeight(property, label);
+    }
+
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        if(chachedDatabase == null)
+        if (property.propertyType != SerializedPropertyType.String)
+        {
+            EditorGUI.PropertyField(position, property, label, true);
+            return;
+        }
+
+        if (chachedDatabase == null)
         {
             // Search for Story Flag Database asset
             string[] guids = AssetDatabase.FindAssets("t:StoryFlagDatabaseSO");

@@ -1,15 +1,22 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ConditionCheckedObject : MonoBehaviour
 {
     [Header("Story flag Broacast Channel")]
     [SerializeField] private StringEventChannelSO StoryFlagBroadcast;
 
-    [Header("Flag to set on enter")]
-    [StoryFlag] [SerializeField] private string requiredFlag;
+    [Header("Flag condition")]
+    [SerializeField] private FlagCondition flagCondition;
 
-    [Header("Show or Hide this element when flag is set")]
+    [FormerlySerializedAs("requiredFlag")]
+    [StoryFlag][SerializeField] private string legacyRequiredFlag;
+
+    [Header("Show or Hide this element when condition is met")]
     [SerializeField] private bool showWhenRight = true;
+
+    private readonly HashSet<string> completedStoryFlags = new HashSet<string>();
 
     void OnEnable()
     {
@@ -27,11 +34,30 @@ public class ConditionCheckedObject : MonoBehaviour
         }
     }
 
-    // Show or hide the element depanding on right flag
+    // Show or hide the element depending on the full flag condition.
     private void HandleStoryFlagChanged(string changedFlag)
     {
-        if (changedFlag != requiredFlag) return;
+        if (string.IsNullOrEmpty(changedFlag))
+        {
+            return;
+        }
+        completedStoryFlags.Add(changedFlag);
 
-        gameObject.SetActive(showWhenRight);
+        bool usesCompoundCondition = flagCondition.HasAnyFlag();
+        if (usesCompoundCondition && !flagCondition.ReferencesFlag(changedFlag))
+        {
+            return;
+        }
+
+        if (!usesCompoundCondition && changedFlag != legacyRequiredFlag)
+        {
+            return;
+        }
+
+        bool conditionMet = usesCompoundCondition
+            ? flagCondition.IsMet(completedStoryFlags)
+            : completedStoryFlags.Contains(legacyRequiredFlag);
+
+        gameObject.SetActive(conditionMet == showWhenRight);
     }
 }
