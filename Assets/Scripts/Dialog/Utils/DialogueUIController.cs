@@ -13,6 +13,10 @@ public class DialogueUIController : MonoBehaviour
     [Header("Player Input stop handler")]
     [SerializeField] private BoolEventChannelSO toggleInputChannel; // Stops player input while dialog aktive
 
+    [Header("Audio Feedback")]
+    [SerializeField] private AudioEventChannelSO sfxRequestChannel;
+    [SerializeField] private AudioConfigurationSO dialogueLineSfx;
+
     [Header("Dialogue View")]
     [Tooltip("Component that implements IDialogueView (UI Toolkit, uGUI, TextMeshPro, world-space bubble, etc.).")]
     [SerializeField] private MonoBehaviour dialogueViewComponent;
@@ -89,6 +93,7 @@ public class DialogueUIController : MonoBehaviour
         {
             fullText = currentLines[currentLineIndex];
             dialogueView.DisplayLine(fullText);
+            PlayDialogueLineSfx();
 
             currentLineIndex++;
         }
@@ -99,6 +104,14 @@ public class DialogueUIController : MonoBehaviour
         else
         {
             CloseDialogue();
+        }
+    }
+
+    private void PlayDialogueLineSfx()
+    {
+        if (sfxRequestChannel != null && dialogueLineSfx != null)
+        {
+            sfxRequestChannel.RaiseEvent(dialogueLineSfx);
         }
     }
 

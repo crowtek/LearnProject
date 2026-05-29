@@ -20,6 +20,10 @@ public class StoryManager : MonoBehaviour
     // Other systems are informed about flag changes through here.
     [SerializeField] private StringEventChannelSO storyEventOutputChannel;
 
+    [Header("Audio Feedback")]
+    [SerializeField] private AudioEventChannelSO sfxRequestChannel;
+    [SerializeField] private AudioConfigurationSO flagChangedSfx;
+
     // Somthing like a last quest on top of the stack to now wiche story flag is the newest right now. 
     private string lastStoryFlag;
     private ISaveHandler saveHandler;
@@ -79,15 +83,29 @@ public class StoryManager : MonoBehaviour
         bool wasNewFlag = storyState.SetFlag(flagName); // Story flag are set
         lastStoryFlag = storyState.GetLastFlag();
 
-        if (wasNewFlag && saveProgressOnFlagChange)
+        if (wasNewFlag)
         {
             SaveProgress();
+            PlayFlagChangedSfx();
+
+            if (saveProgressOnFlagChange)
+            {
+                SaveProgress();
+            }
         }
 
         // Other system get Info about Flag change
         if (storyEventOutputChannel != null)
         {
             storyEventOutputChannel.RaiseEvent(flagName);
+        }
+    }
+
+    private void PlayFlagChangedSfx()
+    {
+        if (sfxRequestChannel != null && flagChangedSfx != null)
+        {
+            sfxRequestChannel.RaiseEvent(flagChangedSfx);
         }
     }
 
