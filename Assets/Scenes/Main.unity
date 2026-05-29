@@ -11452,6 +11452,7 @@ GameObject:
   - component: {fileID: 260480484}
   - component: {fileID: 260480487}
   - component: {fileID: 260480488}
+  - component: {fileID: 260480489}
   m_Layer: 0
   m_Name: DialogueUIController
   m_TagString: Untagged
@@ -11498,9 +11499,7 @@ MonoBehaviour:
   dialogueDataChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   setStoryFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
   toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
-  typewritingSpeed: 0.05
-  uiDocument: {fileID: 260480484}
-  typewriter: {fileID: 260480488}
+  dialogueViewComponent: {fileID: 260480485}
 --- !u!4 &260480486
 Transform:
   m_ObjectHideFlags: 0
@@ -11544,6 +11543,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe730c4076f106c4eaabc0c052f85eb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Project.Events::TypewriterHandler
+--- !u!114 &260480489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260480483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683cdeb5d17afc14ba9912bf84522ccc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Dialogue::DialogueUIToolkitView
+  uiDocument: {fileID: 260480484}
+  typewriter: {fileID: 260480488}
+  typewritingSpeed: 0.05
 --- !u!1001 &260670997
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30344,6 +30358,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 422068, guid: 9ad607532c614c54ebd43e913aaf8857, type: 3}
   m_PrefabInstance: {fileID: 727869109}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &728846358
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 728846360}
+  - component: {fileID: 728846359}
+  m_Layer: 0
+  m_Name: StoryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &728846359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 728846358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b60e7c58dc57114b9a40bdb36f2d3e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Story::StoryManager
+  storyState: {fileID: 11400000, guid: 2e6f3b068e142e74e836a53ac0c3975b, type: 2}
+  loadProgressOnAwake: 1
+  saveProgressOnFlagChange: 1
+  saveProgressOnQuit: 1
+  saveFileName: story-progress.json
+  setFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
+  storyEventOutputChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
+--- !u!4 &728846360
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 728846358}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 33.66696, y: -44.65363, z: 18.17677}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &730148196
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93683,3 +93748,4 @@ SceneRoots:
   - {fileID: 1311728459}
   - {fileID: 805650690}
   - {fileID: 1426244349}
+  - {fileID: 728846360}

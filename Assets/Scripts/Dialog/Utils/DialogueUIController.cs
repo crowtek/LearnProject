@@ -13,19 +13,11 @@ public class DialogueUIController : MonoBehaviour
     [Header("Player Input stop handler")]
     [SerializeField] private BoolEventChannelSO toggleInputChannel; // Stops player input while dialog aktive
 
-    [Header("UI configs")]
-    [SerializeField] private float typewritingSpeed = 0.05f;
-    [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private TypewriterHandler typewriter; // Handlle typeing effect
+    [Header("Dialogue View")]
+    [Tooltip("Component that implements IDialogueView (UI Toolkit, uGUI, TextMeshPro, world-space bubble, etc.).")]
+    [SerializeField] private MonoBehaviour dialogueViewComponent;
 
-    // UI Elemenets
-    private VisualElement root;
-    private VisualElement dialogueBox;
-    private VisualElement choiceContainer;
-    private Label nameLabel;
-    private Label textLabel;
-    private Image npcImage;
-
+    private IDialogueView dialogueView;
     private string fullText, activeResultFlag;
     private bool isDialogueActive = false;
     private string[] currentLines;
@@ -33,24 +25,32 @@ public class DialogueUIController : MonoBehaviour
     private System.Func<string, DialogueData> currentDialogueResolver;
     private int currentLineIndex = 0;
 
+    private void Awake()
+    {
+        ResolveDialogueView();
+    }
 
     private void OnEnable()
     {
-        root = uiDocument.rootVisualElement;
-        dialogueBox = root.Q<VisualElement>("DialogueBox");
-        choiceContainer = root.Q<VisualElement>("ChoiceContainer");
-        nameLabel = root.Q<Label>("NPCNameLabel");
-        textLabel = root.Q<Label>("DialogueText");
-        npcImage = root.Q<Image>("NPCImage");
+        ResolveDialogueView();
 
-        dialogueBox.RegisterCallback<PointerDownEvent>(OnBoxClicked);
-        dialogueDataChannel.OnEventRaised += StartDialogue;
+        if (dialogueView != null)
+        {
+            dialogueView.ContinueRequested += OnContinueRequested;
+            dialogueView.ChoiceSelected += SelectChoice;
+        }
+
+        if (dialogueDataChannel != null)
+        {
+            dialogueDataChannel.OnEventRaised += StartDialogue;
+        }
     }
     private void OnDisable()
     {
-        if (dialogueBox != null)
+        if (dialogueView != null)
         {
-            dialogueBox.UnregisterCallback<PointerDownEvent>(OnBoxClicked);
+            dialogueView.ContinueRequested -= OnContinueRequested;
+            dialogueView.ChoiceSelected -= SelectChoice;
         }
 
         if (dialogueDataChannel != null)
@@ -61,6 +61,12 @@ public class DialogueUIController : MonoBehaviour
 
     private void StartDialogue(DialogueData data)
     {
+        if (dialogueView == null)
+        {
+            Debug.LogError($"{nameof(DialogueUIController)} requires a component that implements {nameof(IDialogueView)}.", this);
+            return;
+        }
+
         activeResultFlag = data.ResultFlag;
         currentChoices = data.Choices;
         currentDialogueResolver = data.DialogueResolver;
@@ -69,10 +75,7 @@ public class DialogueUIController : MonoBehaviour
         dialogueEventChannel?.RaiseEvent(true);
 
         isDialogueActive = true;
-        dialogueBox.style.display = DisplayStyle.Flex;
-        HideChoices();
-        nameLabel.text = data.SpeakerName;
-        npcImage.sprite = data.SpeakerPortrait;
+        dialogueView.Show(data);
 
         currentLines = data.Lines ?? System.Array.Empty<string>();
         currentLineIndex = 0;
@@ -85,7 +88,7 @@ public class DialogueUIController : MonoBehaviour
         if (currentLineIndex < currentLines.Length)
         {
             fullText = currentLines[currentLineIndex];
-            typewriter.RunText(textLabel, fullText, typewritingSpeed);
+            dialogueView.DisplayLine(fullText);
 
             currentLineIndex++;
         }
@@ -99,19 +102,15 @@ public class DialogueUIController : MonoBehaviour
         }
     }
 
-    private void OnBoxClicked(PointerDownEvent evt)
+    private void OnContinueRequested()
     {
         if (!isDialogueActive) return;
 
-        if (typewriter != null && typewriter.IsTyping)
+        if (dialogueView.IsDisplayingLine)
         {
-            // Stop type Coroutine
-            typewriter.StopTyping();
-
-            // Show complete text
-            textLabel.text = fullText;
+            dialogueView.CompleteLine(fullText);
         }
-        else if (!AreChoicesVisible())
+        else
         {
             DisplayNextLine();
         }
@@ -119,50 +118,18 @@ public class DialogueUIController : MonoBehaviour
 
     private bool HasChoices() => currentChoices != null && currentChoices.Length > 0;
 
-    private bool AreChoicesVisible()
-    {
-        return choiceContainer != null && choiceContainer.style.display == DisplayStyle.Flex;
-    }
-
     private void ShowChoices()
     {
-        if (choiceContainer == null)
-        {
-            CloseDialogue();
-            return;
-        }
 
         ApplyResultFlag(activeResultFlag);
         activeResultFlag = null;
 
-        choiceContainer.Clear();
-        choiceContainer.style.display = DisplayStyle.Flex;
-
-        foreach (DialogueChoice choice in currentChoices)
-        {
-            var button = new Button(() => SelectChoice(choice))
-            {
-                text = choice.displayText
-            };
-
-            button.AddToClassList("choiceButton");
-            button.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
-            choiceContainer.Add(button);
-        }
-    }
-
-    private void HideChoices()
-    {
-        if (choiceContainer == null) return;
-
-        choiceContainer.Clear();
-        choiceContainer.style.display = DisplayStyle.None;
+        dialogueView.ShowChoices(currentChoices);
     }
 
     private void SelectChoice(DialogueChoice choice)
     {
         ApplyResultFlag(choice.resultFlag);
-        HideChoices();
 
         if (!string.IsNullOrEmpty(choice.nextDialogueKey) && currentDialogueResolver != null)
         {
@@ -175,13 +142,7 @@ public class DialogueUIController : MonoBehaviour
 
     private void CloseDialogue()
     {
-        if (typewriter != null)
-        {
-            typewriter.StopTyping();
-        }
-
-        HideChoices();
-        dialogueBox.style.display = DisplayStyle.None;
+        dialogueView?.Hide();
         isDialogueActive = false;
 
         ApplyResultFlag(activeResultFlag);
@@ -196,6 +157,24 @@ public class DialogueUIController : MonoBehaviour
         if (!string.IsNullOrEmpty(resultFlag) && setStoryFlagRequestChannel != null)
         {
             setStoryFlagRequestChannel.RaiseEvent(resultFlag);
+        }
+    }
+
+    private void ResolveDialogueView()
+    {
+        if (dialogueView != null)
+        {
+            return;
+        }
+
+        if (dialogueViewComponent != null)
+        {
+            dialogueView = dialogueViewComponent as IDialogueView;
+        }
+
+        if (dialogueView == null)
+        {
+            dialogueView = GetComponent<IDialogueView>();
         }
     }
 }
