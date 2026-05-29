@@ -37,24 +37,30 @@ public class StoryCutsceneTrigger : MonoBehaviour
         }
     }
 
+    private DialogueData CreateDialogueData(string dialogueKey, string speakerName, Sprite speakerPortrait)
+    {
+        var entry = dialogueDatabase.GetEntry(dialogueKey);
+
+        return new DialogueData
+        {
+            Lines = entry.conversationLines,
+            SpeakerName = speakerName,
+            SpeakerPortrait = speakerPortrait,
+            ResultFlag = entry.resultFlag,
+            Choices = entry.choices,
+            DialogueResolver = key => CreateDialogueData(key, speakerName, speakerPortrait)
+        };
+    }
+
     private void ExecuteCutsceneDialogue(CutsceneDialogueEntry cutscene)
     {
-        var entry = dialogueDatabase.GetEntry(cutscene.dialogueKey);
+        var data = CreateDialogueData(cutscene.dialogueKey, cutscene.speakerName, cutscene.speakerPortrait);
 
-        if (entry.conversationLines == null || entry.conversationLines.Length == 0)
+        if (data.Lines == null || data.Lines.Length == 0)
         {
             Debug.LogWarning($"[StoryCutsceneTrigger] Dialogue key '{cutscene.dialogueKey}' has no lines.");
             return;
         }
-
-        //Prep data for UI controller
-        var data = new DialogueData
-        {
-            Lines = entry.conversationLines,
-            SpeakerName = cutscene.speakerName,
-            SpeakerPortrait = cutscene.speakerPortrait,
-            ResultFlag = entry.resultFlag
-        };
 
         dialogueChannel.RaiseEvent(data);
     }

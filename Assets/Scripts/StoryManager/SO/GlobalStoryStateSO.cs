@@ -7,12 +7,16 @@ public class GlobalStoryStateSO : ScriptableObject
     [SerializeField] public List<string> completedFlags = new List<string>();
     private string lastAddedFlag;
 
-    public void SetFlag(string flagName)
+    public bool SetFlag(string flagName)
     {
-        if (!completedFlags.Contains(flagName))
+        if (string.IsNullOrEmpty(flagName) || completedFlags.Contains(flagName))
         {
-            completedFlags.Add(flagName);
+            return false;
         }
+
+        completedFlags.Add(flagName);
+        lastAddedFlag = flagName;
+        return true;
     }
 
     public bool IsFlagCompleted(string flagName)
@@ -28,5 +32,41 @@ public class GlobalStoryStateSO : ScriptableObject
         }
 
         return lastAddedFlag;
+    }
+
+    public StoryProgressSaveData CreateSaveData()
+    {
+        return new StoryProgressSaveData
+        {
+            completedFlags = new List<string>(completedFlags),
+            lastFlag = GetLastFlag()
+        };
+    }
+
+    public void ApplySaveData(StoryProgressSaveData saveData)
+    {
+        completedFlags.Clear();
+        lastAddedFlag = null;
+
+        if (saveData?.completedFlags == null)
+        {
+            return;
+        }
+
+        foreach (string flag in saveData.completedFlags)
+        {
+            SetFlag(flag);
+        }
+
+        if (!string.IsNullOrEmpty(saveData.lastFlag) && completedFlags.Contains(saveData.lastFlag))
+        {
+            lastAddedFlag = saveData.lastFlag;
+        }
+    }
+
+    public void Clear()
+    {
+        completedFlags.Clear();
+        lastAddedFlag = null;
     }
 }

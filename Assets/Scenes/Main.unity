@@ -11451,6 +11451,7 @@ GameObject:
   - component: {fileID: 260480485}
   - component: {fileID: 260480484}
   - component: {fileID: 260480487}
+  - component: {fileID: 260480488}
   m_Layer: 0
   m_Name: DialogueUIController
   m_TagString: Untagged
@@ -11499,7 +11500,7 @@ MonoBehaviour:
   toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
   typewritingSpeed: 0.05
   uiDocument: {fileID: 260480484}
-  typewriter: {fileID: 0}
+  typewriter: {fileID: 260480488}
 --- !u!4 &260480486
 Transform:
   m_ObjectHideFlags: 0
@@ -11531,6 +11532,18 @@ MonoBehaviour:
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   storyFlagChangedBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
+--- !u!114 &260480488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260480483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe730c4076f106c4eaabc0c052f85eb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project.Events::TypewriterHandler
 --- !u!1001 &260670997
 PrefabInstance:
   m_ObjectHideFlags: 0

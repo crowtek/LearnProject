@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,7 @@ public struct DialogueEntry
     public string key;
     [TextArea(3, 10)] public string[] conversationLines;
     [StoryFlag] public string resultFlag;
+    public DialogueChoice[] choices;
 }
 
 [System.Serializable]

@@ -19,13 +19,22 @@ MonoBehaviour:
     - Hello
     - How are ya?
     resultFlag: Story2
+    choices:
+    - displayText: Option 1
+      resultFlag: Story2
+      nextDialogueKey: Dia2
+    - displayText: Option 2
+      resultFlag: Story3
+      nextDialogueKey: Dia3
   - key: Dia2
     conversationLines:
     - tz
     - no
     resultFlag: Story3
+    choices: []
   - key: Dia3
     conversationLines:
     - Hello
     - How are ya?
     resultFlag: 
+    choices: []
