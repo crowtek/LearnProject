@@ -61,17 +61,21 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
             }
         }
 
-        var entry = dialogueDatabase.GetEntry(selectedKey);
+        dialogueChannel.RaiseEvent(CreateDialogueData(selectedKey));
+    }
+    private DialogueData CreateDialogueData(string dialogueKey)
+    {
+        var entry = dialogueDatabase.GetEntry(dialogueKey);
 
-        var data = new DialogueData
+        return new DialogueData
         {
             Lines = entry.conversationLines,
             SpeakerName = npcName,
             SpeakerPortrait = npcImage,
             ResultFlag = entry.resultFlag,
+            Choices = entry.choices,
+            DialogueResolver = CreateDialogueData
         };
-
-        dialogueChannel.RaiseEvent(data);
     }
 
     public string GetInteractPrompt() => $"Mit {npcName} sprechen";
