@@ -6,9 +6,13 @@ public class StoryCutsceneTrigger : MonoBehaviour
     [SerializeField] private StoryCutsceneDatabaseSO cutsceneDatabase;
 
     [Header("Channels (Asset References)")]
+    [SerializeField] private LanguageManagerSO languageManager;
     [SerializeField] private DialogueDatabaseSO dialogueDatabase;
     [SerializeField] private StringEventChannelSO storyFlagChangedBroadcastChannel;
     [SerializeField] private DialogueEventChannelSO dialogueChannel;
+
+    private DialogueDatabaseSO ActiveDialogueDatabase =>
+    languageManager != null ? languageManager.CurrentDatabase : dialogueDatabase;
 
     private void OnEnable()
     {
@@ -28,7 +32,7 @@ public class StoryCutsceneTrigger : MonoBehaviour
 
     private void OnStoryFlagBroadcasted(string incomingFlag)
     {
-        if (cutsceneDatabase == null || dialogueDatabase == null || dialogueChannel == null) return;
+        if (cutsceneDatabase == null || ActiveDialogueDatabase == null || dialogueChannel == null) return;
 
         // Check if story flag is in DB
         if (cutsceneDatabase.TryGetCutscene(incomingFlag, out CutsceneDialogueEntry cutscene))
@@ -39,7 +43,7 @@ public class StoryCutsceneTrigger : MonoBehaviour
 
     private DialogueData CreateDialogueData(string dialogueKey, string speakerName, Sprite speakerPortrait)
     {
-        var entry = dialogueDatabase.GetEntry(dialogueKey);
+        var entry = ActiveDialogueDatabase.GetEntry(dialogueKey);
 
         return new DialogueData
         {

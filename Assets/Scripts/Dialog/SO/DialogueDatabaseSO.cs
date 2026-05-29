@@ -40,6 +40,7 @@ public struct DialogueCondition
 public class DialogueDatabaseSO : ScriptableObject
 {
     public string languageName = "English";
+    [SerializeField] private string interactPromptFormat = "Talk to {0}";
     public List<DialogueEntry> dialogueEntries = new List<DialogueEntry>();
 
     private Dictionary<string, DialogueEntry> _cache;
@@ -56,5 +57,21 @@ public class DialogueDatabaseSO : ScriptableObject
 
         Debug.LogWarning($"[DialogueDB] Missing key: {key}");
         return default;
+    }
+
+    public string GetInteractPrompt(string npcName)
+    {
+        if (string.IsNullOrWhiteSpace(interactPromptFormat))
+            return npcName;
+
+        try
+        {
+            return string.Format(interactPromptFormat, npcName);
+        }
+        catch (FormatException exception)
+        {
+            Debug.LogWarning($"[DialogueDB] Invalid interact prompt format in {name}: {exception.Message}");
+            return npcName;
+        }
     }
 }

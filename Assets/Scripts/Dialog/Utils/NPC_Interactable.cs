@@ -17,11 +17,15 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     [Header("Diallog Channels")]
     [SerializeField] private DialogueEventChannelSO dialogueChannel;
     [SerializeField] private DialogueDatabaseSO dialogueDatabase;
+    [SerializeField] private LanguageManagerSO languageManager;
 
     [Header("UI Placement")]
     [SerializeField] private Transform interactionPoint;
 
     private HashSet<string> completedStoryFlags = new HashSet<string>(); // save all completed story flags
+
+    private DialogueDatabaseSO ActiveDialogueDatabase =>
+       languageManager != null ? languageManager.CurrentDatabase : dialogueDatabase;
 
     private void OnEnable()
     {
@@ -65,7 +69,14 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
     }
     private DialogueData CreateDialogueData(string dialogueKey)
     {
-        var entry = dialogueDatabase.GetEntry(dialogueKey);
+        DialogueDatabaseSO database = ActiveDialogueDatabase;
+        if (database == null)
+        {
+            Debug.LogWarning($"[NPC_Interactable] No dialogue database assigned for NPC {npcName}.");
+            return default;
+        }
+
+        var entry = database.GetEntry(dialogueKey);
 
         return new DialogueData
         {
@@ -78,7 +89,11 @@ public class NPC_Interactable : MonoBehaviour, IInteractable
         };
     }
 
-    public string GetInteractPrompt() => $"Mit {npcName} sprechen";
+    public string GetInteractPrompt()
+    {
+        DialogueDatabaseSO database = ActiveDialogueDatabase;
+        return database != null ? database.GetInteractPrompt(npcName) : npcName;
+    }
 
     public Transform GetInteractionPoint()
     {
