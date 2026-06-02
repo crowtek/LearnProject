@@ -427,54 +427,162 @@ public class StoryGraphEditorWindow : EditorWindow
 
     private void AutoLayoutStoryGraph(List<StoryGraphNode> nodes)
     {
-        float startX = 50f;
-        float startY = 50f;
-        float horizontalSpacing = 400f;
-        float verticalSpacing = 260f;
+        if (nodes == null || nodes.Count == 0)
+        {
+            return;
+        }
 
+        const float startX = 50f;
+        const float startY = 50f;
+        const float horizontalSpacing = 400f;
+        const float verticalSpacing = 260f;
+        const float nodeWidth = 300f;
+        const float nodeHeight = 220f;
+
+        Dictionary<StoryGraphNode, List<StoryGraphNode>> linkedNodesByParent = BuildLinkedNodeMap(nodes);
+        Dictionary<StoryGraphNode, int> incomingConnectionCounts = BuildIncomingConnectionCounts(nodes, linkedNodesByParent);
+        List<StoryGraphNode> rootNodes = GetLayoutRootNodes(nodes, incomingConnectionCounts);
+        Dictionary<StoryGraphNode, int> nodeDepths = CalculateNodeDepths(nodes, rootNodes, linkedNodesByParent);
+
+        HashSet<StoryGraphNode> placedNodes = new HashSet<StoryGraphNode>();
+        HashSet<StoryGraphNode> nodesBeingPlaced = new HashSet<StoryGraphNode>();
+        Dictionary<StoryGraphNode, float> nodeCenters = new Dictionary<StoryGraphNode, float>();
+        float nextAvailableY = startY;
+
+        foreach (StoryGraphNode rootNode in rootNodes)
+        {
+            PlaceNodeBranch(rootNode);
+        }
+
+        foreach (StoryGraphNode unplacedNode in nodes.Where(node => !placedNodes.Contains(node)))
+        {
+            PlaceNodeBranch(unplacedNode);
+        }
+
+        float PlaceNodeBranch(StoryGraphNode node)
+        {
+            if (nodeCenters.TryGetValue(node, out float existingCenter))
+            {
+                return existingCenter;
+            }
+
+            if (!nodesBeingPlaced.Add(node))
+            {
+                return nextAvailableY;
+            }
+
+            List<float> childCenters = new List<float>();
+            foreach (StoryGraphNode childNode in linkedNodesByParent[node])
+            {
+                if (childNode == node || nodesBeingPlaced.Contains(childNode))
+                {
+                    continue;
+                }
+
+                childCenters.Add(PlaceNodeBranch(childNode));
+            }
+
+            float centerY;
+            if (childCenters.Count > 0)
+            {
+                centerY = (childCenters[0] + childCenters[childCenters.Count - 1]) * 0.5f;
+            }
+            else
+            {
+                centerY = nextAvailableY;
+                nextAvailableY += verticalSpacing;
+            }
+
+            nodesBeingPlaced.Remove(node);
+            placedNodes.Add(node);
+            nodeCenters[node] = centerY;
+
+            int depth = nodeDepths.TryGetValue(node, out int calculatedDepth) ? calculatedDepth : 0;
+            node.SetPosition(new Rect(startX + depth * horizontalSpacing, centerY, nodeWidth, nodeHeight));
+            return centerY;
+        }
+    }
+
+    private Dictionary<StoryGraphNode, List<StoryGraphNode>> BuildLinkedNodeMap(List<StoryGraphNode> nodes)
+    {
+        Dictionary<StoryGraphNode, List<StoryGraphNode>> linkedNodesByParent = new Dictionary<StoryGraphNode, List<StoryGraphNode>>();
+
+        foreach (StoryGraphNode node in nodes)
+        {
+            linkedNodesByParent[node] = GetLinkedNodes(node, nodes).Distinct().ToList();
+        }
+
+        return linkedNodesByParent;
+    }
+
+    private Dictionary<StoryGraphNode, int> BuildIncomingConnectionCounts(
+        List<StoryGraphNode> nodes,
+        Dictionary<StoryGraphNode, List<StoryGraphNode>> linkedNodesByParent)
+    {
+        Dictionary<StoryGraphNode, int> incomingConnectionCounts = nodes.ToDictionary(node => node, _ => 0);
+
+        foreach (List<StoryGraphNode> linkedNodes in linkedNodesByParent.Values)
+        {
+            foreach (StoryGraphNode linkedNode in linkedNodes)
+            {
+                incomingConnectionCounts[linkedNode]++;
+            }
+        }
+
+        return incomingConnectionCounts;
+    }
+
+    private List<StoryGraphNode> GetLayoutRootNodes(List<StoryGraphNode> nodes, Dictionary<StoryGraphNode, int> incomingConnectionCounts)
+    {
+        List<StoryGraphNode> rootNodes = nodes
+            .Where(node => incomingConnectionCounts[node] == 0)
+            .OrderBy(node => string.IsNullOrEmpty(node.Data.requiredFlag) ? 0 : 1)
+            .ThenBy(node => node.Data.nodeName)
+            .ToList();
+
+        return rootNodes.Count > 0 ? rootNodes : nodes.ToList();
+    }
+
+    private Dictionary<StoryGraphNode, int> CalculateNodeDepths(
+        List<StoryGraphNode> nodes,
+        List<StoryGraphNode> rootNodes,
+        Dictionary<StoryGraphNode, List<StoryGraphNode>> linkedNodesByParent)
+    {
         Dictionary<StoryGraphNode, int> nodeDepths = new Dictionary<StoryGraphNode, int>();
         Queue<StoryGraphNode> queue = new Queue<StoryGraphNode>();
 
-        foreach (StoryGraphNode startNode in nodes.Where(node => string.IsNullOrEmpty(node.Data.requiredFlag)))
+        foreach (StoryGraphNode rootNode in rootNodes)
         {
-            nodeDepths[startNode] = 0;
-            queue.Enqueue(startNode);
+            nodeDepths[rootNode] = 0;
+            queue.Enqueue(rootNode);
         }
 
         while (queue.Count > 0)
         {
             StoryGraphNode currentNode = queue.Dequeue();
-            int currentDepth = nodeDepths[currentNode];
+            int childDepth = nodeDepths[currentNode] + 1;
 
-            foreach (StoryGraphNode nextNode in GetLinkedNodes(currentNode, nodes))
+            foreach (StoryGraphNode childNode in linkedNodesByParent[currentNode])
             {
-                int nextDepth = currentDepth + 1;
-                if (!nodeDepths.ContainsKey(nextNode))
+                if (nodeDepths.ContainsKey(childNode))
                 {
-                    nodeDepths[nextNode] = nextDepth;
-                    queue.Enqueue(nextNode);
+                    continue;
                 }
+
+                nodeDepths[childNode] = childDepth;
+                queue.Enqueue(childNode);
             }
         }
 
-        int fallbackDepth = 0;
         foreach (StoryGraphNode node in nodes)
         {
             if (!nodeDepths.ContainsKey(node))
             {
-                nodeDepths[node] = fallbackDepth;
+                nodeDepths[node] = 0;
             }
         }
 
-        foreach (IGrouping<int, StoryGraphNode> depthGroup in nodes.GroupBy(node => nodeDepths[node]))
-        {
-            int i = 0;
-            foreach (StoryGraphNode node in depthGroup)
-            {
-                node.SetPosition(new Rect(startX + depthGroup.Key * horizontalSpacing, startY + i * verticalSpacing, 300, 220));
-                i++;
-            }
-        }
+        return nodeDepths;
     }
 
     private IEnumerable<StoryGraphNode> GetLinkedNodes(StoryGraphNode currentNode, List<StoryGraphNode> nodes)
