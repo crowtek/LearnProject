@@ -8,6 +8,7 @@ public class StoryGraphView : GraphView
 {
     public event Action<Edge> EdgeCreated;
     public event Action<Edge> EdgeRemoved;
+    public event Action<GraphElement> ElementMoved;
 
     public StoryGraphView()
     {
@@ -64,6 +65,14 @@ public class StoryGraphView : GraphView
                 {
                     EdgeRemoved?.Invoke(edge);
                 }
+            }
+        }
+
+        if (graphViewChange.movedElements != null)
+        {
+            foreach (GraphElement element in graphViewChange.movedElements)
+            {
+                ElementMoved?.Invoke(element);
             }
         }
 
