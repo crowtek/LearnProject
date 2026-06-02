@@ -13,26 +13,69 @@ public class StoryNodeData
     // DialogueEntry.key, used by dialogue-choice nextDialogueKey links.
     public string dialogueKey;
 
-    // Deine echten String-Verknüpfungen aus den SOs
+    // String links used by the story assets.
     public string requiredFlag;
     public string resultFlag;
+
+    // Richer runtime-style conditions that can be visualized/evaluated by the editor.
+    public List<string> requiredFlags = new List<string>();
+    public List<string> blockedFlags = new List<string>();
 
     // Index inside the source database list. Used to write struct/list entries back safely.
     public int sourceIndex = -1;
 
     public string descriptionText;
 
-    // Optionale Listen für Verzweigungen (Aus DialogueChoice[])
+    // Branching options copied from DialogueChoice[].
     public List<DialogueOptionData> dialogueChoices;
 
-    // Back-References, falls du das Original-Asset im Editor anklicken willst
+    // Back-references to original source data.
     public DialogueEntry originalDialogue;
     public CutsceneDialogueEntry originalCutscene;
 
-    // Das übergeordnete ScriptableObject-Datenbank-Asset, um SetDirty aufzurufen
+    // Parent ScriptableObject database assets used for saving/undo.
     public ScriptableObject originalDialogueAssetReference;
     public ScriptableObject originalCutsceneAssetReference;
     public ScriptableObject originalStoryFlagAssetReference;
+
+    public string SourceAssetGuid;
+
+    public IEnumerable<string> GetAllRequiredFlags()
+    {
+        if (!string.IsNullOrEmpty(requiredFlag))
+        {
+            yield return requiredFlag;
+        }
+
+        if (requiredFlags == null)
+        {
+            yield break;
+        }
+
+        foreach (string flag in requiredFlags)
+        {
+            if (!string.IsNullOrEmpty(flag))
+            {
+                yield return flag;
+            }
+        }
+    }
+
+    public IEnumerable<string> GetAllBlockedFlags()
+    {
+        if (blockedFlags == null)
+        {
+            yield break;
+        }
+
+        foreach (string flag in blockedFlags)
+        {
+            if (!string.IsNullOrEmpty(flag))
+            {
+                yield return flag;
+            }
+        }
+    }
 }
 
 [Serializable]

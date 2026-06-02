@@ -8,10 +8,30 @@ using UnityEngine.UIElements;
 
 public class StoryGraphEditorWindow : EditorWindow
 {
+    private const string LayoutAssetPath = "Assets/Scripts/Editor/StoryGraphLayout.asset";
+
     private StoryGraphView graphView;
+    private IMGUIContainer toolbarContainer;
+    private IMGUIContainer sidePanelContainer;
+    private StoryGraphLayoutSO layoutAsset;
+
     private readonly List<StoryNodeData> masterStoryNodes = new List<StoryNodeData>();
     private readonly List<StoryGraphNode> visualNodes = new List<StoryGraphNode>();
+    private readonly List<string> validationMessages = new List<string>();
+    private readonly Dictionary<StoryGraphNode, List<string>> validationMessagesByNode = new Dictionary<StoryGraphNode, List<string>>();
+    private readonly HashSet<StoryGraphNode> dirtyNodes = new HashSet<StoryGraphNode>();
+    private readonly HashSet<ScriptableObject> dirtyAssets = new HashSet<ScriptableObject>();
+    private readonly HashSet<string> simulationFlags = new HashSet<string>();
+
+    private DialogueDatabaseSO selectedDialogueDatabase;
+    private StoryCutsceneDatabaseSO selectedCutsceneDatabase;
+    private StoryFlagDatabaseSO selectedStoryFlagDatabase;
+    private bool showAllDatabases = true;
+    private bool simulationEnabled;
+    private string searchText = string.Empty;
+    private Vector2 panelScroll;
     private bool isReloadingGraph;
+    private bool applyingSavedLayout;
 
     [MenuItem("Window/Story Graph Editor")]
     public static void OpenWindow()
@@ -22,6 +42,8 @@ public class StoryGraphEditorWindow : EditorWindow
 
     private void OnEnable()
     {
+        EnsureLayoutAsset();
+        rootVisualElement.Clear();
         CreateGraphView();
         ReloadGraphFromAssets();
     }
@@ -32,28 +54,181 @@ public class StoryGraphEditorWindow : EditorWindow
         {
             graphView.EdgeCreated -= HandleEdgeCreated;
             graphView.EdgeRemoved -= HandleEdgeRemoved;
-            rootVisualElement.Remove(graphView);
+            graphView.ElementMoved -= HandleElementMoved;
             graphView = null;
         }
     }
 
     private void OnFocus()
     {
-        // Pull the newest ScriptableObject values whenever the window becomes active again.
-        ReloadGraphFromAssets();
+        if (dirtyNodes.Count == 0)
+        {
+            ReloadGraphFromAssets();
+        }
     }
 
     private void OnProjectChange()
     {
-        ReloadGraphFromAssets();
+        if (dirtyNodes.Count == 0)
+        {
+            ReloadGraphFromAssets();
+        }
     }
 
     private void CreateGraphView()
     {
+        toolbarContainer = new IMGUIContainer(DrawToolbar) { style = { flexShrink = 0 } };
+        rootVisualElement.Add(toolbarContainer);
+
+        VisualElement body = new VisualElement { style = { flexGrow = 1, flexDirection = FlexDirection.Row } };
         graphView = new StoryGraphView { style = { flexGrow = 1 } };
         graphView.EdgeCreated += HandleEdgeCreated;
         graphView.EdgeRemoved += HandleEdgeRemoved;
-        rootVisualElement.Add(graphView);
+        graphView.ElementMoved += HandleElementMoved;
+        body.Add(graphView);
+
+        sidePanelContainer = new IMGUIContainer(DrawSidePanel)
+        {
+            style =
+            {
+                width = 360,
+                flexShrink = 0,
+                borderLeftWidth = 1,
+                borderLeftColor = new Color(0.2f, 0.2f, 0.2f)
+            }
+        };
+        body.Add(sidePanelContainer);
+        rootVisualElement.Add(body);
+    }
+
+    private void DrawToolbar()
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.toolbar);
+        EditorGUILayout.BeginHorizontal();
+
+        bool newShowAll = GUILayout.Toggle(showAllDatabases, "Show All Databases", EditorStyles.toolbarButton, GUILayout.Width(135));
+        if (newShowAll != showAllDatabases)
+        {
+            showAllDatabases = newShowAll;
+            ReloadGraphFromAssets();
+        }
+
+        if (GUILayout.Button("Reload", EditorStyles.toolbarButton, GUILayout.Width(60)))
+        {
+            if (EditorUtility.DisplayDialog("Reload Story Graph", "Reloading discards unsaved graph edits. Continue?", "Reload", "Cancel"))
+            {
+                dirtyNodes.Clear();
+                dirtyAssets.Clear();
+                ReloadGraphFromAssets();
+            }
+        }
+
+        GUI.enabled = dirtyNodes.Count > 0;
+        if (GUILayout.Button($"Save Graph ({dirtyNodes.Count})", EditorStyles.toolbarButton, GUILayout.Width(110)))
+        {
+            SaveDirtyNodes();
+        }
+        GUI.enabled = true;
+
+        if (GUILayout.Button("Auto Layout", EditorStyles.toolbarButton, GUILayout.Width(85)))
+        {
+            AutoLayoutStoryGraph(visualNodes);
+            SaveAllNodePositions();
+        }
+
+        GUILayout.Space(10);
+        DrawSearchControls();
+
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.LabelField(validationMessages.Count == 0 ? "No validation errors" : $"{validationMessages.Count} validation issue(s)", GUILayout.Width(170));
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        DrawDatabaseField("Dialogue", selectedDialogueDatabase, value => selectedDialogueDatabase = value, 230);
+        DrawDatabaseField("Cutscenes", selectedCutsceneDatabase, value => selectedCutsceneDatabase = value, 230);
+        DrawDatabaseField("Flags", selectedStoryFlagDatabase, value => selectedStoryFlagDatabase = value, 230);
+        if (GUILayout.Button("Create Dialogue", EditorStyles.toolbarButton, GUILayout.Width(115))) CreateDialogueNode();
+        if (GUILayout.Button("Create Cutscene", EditorStyles.toolbarButton, GUILayout.Width(115))) CreateCutsceneNode();
+        if (GUILayout.Button("Create Flag", EditorStyles.toolbarButton, GUILayout.Width(95))) CreateFlagNode();
+        if (GUILayout.Button("Delete Selected", EditorStyles.toolbarButton, GUILayout.Width(115))) DeleteSelectedNodes();
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawSearchControls()
+    {
+        EditorGUILayout.LabelField("Search", GUILayout.Width(45));
+        string newSearch = EditorGUILayout.TextField(searchText, EditorStyles.toolbarSearchField, GUILayout.Width(190));
+        if (newSearch != searchText)
+        {
+            searchText = newSearch;
+            ApplySearchHighlight();
+        }
+
+        if (GUILayout.Button("Focus", EditorStyles.toolbarButton, GUILayout.Width(55)))
+        {
+            FocusFirstSearchMatch();
+        }
+    }
+
+    private void DrawDatabaseField<T>(string label, T currentValue, System.Action<T> assign, float width) where T : ScriptableObject
+    {
+        EditorGUI.BeginChangeCheck();
+        T newValue = (T)EditorGUILayout.ObjectField(label, currentValue, typeof(T), false, GUILayout.Width(width));
+        if (EditorGUI.EndChangeCheck())
+        {
+            assign(newValue);
+            showAllDatabases = false;
+            ReloadGraphFromAssets();
+        }
+    }
+
+    private void DrawSidePanel()
+    {
+        panelScroll = EditorGUILayout.BeginScrollView(panelScroll);
+        EditorGUILayout.LabelField("Simulation", EditorStyles.boldLabel);
+        bool newSimulationEnabled = EditorGUILayout.Toggle("Enable Simulation", simulationEnabled);
+        if (newSimulationEnabled != simulationEnabled)
+        {
+            simulationEnabled = newSimulationEnabled;
+            ApplySimulation();
+        }
+
+        foreach (string flag in GetKnownFlags().OrderBy(flag => flag))
+        {
+            bool active = simulationFlags.Contains(flag);
+            bool newActive = EditorGUILayout.ToggleLeft(flag, active);
+            if (newActive != active)
+            {
+                if (newActive) simulationFlags.Add(flag); else simulationFlags.Remove(flag);
+                ApplySimulation();
+            }
+        }
+
+        if (GUILayout.Button("Clear Simulation Flags"))
+        {
+            simulationFlags.Clear();
+            ApplySimulation();
+        }
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("Validation", EditorStyles.boldLabel);
+        if (validationMessages.Count == 0)
+        {
+            EditorGUILayout.HelpBox("No issues found.", MessageType.Info);
+        }
+        else
+        {
+            foreach (string message in validationMessages)
+            {
+                EditorGUILayout.HelpBox(message, MessageType.Warning);
+            }
+        }
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("Authoring Notes", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Flag edges show shared story-flag dependencies. Dialogue Next edges are direct dialogue jumps. Use Save Graph to write pending text/edge edits.", MessageType.None);
+        EditorGUILayout.EndScrollView();
     }
 
     private void ReloadGraphFromAssets()
@@ -74,21 +249,25 @@ public class StoryGraphEditorWindow : EditorWindow
         }
 
         visualNodes.Clear();
+        validationMessages.Clear();
+        validationMessagesByNode.Clear();
         LoadRealDatabases();
         PopulateGraph();
+        ApplySearchHighlight();
+        ApplySimulation();
+        ValidateStoryGraph();
     }
 
     private void LoadRealDatabases()
     {
         masterStoryNodes.Clear();
+        List<DialogueDatabaseSO> dialogueDatabases = GetDatabases(selectedDialogueDatabase, "t:DialogueDatabaseSO");
+        List<StoryCutsceneDatabaseSO> cutsceneDatabases = GetDatabases(selectedCutsceneDatabase, "t:StoryCutsceneDatabaseSO");
+        List<StoryFlagDatabaseSO> flagDatabases = GetDatabases(selectedStoryFlagDatabase, "t:StoryFlagDatabaseSO");
 
-        string[] dialogueDBGuids = AssetDatabase.FindAssets("t:DialogueDatabaseSO");
-        foreach (string guid in dialogueDBGuids)
+        foreach (DialogueDatabaseSO db in dialogueDatabases)
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var db = AssetDatabase.LoadAssetAtPath<DialogueDatabaseSO>(path);
-            if (db == null) continue;
-
+            string assetGuid = GetAssetGuid(db);
             for (int i = 0; i < db.dialogueEntries.Count; i++)
             {
                 DialogueEntry entry = db.dialogueEntries[i];
@@ -104,8 +283,11 @@ public class StoryGraphEditorWindow : EditorWindow
                     sourceIndex = i,
                     descriptionText = entry.conversationLines != null && entry.conversationLines.Length > 0 ? entry.conversationLines[0] : string.Empty,
                     dialogueChoices = new List<DialogueOptionData>(),
+                    requiredFlags = new List<string>(),
+                    blockedFlags = new List<string>(),
                     originalDialogue = entry,
-                    originalDialogueAssetReference = db
+                    originalDialogueAssetReference = db,
+                    SourceAssetGuid = assetGuid
                 };
 
                 if (entry.choices != null)
@@ -125,13 +307,9 @@ public class StoryGraphEditorWindow : EditorWindow
             }
         }
 
-        string[] cutsceneDBGuids = AssetDatabase.FindAssets("t:StoryCutsceneDatabaseSO");
-        foreach (string guid in cutsceneDBGuids)
+        foreach (StoryCutsceneDatabaseSO db in cutsceneDatabases)
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var db = AssetDatabase.LoadAssetAtPath<StoryCutsceneDatabaseSO>(path);
-            if (db == null) continue;
-
+            string assetGuid = GetAssetGuid(db);
             SerializedObject serializedDb = new SerializedObject(db);
             SerializedProperty cutsceneDialogues = serializedDb.FindProperty("cutsceneDialogues");
             if (cutsceneDialogues == null || !cutsceneDialogues.isArray) continue;
@@ -150,20 +328,19 @@ public class StoryGraphEditorWindow : EditorWindow
                     dialogueKey = dialogueKey,
                     requiredFlag = triggerFlag,
                     resultFlag = string.Empty,
+                    requiredFlags = string.IsNullOrEmpty(triggerFlag) ? new List<string>() : new List<string> { triggerFlag },
+                    blockedFlags = new List<string>(),
                     sourceIndex = i,
                     descriptionText = $"Speaker: {speakerName} with key {dialogueKey}",
-                    originalCutsceneAssetReference = db
+                    originalCutsceneAssetReference = db,
+                    SourceAssetGuid = assetGuid
                 });
             }
         }
 
-        string[] flagDBGuids = AssetDatabase.FindAssets("t:StoryFlagDatabaseSO");
-        foreach (string guid in flagDBGuids)
+        foreach (StoryFlagDatabaseSO db in flagDatabases)
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var db = AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(path);
-            if (db == null) continue;
-
+            string assetGuid = GetAssetGuid(db);
             for (int i = 0; i < db.allFlags.Count; i++)
             {
                 string flag = db.allFlags[i];
@@ -176,12 +353,43 @@ public class StoryGraphEditorWindow : EditorWindow
                     nodeType = NodeType.StoryFlag,
                     requiredFlag = flag,
                     resultFlag = flag,
+                    requiredFlags = new List<string> { flag },
+                    blockedFlags = new List<string>(),
                     sourceIndex = i,
                     descriptionText = "Global Story Milestone",
-                    originalStoryFlagAssetReference = db
+                    originalStoryFlagAssetReference = db,
+                    SourceAssetGuid = assetGuid
                 });
             }
         }
+    }
+
+    private List<T> GetDatabases<T>(T selectedAsset, string filter) where T : ScriptableObject
+    {
+        if (!showAllDatabases && selectedAsset != null)
+        {
+            return new List<T> { selectedAsset };
+        }
+
+        List<T> databases = new List<T>();
+        foreach (string guid in AssetDatabase.FindAssets(filter))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            T db = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (db != null)
+            {
+                databases.Add(db);
+            }
+        }
+
+        if (selectedAsset == null && databases.Count > 0)
+        {
+            if (typeof(T) == typeof(DialogueDatabaseSO)) selectedDialogueDatabase = databases[0] as DialogueDatabaseSO;
+            if (typeof(T) == typeof(StoryCutsceneDatabaseSO)) selectedCutsceneDatabase = databases[0] as StoryCutsceneDatabaseSO;
+            if (typeof(T) == typeof(StoryFlagDatabaseSO)) selectedStoryFlagDatabase = databases[0] as StoryFlagDatabaseSO;
+        }
+
+        return databases;
     }
 
     private void PopulateGraph()
@@ -190,11 +398,17 @@ public class StoryGraphEditorWindow : EditorWindow
         {
             var node = new StoryGraphNode(data);
             node.DataChanged += HandleNodeDataChanged;
+            node.StructureChanged += HandleNodeStructureChanged;
             graphView.AddElement(node);
             visualNodes.Add(node);
         }
 
-        AutoLayoutStoryGraph(visualNodes);
+        if (!ApplySavedLayout())
+        {
+            AutoLayoutStoryGraph(visualNodes);
+            SaveAllNodePositions();
+        }
+
         ConnectExistingAssetLinks();
 
         foreach (StoryGraphNode node in visualNodes)
@@ -236,7 +450,7 @@ public class StoryGraphEditorWindow : EditorWindow
     {
         if (outputPort == null || string.IsNullOrEmpty(flag)) return;
 
-        foreach (StoryGraphNode inputNode in visualNodes.Where(node => node.Data.requiredFlag == flag))
+        foreach (StoryGraphNode inputNode in visualNodes.Where(node => node.Data.GetAllRequiredFlags().Contains(flag)))
         {
             ConnectPorts(outputPort, inputNode.InputPort);
         }
@@ -267,39 +481,69 @@ public class StoryGraphEditorWindow : EditorWindow
         StoryGraphNode inputNode = edge.input?.node as StoryGraphNode;
         if (outputNode == null || inputNode == null) return;
 
-        RecordUndo(outputNode, "Change Story Graph Connection");
-
         if (edge.output.portType == typeof(DialogueEntry) && outputNode.Data.nodeType == NodeType.Dialogue)
         {
+            RecordUndo(outputNode, "Change Story Graph Dialogue Connection");
             int choiceIndex = outputNode.NextDialoguePorts.IndexOf(edge.output);
             if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
             {
                 outputNode.Data.dialogueChoices[choiceIndex].nextDialogueKey = inputNode.Data.dialogueKey;
+                MarkNodeDirty(outputNode);
             }
         }
         else
         {
-            string incomingRequiredFlag = inputNode.Data.requiredFlag;
-            int portIndex = outputNode.OutputPorts.IndexOf(edge.output);
-
-            if (outputNode.Data.nodeType == NodeType.Dialogue && portIndex > 0)
-            {
-                int choiceIndex = portIndex - 1;
-                if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
-                {
-                    outputNode.Data.dialogueChoices[choiceIndex].resultFlag = incomingRequiredFlag;
-                }
-            }
-            else
-            {
-                outputNode.Data.resultFlag = incomingRequiredFlag;
-            }
+            HandleFlagEdgeCreated(edge, outputNode, inputNode);
         }
 
         outputNode.UpdatePortNames();
-        outputNode.RefreshNodeColor();
-        inputNode.RefreshNodeColor();
-        SaveNodeToSourceAsset(outputNode);
+        inputNode.UpdatePortNames();
+        RebuildInferredEdges();
+        ValidateStoryGraph();
+        ApplySimulation();
+    }
+
+    private void HandleFlagEdgeCreated(Edge edge, StoryGraphNode outputNode, StoryGraphNode inputNode)
+    {
+        int portIndex = outputNode.OutputPorts.IndexOf(edge.output);
+        string outgoingFlag = GetPortFlag(outputNode, portIndex);
+        string incomingRequiredFlag = inputNode.Data.requiredFlag;
+
+        if (string.IsNullOrEmpty(incomingRequiredFlag) && !string.IsNullOrEmpty(outgoingFlag))
+        {
+            RecordUndo(inputNode, "Set Story Graph Requirement");
+            inputNode.Data.requiredFlag = outgoingFlag;
+            if (inputNode.Data.requiredFlags == null) inputNode.Data.requiredFlags = new List<string>();
+            if (!inputNode.Data.requiredFlags.Contains(outgoingFlag)) inputNode.Data.requiredFlags.Add(outgoingFlag);
+            MarkNodeDirty(inputNode);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(incomingRequiredFlag))
+        {
+            Debug.LogWarning("Cannot create a flag edge when both the output flag and target required flag are empty.");
+            return;
+        }
+
+        RecordUndo(outputNode, "Change Story Graph Flag Connection");
+        if (outputNode.Data.nodeType == NodeType.Dialogue && portIndex > 0)
+        {
+            int choiceIndex = portIndex - 1;
+            if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
+            {
+                outputNode.Data.dialogueChoices[choiceIndex].resultFlag = incomingRequiredFlag;
+                MarkNodeDirty(outputNode);
+            }
+        }
+        else
+        {
+            outputNode.Data.resultFlag = incomingRequiredFlag;
+            if (outputNode.Data.nodeType == NodeType.StoryFlag)
+            {
+                outputNode.Data.requiredFlag = incomingRequiredFlag;
+            }
+            MarkNodeDirty(outputNode);
+        }
     }
 
     private void HandleEdgeRemoved(Edge edge)
@@ -337,16 +581,115 @@ public class StoryGraphEditorWindow : EditorWindow
             }
         }
 
+        MarkNodeDirty(outputNode);
         outputNode.UpdatePortNames();
         outputNode.RefreshNodeColor();
         inputNode?.RefreshNodeColor();
-        SaveNodeToSourceAsset(outputNode);
+        ValidateStoryGraph();
+        ApplySimulation();
     }
 
     private void HandleNodeDataChanged(StoryGraphNode node)
     {
         RecordUndo(node, "Edit Story Graph Node");
-        SaveNodeToSourceAsset(node);
+        MarkNodeDirty(node);
+        RebuildInferredEdges();
+        ValidateStoryGraph();
+        ApplySearchHighlight();
+        ApplySimulation();
+    }
+
+    private void HandleNodeStructureChanged(StoryGraphNode node)
+    {
+        RecordUndo(node, "Edit Story Graph Choices");
+        MarkNodeDirty(node);
+        ReloadGraphFromMemory();
+    }
+
+    private void ReloadGraphFromMemory()
+    {
+        Dictionary<string, Rect> positions = visualNodes
+            .GroupBy(GetLayoutKey)
+            .ToDictionary(group => group.Key, group => group.Last().GetPosition());
+        isReloadingGraph = true;
+        try
+        {
+            graphView.DeleteElements(graphView.graphElements.ToList());
+        }
+        finally
+        {
+            isReloadingGraph = false;
+        }
+
+        visualNodes.Clear();
+        foreach (StoryNodeData data in masterStoryNodes)
+        {
+            var node = new StoryGraphNode(data);
+            node.DataChanged += HandleNodeDataChanged;
+            node.StructureChanged += HandleNodeStructureChanged;
+            graphView.AddElement(node);
+            if (positions.TryGetValue(GetLayoutKey(node), out Rect rect))
+            {
+                node.SetPosition(rect);
+            }
+            visualNodes.Add(node);
+        }
+
+        ConnectExistingAssetLinks();
+        ApplySearchHighlight();
+        ValidateStoryGraph();
+        ApplySimulation();
+    }
+
+    private void RebuildInferredEdges()
+    {
+        isReloadingGraph = true;
+        try
+        {
+            graphView.DeleteElements(graphView.edges.ToList());
+            ConnectExistingAssetLinks();
+        }
+        finally
+        {
+            isReloadingGraph = false;
+        }
+
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            node.RefreshNodeColor();
+        }
+    }
+
+    private void MarkNodeDirty(StoryGraphNode node)
+    {
+        dirtyNodes.Add(node);
+        ScriptableObject asset = GetUndoAsset(node);
+        if (asset != null)
+        {
+            dirtyAssets.Add(asset);
+            EditorUtility.SetDirty(asset);
+        }
+    }
+
+    private void SaveDirtyNodes()
+    {
+        foreach (StoryGraphNode node in dirtyNodes.ToList())
+        {
+            SaveNodeToSourceAsset(node);
+        }
+
+        foreach (ScriptableObject asset in dirtyAssets)
+        {
+            if (asset != null)
+            {
+                EditorUtility.SetDirty(asset);
+            }
+        }
+
+        AssetDatabase.SaveAssets();
+        dirtyNodes.Clear();
+        dirtyAssets.Clear();
+        ReloadGraphFromAssets();
     }
 
     private void RecordUndo(StoryGraphNode node, string undoName)
@@ -374,22 +717,24 @@ public class StoryGraphEditorWindow : EditorWindow
         if (data.nodeType == NodeType.Dialogue && data.originalDialogueAssetReference is DialogueDatabaseSO dialogueDatabase)
         {
             DialogueEntry entry = data.originalDialogue;
-            entry.key = data.dialogueKey;
-            entry.resultFlag = data.resultFlag;
-
-            if (entry.choices != null && data.dialogueChoices != null)
+            if (entry == null && data.sourceIndex >= 0 && data.sourceIndex < dialogueDatabase.dialogueEntries.Count)
             {
-                int count = Mathf.Min(entry.choices.Length, data.dialogueChoices.Count);
-                for (int i = 0; i < count; i++)
-                {
-                    entry.choices[i].displayText = data.dialogueChoices[i].optionText;
-                    entry.choices[i].resultFlag = data.dialogueChoices[i].resultFlag;
-                    entry.choices[i].nextDialogueKey = data.dialogueChoices[i].nextDialogueKey;
-                }
+                entry = dialogueDatabase.dialogueEntries[data.sourceIndex];
             }
 
+            if (entry == null) return;
+            entry.key = data.dialogueKey;
+            entry.resultFlag = data.resultFlag;
+            entry.choices = data.dialogueChoices == null
+                ? new DialogueChoice[0]
+                : data.dialogueChoices.Select(choice => new DialogueChoice
+                {
+                    displayText = choice.optionText,
+                    resultFlag = choice.resultFlag,
+                    nextDialogueKey = choice.nextDialogueKey
+                }).ToArray();
+
             EditorUtility.SetDirty(dialogueDatabase);
-            AssetDatabase.SaveAssets();
             return;
         }
 
@@ -403,7 +748,6 @@ public class StoryGraphEditorWindow : EditorWindow
                 data.resultFlag = flag;
                 node.UpdatePortNames();
                 EditorUtility.SetDirty(storyFlagDatabase);
-                AssetDatabase.SaveAssets();
             }
 
             return;
@@ -420,9 +764,447 @@ public class StoryGraphEditorWindow : EditorWindow
                 entryProperty.FindPropertyRelative("dialogueKey").stringValue = data.dialogueKey;
                 serializedDb.ApplyModifiedProperties();
                 EditorUtility.SetDirty(cutsceneDatabase);
-                AssetDatabase.SaveAssets();
             }
         }
+    }
+
+    private void CreateDialogueNode()
+    {
+        DialogueDatabaseSO db = selectedDialogueDatabase ?? AssetDatabase.FindAssets("t:DialogueDatabaseSO")
+            .Select(guid => AssetDatabase.LoadAssetAtPath<DialogueDatabaseSO>(AssetDatabase.GUIDToAssetPath(guid)))
+            .FirstOrDefault(database => database != null);
+        if (db == null)
+        {
+            Debug.LogWarning("Create a DialogueDatabaseSO before adding dialogue nodes.");
+            return;
+        }
+
+        Undo.RecordObject(db, "Create Dialogue Node");
+        string key = GenerateUniqueDialogueKey(db, "NewDialogue");
+        db.dialogueEntries.Add(new DialogueEntry { key = key, conversationLines = new[] { "New dialogue line." }, choices = new DialogueChoice[0] });
+        selectedDialogueDatabase = db;
+        showAllDatabases = false;
+        EditorUtility.SetDirty(db);
+        AssetDatabase.SaveAssets();
+        ReloadGraphFromAssets();
+    }
+
+    private void CreateCutsceneNode()
+    {
+        StoryCutsceneDatabaseSO db = selectedCutsceneDatabase ?? AssetDatabase.FindAssets("t:StoryCutsceneDatabaseSO")
+            .Select(guid => AssetDatabase.LoadAssetAtPath<StoryCutsceneDatabaseSO>(AssetDatabase.GUIDToAssetPath(guid)))
+            .FirstOrDefault(database => database != null);
+        if (db == null)
+        {
+            Debug.LogWarning("Create a StoryCutsceneDatabaseSO before adding cutscene nodes.");
+            return;
+        }
+
+        Undo.RecordObject(db, "Create Cutscene Node");
+        SerializedObject serializedDb = new SerializedObject(db);
+        SerializedProperty cutsceneDialogues = serializedDb.FindProperty("cutsceneDialogues");
+        if (cutsceneDialogues == null) return;
+        int index = cutsceneDialogues.arraySize;
+        cutsceneDialogues.InsertArrayElementAtIndex(index);
+        SerializedProperty entry = cutsceneDialogues.GetArrayElementAtIndex(index);
+        entry.FindPropertyRelative("triggerStoryFlag").stringValue = GenerateUniqueFlag("NewCutsceneFlag");
+        entry.FindPropertyRelative("speakerName").stringValue = "New Speaker";
+        entry.FindPropertyRelative("dialogueKey").stringValue = selectedDialogueDatabase != null && selectedDialogueDatabase.dialogueEntries.Count > 0 ? selectedDialogueDatabase.dialogueEntries[0].key : string.Empty;
+        serializedDb.ApplyModifiedProperties();
+        selectedCutsceneDatabase = db;
+        showAllDatabases = false;
+        EditorUtility.SetDirty(db);
+        AssetDatabase.SaveAssets();
+        ReloadGraphFromAssets();
+    }
+
+    private void CreateFlagNode()
+    {
+        StoryFlagDatabaseSO db = selectedStoryFlagDatabase ?? AssetDatabase.FindAssets("t:StoryFlagDatabaseSO")
+            .Select(guid => AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(AssetDatabase.GUIDToAssetPath(guid)))
+            .FirstOrDefault(database => database != null);
+        if (db == null)
+        {
+            Debug.LogWarning("Create a StoryFlagDatabaseSO before adding story flags.");
+            return;
+        }
+
+        Undo.RecordObject(db, "Create Story Flag");
+        db.allFlags.Add(GenerateUniqueFlag("NewStoryFlag"));
+        selectedStoryFlagDatabase = db;
+        showAllDatabases = false;
+        EditorUtility.SetDirty(db);
+        AssetDatabase.SaveAssets();
+        ReloadGraphFromAssets();
+    }
+
+    private void DeleteSelectedNodes()
+    {
+        List<StoryGraphNode> selectedNodes = graphView.selection.OfType<StoryGraphNode>().ToList();
+        if (selectedNodes.Count == 0)
+        {
+            return;
+        }
+
+        if (!EditorUtility.DisplayDialog("Delete Story Nodes", $"Delete {selectedNodes.Count} selected story node(s) from their source assets?", "Delete", "Cancel"))
+        {
+            return;
+        }
+
+        foreach (StoryGraphNode node in selectedNodes)
+        {
+            DeleteNodeFromSourceAsset(node);
+        }
+
+        AssetDatabase.SaveAssets();
+        dirtyNodes.Clear();
+        dirtyAssets.Clear();
+        ReloadGraphFromAssets();
+    }
+
+    private void DeleteNodeFromSourceAsset(StoryGraphNode node)
+    {
+        StoryNodeData data = node.Data;
+        if (data.nodeType == NodeType.Dialogue && data.originalDialogueAssetReference is DialogueDatabaseSO dialogueDatabase)
+        {
+            Undo.RecordObject(dialogueDatabase, "Delete Dialogue Node");
+            if (data.sourceIndex >= 0 && data.sourceIndex < dialogueDatabase.dialogueEntries.Count)
+            {
+                dialogueDatabase.dialogueEntries.RemoveAt(data.sourceIndex);
+                EditorUtility.SetDirty(dialogueDatabase);
+            }
+        }
+        else if (data.nodeType == NodeType.StoryFlag && data.originalStoryFlagAssetReference is StoryFlagDatabaseSO flagDatabase)
+        {
+            Undo.RecordObject(flagDatabase, "Delete Story Flag Node");
+            if (data.sourceIndex >= 0 && data.sourceIndex < flagDatabase.allFlags.Count)
+            {
+                flagDatabase.allFlags.RemoveAt(data.sourceIndex);
+                EditorUtility.SetDirty(flagDatabase);
+            }
+        }
+        else if (data.nodeType == NodeType.Cutscene && data.originalCutsceneAssetReference is StoryCutsceneDatabaseSO cutsceneDatabase)
+        {
+            Undo.RecordObject(cutsceneDatabase, "Delete Cutscene Node");
+            SerializedObject serializedDb = new SerializedObject(cutsceneDatabase);
+            SerializedProperty cutsceneDialogues = serializedDb.FindProperty("cutsceneDialogues");
+            if (cutsceneDialogues != null && data.sourceIndex >= 0 && data.sourceIndex < cutsceneDialogues.arraySize)
+            {
+                cutsceneDialogues.DeleteArrayElementAtIndex(data.sourceIndex);
+                serializedDb.ApplyModifiedProperties();
+                EditorUtility.SetDirty(cutsceneDatabase);
+            }
+        }
+    }
+
+    private void ValidateStoryGraph()
+    {
+        validationMessages.Clear();
+        validationMessagesByNode.Clear();
+        HashSet<string> knownFlags = GetKnownFlags();
+        Dictionary<string, List<StoryGraphNode>> dialogueNodesByKey = visualNodes
+            .Where(node => node.Data.nodeType == NodeType.Dialogue && !string.IsNullOrEmpty(node.Data.dialogueKey))
+            .GroupBy(node => node.Data.dialogueKey)
+            .ToDictionary(group => group.Key, group => group.ToList());
+
+        foreach (KeyValuePair<string, List<StoryGraphNode>> pair in dialogueNodesByKey.Where(pair => pair.Value.Count > 1))
+        {
+            AddValidation(pair.Value, $"Duplicate dialogue key '{pair.Key}' is used by {pair.Value.Count} dialogue nodes.");
+        }
+
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            foreach (string flag in node.Data.GetAllRequiredFlags())
+            {
+                if (!knownFlags.Contains(flag)) AddValidation(node, $"{node.Data.nodeName} requires missing story flag '{flag}'.");
+            }
+
+            foreach (string flag in node.Data.GetAllBlockedFlags())
+            {
+                if (!knownFlags.Contains(flag)) AddValidation(node, $"{node.Data.nodeName} blocks on missing story flag '{flag}'.");
+            }
+
+            if (!string.IsNullOrEmpty(node.Data.resultFlag) && !knownFlags.Contains(node.Data.resultFlag))
+            {
+                AddValidation(node, $"{node.Data.nodeName} produces missing story flag '{node.Data.resultFlag}'.");
+            }
+
+            if (node.Data.nodeType == NodeType.Cutscene && string.IsNullOrEmpty(node.Data.requiredFlag))
+            {
+                AddValidation(node, $"{node.Data.nodeName} has no trigger story flag.");
+            }
+
+            if (node.Data.nodeType == NodeType.Dialogue && node.Data.dialogueChoices != null)
+            {
+                foreach (DialogueOptionData choice in node.Data.dialogueChoices)
+                {
+                    if (!string.IsNullOrEmpty(choice.resultFlag) && !knownFlags.Contains(choice.resultFlag))
+                    {
+                        AddValidation(node, $"{node.Data.nodeName} choice '{choice.optionText}' produces missing story flag '{choice.resultFlag}'.");
+                    }
+
+                    if (!string.IsNullOrEmpty(choice.nextDialogueKey) && !dialogueNodesByKey.ContainsKey(choice.nextDialogueKey))
+                    {
+                        AddValidation(node, $"{node.Data.nodeName} choice '{choice.optionText}' jumps to missing dialogue key '{choice.nextDialogueKey}'.");
+                    }
+                }
+            }
+
+            bool isStartNode = string.IsNullOrEmpty(node.Data.requiredFlag) && !node.Data.GetAllRequiredFlags().Any();
+            bool hasIncoming = HasIncomingStoryLink(node);
+            bool hasOutgoing = GetLinkedNodes(node, visualNodes).Any();
+            if (!isStartNode && !hasIncoming)
+            {
+                AddValidation(node, $"{node.Data.nodeName} has no incoming path.");
+            }
+
+            if (!hasOutgoing && node.Data.nodeType != NodeType.StoryFlag && string.IsNullOrEmpty(node.Data.resultFlag))
+            {
+                AddValidation(node, $"{node.Data.nodeName} has no outgoing path and no result flag.");
+            }
+        }
+
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            if (validationMessagesByNode.TryGetValue(node, out List<string> nodeMessages))
+            {
+                node.SetValidationState(true, string.Join("\n", nodeMessages));
+            }
+            else
+            {
+                node.SetValidationState(false, string.Empty);
+            }
+        }
+    }
+
+    private void AddValidation(StoryGraphNode node, string message)
+    {
+        AddValidation(new[] { node }, message);
+    }
+
+    private void AddValidation(IEnumerable<StoryGraphNode> nodes, string message)
+    {
+        validationMessages.Add(message);
+        foreach (StoryGraphNode node in nodes)
+        {
+            if (!validationMessagesByNode.TryGetValue(node, out List<string> messages))
+            {
+                messages = new List<string>();
+                validationMessagesByNode[node] = messages;
+            }
+            messages.Add(message);
+        }
+    }
+
+    private bool HasIncomingStoryLink(StoryGraphNode targetNode)
+    {
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            if (GetLinkedNodes(node, visualNodes).Contains(targetNode))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void ApplySimulation()
+    {
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            if (!simulationEnabled)
+            {
+                node.SetSimulationState(StoryGraphSimulationState.None);
+                continue;
+            }
+
+            bool blocked = node.Data.GetAllBlockedFlags().Any(flag => simulationFlags.Contains(flag));
+            bool reachable = !blocked && node.Data.GetAllRequiredFlags().All(flag => simulationFlags.Contains(flag));
+            bool completed = !string.IsNullOrEmpty(node.Data.resultFlag) && simulationFlags.Contains(node.Data.resultFlag);
+            node.SetSimulationState(blocked ? StoryGraphSimulationState.Blocked : completed ? StoryGraphSimulationState.Completed : reachable ? StoryGraphSimulationState.Reachable : StoryGraphSimulationState.Blocked);
+        }
+    }
+
+    private void ApplySearchHighlight()
+    {
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            node.SetSearchMatch(!string.IsNullOrWhiteSpace(searchText) && NodeMatchesSearch(node, searchText));
+        }
+    }
+
+    private void FocusFirstSearchMatch()
+    {
+        StoryGraphNode node = visualNodes.FirstOrDefault(candidate => NodeMatchesSearch(candidate, searchText));
+        if (node == null) return;
+        graphView.ClearSelection();
+        graphView.AddToSelection(node);
+        graphView.FrameSelection();
+    }
+
+    private bool NodeMatchesSearch(StoryGraphNode node, string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return false;
+        string lowerQuery = query.ToLowerInvariant();
+        IEnumerable<string> values = new[]
+        {
+            node.Data.nodeName,
+            node.Data.dialogueKey,
+            node.Data.requiredFlag,
+            node.Data.resultFlag,
+            node.Data.descriptionText
+        }.Concat(node.Data.dialogueChoices == null
+            ? Enumerable.Empty<string>()
+            : node.Data.dialogueChoices.SelectMany(choice => new[] { choice.optionText, choice.resultFlag, choice.nextDialogueKey }));
+
+        return values.Any(value => !string.IsNullOrEmpty(value) && value.ToLowerInvariant().Contains(lowerQuery));
+    }
+
+    private HashSet<string> GetKnownFlags()
+    {
+        HashSet<string> flags = new HashSet<string>();
+        IEnumerable<StoryFlagDatabaseSO> databases = GetDatabases(selectedStoryFlagDatabase, "t:StoryFlagDatabaseSO");
+        foreach (StoryFlagDatabaseSO db in databases)
+        {
+            foreach (string flag in db.allFlags)
+            {
+                if (!string.IsNullOrEmpty(flag)) flags.Add(flag);
+            }
+        }
+
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            if (node.Data.nodeType == NodeType.StoryFlag && !string.IsNullOrEmpty(node.Data.resultFlag)) flags.Add(node.Data.resultFlag);
+        }
+
+        return flags;
+    }
+
+    private void EnsureLayoutAsset()
+    {
+        layoutAsset = AssetDatabase.LoadAssetAtPath<StoryGraphLayoutSO>(LayoutAssetPath);
+        if (layoutAsset != null) return;
+
+        layoutAsset = CreateInstance<StoryGraphLayoutSO>();
+        AssetDatabase.CreateAsset(layoutAsset, LayoutAssetPath);
+        AssetDatabase.SaveAssets();
+    }
+
+    private bool ApplySavedLayout()
+    {
+        if (layoutAsset == null || layoutAsset.nodePositions.Count == 0) return false;
+        Dictionary<string, Vector2> positions = layoutAsset.nodePositions
+            .Where(entry => !string.IsNullOrEmpty(entry.nodeKey))
+            .GroupBy(entry => entry.nodeKey)
+            .ToDictionary(group => group.Key, group => group.Last().position);
+
+        bool positionedAny = false;
+        applyingSavedLayout = true;
+        try
+        {
+            foreach (StoryGraphNode node in visualNodes)
+            {
+                if (positions.TryGetValue(GetLayoutKey(node), out Vector2 position))
+                {
+                    node.SetPosition(new Rect(position, node.GetPosition().size));
+                    positionedAny = true;
+                }
+            }
+        }
+        finally
+        {
+            applyingSavedLayout = false;
+        }
+
+        return positionedAny;
+    }
+
+    private void HandleElementMoved(GraphElement element)
+    {
+        if (applyingSavedLayout || isReloadingGraph || !(element is StoryGraphNode node)) return;
+        SaveNodePosition(node);
+    }
+
+    private void SaveAllNodePositions()
+    {
+        foreach (StoryGraphNode node in visualNodes)
+        {
+            SaveNodePosition(node);
+        }
+    }
+
+    private void SaveNodePosition(StoryGraphNode node)
+    {
+        if (layoutAsset == null) return;
+        string key = GetLayoutKey(node);
+        StoryGraphNodePosition entry = layoutAsset.nodePositions.FirstOrDefault(item => item.nodeKey == key);
+        if (entry == null)
+        {
+            entry = new StoryGraphNodePosition { nodeKey = key };
+            layoutAsset.nodePositions.Add(entry);
+        }
+
+        entry.position = node.GetPosition().position;
+        EditorUtility.SetDirty(layoutAsset);
+    }
+
+    private string GetLayoutKey(StoryGraphNode node)
+    {
+        return node == null ? string.Empty : GetLayoutKey(node.Data);
+    }
+
+    private string GetLayoutKey(StoryNodeData data)
+    {
+        string source = data.SourceAssetGuid ?? string.Empty;
+        switch (data.nodeType)
+        {
+            case NodeType.Dialogue:
+                return $"Dialogue:{source}:{data.dialogueKey}:{data.sourceIndex}";
+            case NodeType.Cutscene:
+                return $"Cutscene:{source}:{data.sourceIndex}:{data.requiredFlag}";
+            case NodeType.StoryFlag:
+                return $"Flag:{source}:{data.resultFlag}:{data.sourceIndex}";
+            default:
+                return $"Unknown:{source}:{data.sourceIndex}";
+        }
+    }
+
+    private string GetAssetGuid(Object asset)
+    {
+        string path = AssetDatabase.GetAssetPath(asset);
+        return string.IsNullOrEmpty(path) ? string.Empty : AssetDatabase.AssetPathToGUID(path);
+    }
+
+    private string GenerateUniqueDialogueKey(DialogueDatabaseSO db, string prefix)
+    {
+        HashSet<string> keys = new HashSet<string>(db.dialogueEntries.Where(entry => entry != null).Select(entry => entry.key));
+        return GenerateUniqueString(keys, prefix);
+    }
+
+    private string GenerateUniqueFlag(string prefix)
+    {
+        return GenerateUniqueString(GetKnownFlags(), prefix);
+    }
+
+    private static string GenerateUniqueString(HashSet<string> existingValues, string prefix)
+    {
+        if (!existingValues.Contains(prefix)) return prefix;
+        int index = 1;
+        while (existingValues.Contains($"{prefix}_{index}")) index++;
+        return $"{prefix}_{index}";
+    }
+
+    private string GetPortFlag(StoryGraphNode node, int portIndex)
+    {
+        if (node == null || portIndex < 0) return string.Empty;
+        if (node.Data.nodeType == NodeType.Dialogue && portIndex > 0)
+        {
+            int choiceIndex = portIndex - 1;
+            return choiceIndex >= 0 && choiceIndex < node.Data.dialogueChoices.Count ? node.Data.dialogueChoices[choiceIndex].resultFlag : string.Empty;
+        }
+
+        return node.Data.resultFlag;
     }
 
     private void AutoLayoutStoryGraph(List<StoryGraphNode> nodes)
@@ -434,8 +1216,8 @@ public class StoryGraphEditorWindow : EditorWindow
 
         const float startX = 50f;
         const float startY = 50f;
-        const float horizontalSpacing = 550f;
-        const float verticalSpacing = 360f;
+        const float horizontalSpacing = 400f;
+        const float verticalSpacing = 260f;
         const float nodeWidth = 300f;
         const float nodeHeight = 220f;
 
@@ -449,14 +1231,22 @@ public class StoryGraphEditorWindow : EditorWindow
         Dictionary<StoryGraphNode, float> nodeCenters = new Dictionary<StoryGraphNode, float>();
         float nextAvailableY = startY;
 
-        foreach (StoryGraphNode rootNode in rootNodes)
+        applyingSavedLayout = true;
+        try
         {
-            PlaceNodeBranch(rootNode);
-        }
+            foreach (StoryGraphNode rootNode in rootNodes)
+            {
+                PlaceNodeBranch(rootNode);
+            }
 
-        foreach (StoryGraphNode unplacedNode in nodes.Where(node => !placedNodes.Contains(node)))
+            foreach (StoryGraphNode unplacedNode in nodes.Where(node => !placedNodes.Contains(node)))
+            {
+                PlaceNodeBranch(unplacedNode);
+            }
+        }
+        finally
         {
-            PlaceNodeBranch(unplacedNode);
+            applyingSavedLayout = false;
         }
 
         float PlaceNodeBranch(StoryGraphNode node)
@@ -589,7 +1379,7 @@ public class StoryGraphEditorWindow : EditorWindow
     {
         foreach (string flag in GetOutgoingFlags(currentNode))
         {
-            foreach (StoryGraphNode nextNode in nodes.Where(node => node.Data.requiredFlag == flag))
+            foreach (StoryGraphNode nextNode in nodes.Where(node => node.Data.GetAllRequiredFlags().Contains(flag)))
             {
                 yield return nextNode;
             }
