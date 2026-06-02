@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DialogueDatabaseEN
   m_EditorClassIdentifier: Assembly-CSharp::DialogueDatabaseSO
   languageName: English
+  interactPromptFormat: Talk to {0}
   dialogueEntries:
   - key: Dia1
     conversationLines:
@@ -21,7 +22,7 @@ MonoBehaviour:
     resultFlag: Story2
     choices:
     - displayText: Option 1
-      resultFlag: Story2
+      resultFlag: 
       nextDialogueKey: Dia2
     - displayText: Option 2
       resultFlag: Story3

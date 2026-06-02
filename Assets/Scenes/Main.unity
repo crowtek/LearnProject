@@ -11499,6 +11499,8 @@ MonoBehaviour:
   dialogueDataChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   setStoryFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
   toggleInputChannel: {fileID: 11400000, guid: a999da8c2e989b64ebe987206619e4af, type: 2}
+  sfxRequestChannel: {fileID: 0}
+  dialogueLineSfx: {fileID: 0}
   dialogueViewComponent: {fileID: 260480485}
 --- !u!4 &260480486
 Transform:
@@ -11528,6 +11530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Dialogue::StoryCutsceneTrigger
   cutsceneDatabase: {fileID: 11400000, guid: ca94b49a7a6f8364cb20cd1b28278927, type: 2}
+  languageManager: {fileID: 0}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   storyFlagChangedBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
@@ -18768,13 +18771,20 @@ MonoBehaviour:
   npcImage: {fileID: 21300000, guid: 67b2828c3400f5541acc93b1303afe76, type: 3}
   fallbackDialogueKey: Dia1
   prioritizedDialogues:
-  - requiredFlag: 
+  - flagCondition:
+      requiredFlags: []
+      blockedFlags: []
+    legacyRequiredFlag: 
     dialogueKey: Dia1
-  - requiredFlag: Story2
+  - flagCondition:
+      requiredFlags: []
+      blockedFlags: []
+    legacyRequiredFlag: Story2
     dialogueKey: Dia2
   StoryBroadcastChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
   dialogueChannel: {fileID: 11400000, guid: ec1bc11d04354be4cb607248e729292f, type: 2}
   dialogueDatabase: {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
+  languageManager: {fileID: 11400000, guid: 9c3d074a4261929409c728212ae0a158, type: 2}
   interactionPoint: {fileID: 219874504}
 --- !u!65 &418582339
 BoxCollider:
@@ -30394,6 +30404,8 @@ MonoBehaviour:
   saveFileName: story-progress.json
   setFlagRequestChannel: {fileID: 11400000, guid: f6894a59b7d59b2458b9f1cc04ad61af, type: 2}
   storyEventOutputChannel: {fileID: 11400000, guid: 53e5bd74f4bd3f24195586e8e0c6eeb3, type: 2}
+  sfxRequestChannel: {fileID: 0}
+  flagChangedSfx: {fileID: 0}
 --- !u!4 &728846360
 Transform:
   m_ObjectHideFlags: 0
@@ -83903,7 +83915,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Project.Story::ConditionCheckedObject
   StoryFlagBroadcast: {fileID: 0}
-  requiredFlag: 
+  flagCondition:
+    requiredFlags: []
+    blockedFlags: []
+  legacyRequiredFlag: 
   showWhenRight: 1
 --- !u!1001 &1903014203
 PrefabInstance:

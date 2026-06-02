@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [System.Serializable]
-public struct DialogueEntry
+public class DialogueEntry
 {
     public string key;
     [TextArea(3, 10)] public string[] conversationLines;
@@ -14,7 +14,7 @@ public struct DialogueEntry
 }
 
 [System.Serializable]
-public struct DialogueCondition
+public class DialogueCondition
 {
     public FlagCondition flagCondition;
 
@@ -74,4 +74,13 @@ public class DialogueDatabaseSO : ScriptableObject
             return npcName;
         }
     }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        _cache = dialogueEntries
+            .Where(e => e != null && !string.IsNullOrEmpty(e.key))
+            .ToDictionary(e => e.key, e => e);
+    }
+#endif
 }

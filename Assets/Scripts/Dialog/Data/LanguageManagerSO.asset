@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78e112b412e86824ca6b76b58a8ed85b, type: 3}
   m_Name: LanguageManagerSO
   m_EditorClassIdentifier: Project.Dialogue::LanguageManagerSO
-  dialogueDatabases: []
+  dialogueDatabases:
+  - {fileID: 11400000, guid: 6138fd27942ba3047867da6bbf399dfc, type: 2}
   defaultLanguageName: English
