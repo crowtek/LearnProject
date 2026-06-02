@@ -9,7 +9,9 @@ using UnityEngine.UIElements;
 public class StoryGraphEditorWindow : EditorWindow
 {
     private StoryGraphView graphView;
-    private List<StoryNodeData> masterStoryNodes = new List<StoryNodeData>();
+    private readonly List<StoryNodeData> masterStoryNodes = new List<StoryNodeData>();
+    private readonly List<StoryGraphNode> visualNodes = new List<StoryGraphNode>();
+    private bool isReloadingGraph;
 
     [MenuItem("Window/Story Graph Editor")]
     public static void OpenWindow()
@@ -21,51 +23,100 @@ public class StoryGraphEditorWindow : EditorWindow
     private void OnEnable()
     {
         CreateGraphView();
-        LoadRealDatabases();
-        PopulateGraph();
+        ReloadGraphFromAssets();
+    }
+
+    private void OnDisable()
+    {
+        if (graphView != null)
+        {
+            graphView.EdgeCreated -= HandleEdgeCreated;
+            graphView.EdgeRemoved -= HandleEdgeRemoved;
+            rootVisualElement.Remove(graphView);
+            graphView = null;
+        }
+    }
+
+    private void OnFocus()
+    {
+        // Pull the newest ScriptableObject values whenever the window becomes active again.
+        ReloadGraphFromAssets();
+    }
+
+    private void OnProjectChange()
+    {
+        ReloadGraphFromAssets();
     }
 
     private void CreateGraphView()
     {
         graphView = new StoryGraphView { style = { flexGrow = 1 } };
+        graphView.EdgeCreated += HandleEdgeCreated;
+        graphView.EdgeRemoved += HandleEdgeRemoved;
         rootVisualElement.Add(graphView);
+    }
+
+    private void ReloadGraphFromAssets()
+    {
+        if (graphView == null)
+        {
+            return;
+        }
+
+        isReloadingGraph = true;
+        try
+        {
+            graphView.DeleteElements(graphView.graphElements.ToList());
+        }
+        finally
+        {
+            isReloadingGraph = false;
+        }
+
+        visualNodes.Clear();
+        LoadRealDatabases();
+        PopulateGraph();
     }
 
     private void LoadRealDatabases()
     {
         masterStoryNodes.Clear();
 
-        // 1. Lade alle DialogueDatabaseSO aus dem Projekt
         string[] dialogueDBGuids = AssetDatabase.FindAssets("t:DialogueDatabaseSO");
-        foreach (var guid in dialogueDBGuids)
+        foreach (string guid in dialogueDBGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var db = AssetDatabase.LoadAssetAtPath<DialogueDatabaseSO>(path);
             if (db == null) continue;
 
-            foreach (var entry in db.dialogueEntries)
+            for (int i = 0; i < db.dialogueEntries.Count; i++)
             {
+                DialogueEntry entry = db.dialogueEntries[i];
+                if (entry == null) continue;
+
                 var node = new StoryNodeData
                 {
                     nodeName = $"Dialog: {entry.key}",
                     nodeType = NodeType.Dialogue,
-                    requiredFlag = "", // Dialog-Conditions checken wir gleich separat
+                    dialogueKey = entry.key,
+                    requiredFlag = string.Empty,
                     resultFlag = entry.resultFlag,
-                    descriptionText = entry.conversationLines.Length > 0 ? entry.conversationLines[0] : "",
+                    sourceIndex = i,
+                    descriptionText = entry.conversationLines != null && entry.conversationLines.Length > 0 ? entry.conversationLines[0] : string.Empty,
                     dialogueChoices = new List<DialogueOptionData>(),
                     originalDialogue = entry,
                     originalDialogueAssetReference = db
                 };
 
-                // Wenn der Dialog eigene Verzweigungen (Choices) hat
                 if (entry.choices != null)
                 {
-                    foreach (var choice in entry.choices)
+                    foreach (DialogueChoice choice in entry.choices)
                     {
                         node.dialogueChoices.Add(new DialogueOptionData
                         {
                             optionText = choice.displayText,
-                            resultFlag = choice.resultFlag
+                            resultFlag = choice.resultFlag,
+                            nextDialogueKey = choice.nextDialogueKey
                         });
                     }
                 }
@@ -74,51 +125,49 @@ public class StoryGraphEditorWindow : EditorWindow
             }
         }
 
-        // 2. Lade alle StoryCutsceneDatabaseSO aus dem Projekt
         string[] cutsceneDBGuids = AssetDatabase.FindAssets("t:StoryCutsceneDatabaseSO");
-        foreach (var guid in cutsceneDBGuids)
+        foreach (string guid in cutsceneDBGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var db = AssetDatabase.LoadAssetAtPath<StoryCutsceneDatabaseSO>(path);
             if (db == null) continue;
 
-            // Da cutsceneDialogues private ist, greifen wir über das Caching-Muster darauf zu oder 
-            // spiegeln die Struktur. Falls du sie im SO auf 'public' stellst, kannst du sie direkt loopen:
-            // Hier simulieren wir den Zugriff auf deine Cutscene-Einträge:
-            var cutsceneField = db.GetType().GetField("cutsceneDialogues", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (cutsceneField != null)
+            SerializedObject serializedDb = new SerializedObject(db);
+            SerializedProperty cutsceneDialogues = serializedDb.FindProperty("cutsceneDialogues");
+            if (cutsceneDialogues == null || !cutsceneDialogues.isArray) continue;
+
+            for (int i = 0; i < cutsceneDialogues.arraySize; i++)
             {
-                var list = cutsceneField.GetValue(db) as System.Collections.IEnumerable;
-                if (list != null)
+                SerializedProperty entryProperty = cutsceneDialogues.GetArrayElementAtIndex(i);
+                string triggerFlag = entryProperty.FindPropertyRelative("triggerStoryFlag")?.stringValue ?? string.Empty;
+                string speakerName = entryProperty.FindPropertyRelative("speakerName")?.stringValue ?? string.Empty;
+                string dialogueKey = entryProperty.FindPropertyRelative("dialogueKey")?.stringValue ?? string.Empty;
+
+                masterStoryNodes.Add(new StoryNodeData
                 {
-                    foreach (var item in list)
-                    {
-                        var entry = (CutsceneDialogueEntry)item;
-                        masterStoryNodes.Add(new StoryNodeData
-                        {
-                            nodeName = $"Cutscene: {entry.speakerName}",
-                            nodeType = NodeType.Cutscene,
-                            requiredFlag = entry.triggerStoryFlag, // Cutscene braucht dieses Flag zum Starten
-                            resultFlag = "", // Kann durch Folge-Flags erweitert werden
-                            descriptionText = $"Speaker: {entry.speakerName} with key {entry.dialogueKey}",
-                            originalCutscene = entry
-                        });
-                    }
-                }
+                    nodeName = $"Cutscene: {speakerName}",
+                    nodeType = NodeType.Cutscene,
+                    dialogueKey = dialogueKey,
+                    requiredFlag = triggerFlag,
+                    resultFlag = string.Empty,
+                    sourceIndex = i,
+                    descriptionText = $"Speaker: {speakerName} with key {dialogueKey}",
+                    originalCutsceneAssetReference = db
+                });
             }
         }
 
-        // 3. Füge reine Story-Flags aus deiner globalen Flag-Liste als Hilfs-Nodes hinzu
         string[] flagDBGuids = AssetDatabase.FindAssets("t:StoryFlagDatabaseSO");
-        foreach (var guid in flagDBGuids)
+        foreach (string guid in flagDBGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var db = AssetDatabase.LoadAssetAtPath<StoryFlagDatabaseSO>(path);
             if (db == null) continue;
 
-            foreach (var flag in db.allFlags)
+            for (int i = 0; i < db.allFlags.Count; i++)
             {
-                // Verhindere doppelte Nodes für reine Flags
+                string flag = db.allFlags[i];
+                if (string.IsNullOrEmpty(flag)) continue;
                 if (masterStoryNodes.Any(n => n.resultFlag == flag || n.requiredFlag == flag)) continue;
 
                 masterStoryNodes.Add(new StoryNodeData
@@ -127,7 +176,9 @@ public class StoryGraphEditorWindow : EditorWindow
                     nodeType = NodeType.StoryFlag,
                     requiredFlag = flag,
                     resultFlag = flag,
-                    descriptionText = "Global Story Milestone"
+                    sourceIndex = i,
+                    descriptionText = "Global Story Milestone",
+                    originalStoryFlagAssetReference = db
                 });
             }
         }
@@ -135,124 +186,279 @@ public class StoryGraphEditorWindow : EditorWindow
 
     private void PopulateGraph()
     {
-        List<StoryGraphNode> visualNodes = new List<StoryGraphNode>();
-
-        // 1. Nodes in GraphView einspeisen
-        foreach (var data in masterStoryNodes)
+        foreach (StoryNodeData data in masterStoryNodes)
         {
-            var vNode = new StoryGraphNode(data);
-            graphView.AddElement(vNode);
-            visualNodes.Add(vNode);
+            var node = new StoryGraphNode(data);
+            node.DataChanged += HandleNodeDataChanged;
+            graphView.AddElement(node);
+            visualNodes.Add(node);
         }
 
-        // 2. Automatisches Alignment (Von links nach rechts sortiert)
         AutoLayoutStoryGraph(visualNodes);
+        ConnectExistingAssetLinks();
 
-        // 3. Visuelle Verbindungen (String-Matching)
-        foreach (var outputNode in visualNodes)
-        {
-            foreach (var inputNode in visualNodes)
-            {
-                if (outputNode == inputNode) continue;
-
-                // Szenario A: Linearer Ausgang matcht Eingang
-                if (outputNode.Data.nodeType != NodeType.Dialogue &&
-                    !string.IsNullOrEmpty(outputNode.Data.resultFlag) &&
-                    outputNode.Data.resultFlag == inputNode.Data.requiredFlag)
-                {
-                    ConnectPorts(outputNode.OutputPorts.FirstOrDefault(), inputNode.InputPort);
-                }
-
-                // Szenario B: Ein Dialog-Choice-Ausgang matcht den Eingang einer Folgnode
-                if (outputNode.Data.nodeType == NodeType.Dialogue && outputNode.Data.dialogueChoices != null)
-                {
-                    for (int c = 0; c < outputNode.Data.dialogueChoices.Count; c++)
-                    {
-                        var choice = outputNode.Data.dialogueChoices[c];
-                        if (!string.IsNullOrEmpty(choice.resultFlag) && choice.resultFlag == inputNode.Data.requiredFlag)
-                        {
-                            if (c < outputNode.OutputPorts.Count)
-                            {
-                                ConnectPorts(outputNode.OutputPorts[c], inputNode.InputPort);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // 4. Unverbundene Nodes validieren (Färbt verwaiste Einträge Gelb)
-        foreach (var node in visualNodes)
+        foreach (StoryGraphNode node in visualNodes)
         {
             node.RefreshNodeColor();
         }
     }
 
+    private void ConnectExistingAssetLinks()
+    {
+        foreach (StoryGraphNode outputNode in visualNodes)
+        {
+            ConnectFlagToRequiredNode(outputNode.OutputPorts.FirstOrDefault(), outputNode.Data.resultFlag);
+
+            if (outputNode.Data.nodeType != NodeType.Dialogue || outputNode.Data.dialogueChoices == null)
+            {
+                continue;
+            }
+
+            for (int i = 0; i < outputNode.Data.dialogueChoices.Count; i++)
+            {
+                DialogueOptionData choice = outputNode.Data.dialogueChoices[i];
+                int choiceFlagPortIndex = i + 1;
+
+                if (choiceFlagPortIndex < outputNode.OutputPorts.Count)
+                {
+                    ConnectFlagToRequiredNode(outputNode.OutputPorts[choiceFlagPortIndex], choice.resultFlag);
+                }
+
+                if (i < outputNode.NextDialoguePorts.Count)
+                {
+                    ConnectDialogueKeyToDialogueNode(outputNode.NextDialoguePorts[i], choice.nextDialogueKey);
+                }
+            }
+        }
+    }
+
+    private void ConnectFlagToRequiredNode(Port outputPort, string flag)
+    {
+        if (outputPort == null || string.IsNullOrEmpty(flag)) return;
+
+        foreach (StoryGraphNode inputNode in visualNodes.Where(node => node.Data.requiredFlag == flag))
+        {
+            ConnectPorts(outputPort, inputNode.InputPort);
+        }
+    }
+
+    private void ConnectDialogueKeyToDialogueNode(Port outputPort, string dialogueKey)
+    {
+        if (outputPort == null || string.IsNullOrEmpty(dialogueKey)) return;
+
+        foreach (StoryGraphNode inputNode in visualNodes.Where(node => node.Data.nodeType == NodeType.Dialogue && node.Data.dialogueKey == dialogueKey))
+        {
+            ConnectPorts(outputPort, inputNode.DialogueInputPort);
+        }
+    }
+
     private void ConnectPorts(Port output, Port input)
     {
-        if (output == null || input == null) return;
+        if (output == null || input == null || output.connections.Any(edge => edge.input == input)) return;
         Edge edge = output.ConnectTo(input);
         graphView.AddElement(edge);
     }
 
-    private void AutoLayoutStoryGraph(List<StoryGraphNode> visualNodes)
+    private void HandleEdgeCreated(Edge edge)
+    {
+        if (isReloadingGraph) return;
+
+        StoryGraphNode outputNode = edge.output?.node as StoryGraphNode;
+        StoryGraphNode inputNode = edge.input?.node as StoryGraphNode;
+        if (outputNode == null || inputNode == null) return;
+
+        RecordUndo(outputNode, "Change Story Graph Connection");
+
+        if (edge.output.portType == typeof(DialogueEntry) && outputNode.Data.nodeType == NodeType.Dialogue)
+        {
+            int choiceIndex = outputNode.NextDialoguePorts.IndexOf(edge.output);
+            if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
+            {
+                outputNode.Data.dialogueChoices[choiceIndex].nextDialogueKey = inputNode.Data.dialogueKey;
+            }
+        }
+        else
+        {
+            string incomingRequiredFlag = inputNode.Data.requiredFlag;
+            int portIndex = outputNode.OutputPorts.IndexOf(edge.output);
+
+            if (outputNode.Data.nodeType == NodeType.Dialogue && portIndex > 0)
+            {
+                int choiceIndex = portIndex - 1;
+                if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
+                {
+                    outputNode.Data.dialogueChoices[choiceIndex].resultFlag = incomingRequiredFlag;
+                }
+            }
+            else
+            {
+                outputNode.Data.resultFlag = incomingRequiredFlag;
+            }
+        }
+
+        outputNode.UpdatePortNames();
+        outputNode.RefreshNodeColor();
+        inputNode.RefreshNodeColor();
+        SaveNodeToSourceAsset(outputNode);
+    }
+
+    private void HandleEdgeRemoved(Edge edge)
+    {
+        if (isReloadingGraph) return;
+
+        StoryGraphNode outputNode = edge.output?.node as StoryGraphNode;
+        StoryGraphNode inputNode = edge.input?.node as StoryGraphNode;
+        if (outputNode == null) return;
+
+        RecordUndo(outputNode, "Remove Story Graph Connection");
+
+        if (edge.output.portType == typeof(DialogueEntry) && outputNode.Data.nodeType == NodeType.Dialogue)
+        {
+            int choiceIndex = outputNode.NextDialoguePorts.IndexOf(edge.output);
+            if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
+            {
+                outputNode.Data.dialogueChoices[choiceIndex].nextDialogueKey = string.Empty;
+            }
+        }
+        else
+        {
+            int portIndex = outputNode.OutputPorts.IndexOf(edge.output);
+            if (outputNode.Data.nodeType == NodeType.Dialogue && portIndex > 0)
+            {
+                int choiceIndex = portIndex - 1;
+                if (choiceIndex >= 0 && choiceIndex < outputNode.Data.dialogueChoices.Count)
+                {
+                    outputNode.Data.dialogueChoices[choiceIndex].resultFlag = string.Empty;
+                }
+            }
+            else
+            {
+                outputNode.Data.resultFlag = string.Empty;
+            }
+        }
+
+        outputNode.UpdatePortNames();
+        outputNode.RefreshNodeColor();
+        inputNode?.RefreshNodeColor();
+        SaveNodeToSourceAsset(outputNode);
+    }
+
+    private void HandleNodeDataChanged(StoryGraphNode node)
+    {
+        RecordUndo(node, "Edit Story Graph Node");
+        SaveNodeToSourceAsset(node);
+    }
+
+    private void RecordUndo(StoryGraphNode node, string undoName)
+    {
+        ScriptableObject undoAsset = GetUndoAsset(node);
+        if (undoAsset != null)
+        {
+            Undo.RecordObject(undoAsset, undoName);
+        }
+    }
+
+    private ScriptableObject GetUndoAsset(StoryGraphNode node)
+    {
+        return node.Data.originalDialogueAssetReference != null
+            ? node.Data.originalDialogueAssetReference
+            : node.Data.originalCutsceneAssetReference != null
+                ? node.Data.originalCutsceneAssetReference
+                : node.Data.originalStoryFlagAssetReference;
+    }
+
+    private void SaveNodeToSourceAsset(StoryGraphNode node)
+    {
+        StoryNodeData data = node.Data;
+
+        if (data.nodeType == NodeType.Dialogue && data.originalDialogueAssetReference is DialogueDatabaseSO dialogueDatabase)
+        {
+            DialogueEntry entry = data.originalDialogue;
+            entry.key = data.dialogueKey;
+            entry.resultFlag = data.resultFlag;
+
+            if (entry.choices != null && data.dialogueChoices != null)
+            {
+                int count = Mathf.Min(entry.choices.Length, data.dialogueChoices.Count);
+                for (int i = 0; i < count; i++)
+                {
+                    entry.choices[i].displayText = data.dialogueChoices[i].optionText;
+                    entry.choices[i].resultFlag = data.dialogueChoices[i].resultFlag;
+                    entry.choices[i].nextDialogueKey = data.dialogueChoices[i].nextDialogueKey;
+                }
+            }
+
+            EditorUtility.SetDirty(dialogueDatabase);
+            AssetDatabase.SaveAssets();
+            return;
+        }
+
+        if (data.nodeType == NodeType.StoryFlag && data.originalStoryFlagAssetReference is StoryFlagDatabaseSO storyFlagDatabase)
+        {
+            if (data.sourceIndex >= 0 && data.sourceIndex < storyFlagDatabase.allFlags.Count)
+            {
+                string flag = !string.IsNullOrEmpty(data.resultFlag) ? data.resultFlag : data.requiredFlag;
+                storyFlagDatabase.allFlags[data.sourceIndex] = flag;
+                data.requiredFlag = flag;
+                data.resultFlag = flag;
+                node.UpdatePortNames();
+                EditorUtility.SetDirty(storyFlagDatabase);
+                AssetDatabase.SaveAssets();
+            }
+
+            return;
+        }
+
+        if (data.nodeType == NodeType.Cutscene && data.originalCutsceneAssetReference is StoryCutsceneDatabaseSO cutsceneDatabase)
+        {
+            SerializedObject serializedDb = new SerializedObject(cutsceneDatabase);
+            SerializedProperty cutsceneDialogues = serializedDb.FindProperty("cutsceneDialogues");
+            if (cutsceneDialogues != null && data.sourceIndex >= 0 && data.sourceIndex < cutsceneDialogues.arraySize)
+            {
+                SerializedProperty entryProperty = cutsceneDialogues.GetArrayElementAtIndex(data.sourceIndex);
+                entryProperty.FindPropertyRelative("triggerStoryFlag").stringValue = data.requiredFlag;
+                entryProperty.FindPropertyRelative("dialogueKey").stringValue = data.dialogueKey;
+                serializedDb.ApplyModifiedProperties();
+                EditorUtility.SetDirty(cutsceneDatabase);
+                AssetDatabase.SaveAssets();
+            }
+        }
+    }
+
+    private void AutoLayoutStoryGraph(List<StoryGraphNode> nodes)
     {
         float startX = 50f;
         float startY = 50f;
-
-        float horizontalSpacing = 360f;
-        float verticalSpacing = 220f;
+        float horizontalSpacing = 400f;
+        float verticalSpacing = 260f;
 
         Dictionary<StoryGraphNode, int> nodeDepths = new Dictionary<StoryGraphNode, int>();
-
-        // 1. Start nodes are nodes without required flags.
-        List<StoryGraphNode> startNodes = visualNodes
-            .Where(node => string.IsNullOrEmpty(node.Data.requiredFlag))
-            .ToList();
-
         Queue<StoryGraphNode> queue = new Queue<StoryGraphNode>();
 
-        foreach (StoryGraphNode startNode in startNodes)
+        foreach (StoryGraphNode startNode in nodes.Where(node => string.IsNullOrEmpty(node.Data.requiredFlag)))
         {
             nodeDepths[startNode] = 0;
             queue.Enqueue(startNode);
         }
 
-        // 2. Walk through the story graph and calculate depth.
         while (queue.Count > 0)
         {
             StoryGraphNode currentNode = queue.Dequeue();
-
             int currentDepth = nodeDepths[currentNode];
 
-            List<string> outgoingFlags = GetOutgoingFlags(currentNode);
-
-            foreach (string outgoingFlag in outgoingFlags)
+            foreach (StoryGraphNode nextNode in GetLinkedNodes(currentNode, nodes))
             {
-                if (string.IsNullOrEmpty(outgoingFlag))
-                    continue;
-
-                List<StoryGraphNode> nextNodes = visualNodes
-                    .Where(node => node.Data.requiredFlag == outgoingFlag)
-                    .ToList();
-
-                foreach (StoryGraphNode nextNode in nextNodes)
+                int nextDepth = currentDepth + 1;
+                if (!nodeDepths.ContainsKey(nextNode))
                 {
-                    int nextDepth = currentDepth + 1;
-
-                    if (!nodeDepths.ContainsKey(nextNode) || nodeDepths[nextNode] < nextDepth)
-                    {
-                        nodeDepths[nextNode] = nextDepth;
-                        queue.Enqueue(nextNode);
-                    }
+                    nodeDepths[nextNode] = nextDepth;
+                    queue.Enqueue(nextNode);
                 }
             }
         }
 
-        // 3. Give disconnected nodes their own fallback column.
         int fallbackDepth = 0;
-
-        foreach (StoryGraphNode node in visualNodes)
+        foreach (StoryGraphNode node in nodes)
         {
             if (!nodeDepths.ContainsKey(node))
             {
@@ -260,23 +466,35 @@ public class StoryGraphEditorWindow : EditorWindow
             }
         }
 
-        // 4. Group nodes by depth.
-        Dictionary<int, List<StoryGraphNode>> nodesByDepth = visualNodes
-            .GroupBy(node => nodeDepths[node])
-            .ToDictionary(group => group.Key, group => group.ToList());
-
-        // 5. Position nodes: depth = X column, index in column = Y position.
-        foreach (KeyValuePair<int, List<StoryGraphNode>> depthGroup in nodesByDepth)
+        foreach (IGrouping<int, StoryGraphNode> depthGroup in nodes.GroupBy(node => nodeDepths[node]))
         {
-            int depth = depthGroup.Key;
-            List<StoryGraphNode> nodesAtDepth = depthGroup.Value;
-
-            for (int i = 0; i < nodesAtDepth.Count; i++)
+            int i = 0;
+            foreach (StoryGraphNode node in depthGroup)
             {
-                float x = startX + depth * horizontalSpacing;
-                float y = startY + i * verticalSpacing;
+                node.SetPosition(new Rect(startX + depthGroup.Key * horizontalSpacing, startY + i * verticalSpacing, 300, 220));
+                i++;
+            }
+        }
+    }
 
-                nodesAtDepth[i].SetPosition(new Rect(x, y, 260, 160));
+    private IEnumerable<StoryGraphNode> GetLinkedNodes(StoryGraphNode currentNode, List<StoryGraphNode> nodes)
+    {
+        foreach (string flag in GetOutgoingFlags(currentNode))
+        {
+            foreach (StoryGraphNode nextNode in nodes.Where(node => node.Data.requiredFlag == flag))
+            {
+                yield return nextNode;
+            }
+        }
+
+        if (currentNode.Data.nodeType == NodeType.Dialogue && currentNode.Data.dialogueChoices != null)
+        {
+            foreach (DialogueOptionData choice in currentNode.Data.dialogueChoices)
+            {
+                foreach (StoryGraphNode nextNode in nodes.Where(node => node.Data.nodeType == NodeType.Dialogue && node.Data.dialogueKey == choice.nextDialogueKey))
+                {
+                    yield return nextNode;
+                }
             }
         }
     }
@@ -285,9 +503,12 @@ public class StoryGraphEditorWindow : EditorWindow
     {
         List<string> outgoingFlags = new List<string>();
 
-        if (node.Data.nodeType == NodeType.Dialogue &&
-            node.Data.dialogueChoices != null &&
-            node.Data.dialogueChoices.Count > 0)
+        if (!string.IsNullOrEmpty(node.Data.resultFlag))
+        {
+            outgoingFlags.Add(node.Data.resultFlag);
+        }
+
+        if (node.Data.nodeType == NodeType.Dialogue && node.Data.dialogueChoices != null)
         {
             foreach (DialogueOptionData choice in node.Data.dialogueChoices)
             {
@@ -295,13 +516,6 @@ public class StoryGraphEditorWindow : EditorWindow
                 {
                     outgoingFlags.Add(choice.resultFlag);
                 }
-            }
-        }
-        else
-        {
-            if (!string.IsNullOrEmpty(node.Data.resultFlag))
-            {
-                outgoingFlags.Add(node.Data.resultFlag);
             }
         }
 

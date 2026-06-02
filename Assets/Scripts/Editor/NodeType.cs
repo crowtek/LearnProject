@@ -10,9 +10,15 @@ public class StoryNodeData
     public string nodeName;
     public NodeType nodeType;
 
+    // DialogueEntry.key, used by dialogue-choice nextDialogueKey links.
+    public string dialogueKey;
+
     // Deine echten String-Verknüpfungen aus den SOs
     public string requiredFlag;
     public string resultFlag;
+
+    // Index inside the source database list. Used to write struct/list entries back safely.
+    public int sourceIndex = -1;
 
     public string descriptionText;
 
@@ -26,6 +32,7 @@ public class StoryNodeData
     // Das übergeordnete ScriptableObject-Datenbank-Asset, um SetDirty aufzurufen
     public ScriptableObject originalDialogueAssetReference;
     public ScriptableObject originalCutsceneAssetReference;
+    public ScriptableObject originalStoryFlagAssetReference;
 }
 
 [Serializable]
@@ -33,4 +40,5 @@ public class DialogueOptionData
 {
     public string optionText;
     public string resultFlag;
+    public string nextDialogueKey;
 }
