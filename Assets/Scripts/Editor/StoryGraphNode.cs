@@ -20,7 +20,7 @@ public class StoryGraphNode : Node
         Data = data;
         title = data.nodeName;
 
-        style.width = 300;
+        style.width = 400;
         style.marginLeft = 20; style.marginRight = 20;
         style.marginTop = 10; style.marginBottom = 10;
 

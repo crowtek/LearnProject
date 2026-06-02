@@ -434,8 +434,8 @@ public class StoryGraphEditorWindow : EditorWindow
 
         const float startX = 50f;
         const float startY = 50f;
-        const float horizontalSpacing = 400f;
-        const float verticalSpacing = 260f;
+        const float horizontalSpacing = 550f;
+        const float verticalSpacing = 360f;
         const float nodeWidth = 300f;
         const float nodeHeight = 220f;
 

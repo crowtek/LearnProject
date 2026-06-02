@@ -25,7 +25,7 @@ MonoBehaviour:
       resultFlag: 
       nextDialogueKey: Dia2
     - displayText: Option 2
-      resultFlag: Story3
+      resultFlag: 
       nextDialogueKey: Dia3
   - key: Dia2
     conversationLines:
@@ -37,5 +37,5 @@ MonoBehaviour:
     conversationLines:
     - Hello
     - How are ya?
-    resultFlag: 
+    resultFlag: Story1
     choices: []
